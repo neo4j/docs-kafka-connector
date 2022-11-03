@@ -1,5 +1,8 @@
 * xref::index.adoc[Neo4j Streams Integrations User Guide]
 * xref::overview.adoc[Project overview]
+* xref::quickstart-connect.adoc[Quick Start]
+* xref::kafka-connect.adoc[Kafka Connect Neo4j Connector]
+* xref::neo4j-cluster-connect.adoc[]
 * xref::architecture.adoc[Architectural Guidance]
 ** xref::architecture/kafkatopics.adoc[Kafka Topics Overview]
 ** xref::architecture/sinkconsume.adoc[Sink: Consume Records]
@@ -8,10 +11,4 @@
 ** xref::architecture/throughput.adoc[Factors which Affect Throughput]
 ** xref::architecture/transformations.adoc[Streams Transformations]
 ** xref::architecture/optimize.adoc[Optimizing Kafka]
-
-* xref::quickstart-connect.adoc[Quick Start]
-* xref::kafka-connect.adoc[Kafka Connect Neo4j Connector]
-
-* xref::neo4j-cluster-connect.adoc[]
-
 * xref::faq.adoc[Neo4j Streams FAQ]
