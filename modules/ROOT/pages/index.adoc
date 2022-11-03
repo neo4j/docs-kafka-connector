@@ -1,0 +1,16 @@
+
+= Neo4j Streaming Data Integrations User Guide
+:img: https://github.com/neo4j-contrib/neo4j-streams/raw/gh-pages/3.4/images
+:env-docs: true
+
+ifdef::backend-html5[(C) {copyright}]
+
+License: link:{url-common-license-page}[Creative Commons 4.0]
+
+The guide covers the following areas:
+
+* xref:overview.adoc[Project overview]
+* Get Started Fast with xref:quickstart-connect.adoc[Kafka Connect Neo4j Connector]
+* xref:kafka-connect.adoc[How to configure Kafka Connect Neo4j Connector]
+* Use xref:neo4j-cluster-connect.adoc[Kafka Connect Neo4j Connector] with a Neo4j cluster
+* xref:faq.adoc[Neo4j Streams FAQ]
