@@ -14,3 +14,5 @@ The guide covers the following areas:
 * xref:kafka-connect.adoc[How to configure Kafka Connect Neo4j Connector]
 * Use xref:neo4j-cluster-connect.adoc[Kafka Connect Neo4j Connector] with a Neo4j cluster
 * xref:faq.adoc[Neo4j Streams FAQ]
+
+// testing github actions with a non-breaking change
