@@ -1,6 +1,6 @@
 name: kafka
 version: ~
-title: Neo4j Streams Docs
+title: Neo4j Kafka Integration Docs
 start_page: ROOT:index.adoc
 nav:
   - modules/ROOT/content-nav.adoc
@@ -9,7 +9,7 @@ asciidoc:
   attributes:
     theme: docs
     copyright: Neo4j Inc.
-    page-product: Neo4j Streams
+    page-product: Neo4j Kafka Integration
     page-pagination: true
     url-common-license-page: https://neo4j.com/docs/license/
     url-confluent-blog: https://www.confluent.io/blog

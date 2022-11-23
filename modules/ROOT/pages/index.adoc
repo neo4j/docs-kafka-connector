@@ -1,11 +1,13 @@
 
-= Neo4j Streaming Data Integrations User Guide
+= Neo4j Kafka Integration User Guide
 :img: https://github.com/neo4j-contrib/neo4j-streams/raw/gh-pages/3.4/images
 :env-docs: true
 
 ifdef::backend-html5[(C) {copyright}]
 
 License: link:{url-common-license-page}[Creative Commons 4.0]
+
+include::partial$neo4j-streams-notice.adoc[]
 
 The guide covers the following areas:
 

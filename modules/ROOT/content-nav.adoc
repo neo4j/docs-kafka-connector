@@ -1,4 +1,4 @@
-* xref::index.adoc[Neo4j Streams Integrations User Guide]
+* xref::index.adoc[]
 * xref::overview.adoc[Project overview]
 * xref::quickstart-connect.adoc[Quick Start]
 * xref::kafka-connect.adoc[Kafka Connect Neo4j Connector]
