@@ -5,16 +5,16 @@
 ifdef::env-docs[]
 [abstract]
 --
-Get started fast for common scenarios using the Kafka Connect Neo4j Connector
+Get started fast for common scenarios using the {product-name}
 --
 endif::env-docs[]
 
 [[kafka_connect_neo4j_connector_quickstart]]
-== Kafka Connect Neo4j Connector
+== {product-name}
 
 === Install the Connector
 
-Download and install the plugin via Confluent Hub client. See the chapter xref:kafka-connect.adoc[Kafka Connect Neo4j Connector] for more details.
+Download and install the plugin via Confluent Hub client. See the chapter xref:kafka-connect/installation.adoc[Installation] for more details.
 
 === Run with Docker
 

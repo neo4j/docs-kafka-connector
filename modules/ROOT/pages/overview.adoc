@@ -5,7 +5,7 @@
 ifdef::env-docs[]
 [abstract]
 --
-This chapter provides an introduction to the Neo4j Streams Library and Kafka Connect Neo4j Connector.
+This chapter provides an introduction to the {product-name}.
 --
 endif::env-docs[]
 
@@ -13,20 +13,17 @@ Many user and customers want to integrate Kafka and other streaming solutions wi
 Either to ingest data into the graph from other sources.
 Or to send update events (change data capture - CDC) to the event log for later consumption.
 
-This extension was developed to satisfy all these use-cases and more to come.
-
-Neo4j Streams can run as a **Kafka-Connect Plugin** for the Confluent Platform.
-It allows to ingest data into Neo4j, from Kafka topics, or publishing in data to them via Cypher queries.
+{product-name} can run as a **Kafka-Connect Plugin** for the Confluent Platform.
+It allows to ingest data into Neo4j, from Kafka topics, or publishing data to them via Cypher queries.
 
 
 // [[kafka_connect_neo4j_connector_overview]]
-== Kafka Connect Neo4j Connector
+== {product-name}
 
-As a **Kafka Connect Neo4j Connector**, neo4j-streams is deployed separately from the Neo4j database.
-At this time, the Connect Worker can be used to push data to Neo4j as for publishing data from the database itself.
+**{product-name}** is deployed separately from the Neo4j database.
+At this time, the Connect Worker can be used both to push data to Neo4j and to publish data from the database itself.
 
 
-== Compatibility between Neo4j and Neo4j Streams
+== Compatibility between Neo4j and {product-name}
 
-Following a compatibility table between Neo4j and Neo4j Streams database plugin.
-If you are using the Kafka Connect Neo4j connector, we recommend the latest version to be compatible with all versions of Neo4j.
+We recommend the latest version of {product-name} to be compatible with all versions of Neo4j.

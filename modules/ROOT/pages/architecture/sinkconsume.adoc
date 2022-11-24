@@ -21,7 +21,7 @@ Before you get fancy with import methods!
 
 image::transformer-architecture.png[align="center"]
 
-* **Use Kafka!  Don't Use Neo4j for Everything**:  In general, it is better to use Kafka and things like KSQL to re-shape, transform, and manipulate a stream *before* it gets to Neo4j.  At this stage, you have more flexible options and overall better performance.   Look back at that "Graph ETL" bit.  Try to make neo4j-streams only do the transform and load parts, as they are inevitable for graph.
+* **Use Kafka!  Don't Use Neo4j for Everything**:  In general, it is better to use Kafka and things like KSQL to re-shape, transform, and manipulate a stream *before* it gets to Neo4j.  At this stage, you have more flexible options and overall better performance.   Look back at that "Graph ETL" bit.  Try to make {product-name} only do the transform and load parts, as they are inevitable for graph.
 * **Don't Do Complex ETL in Cypher**:  Seek to avoid situations where you are doing complex transformations of inbound messages to Neo4j.  It is possible to do with pure Cypher, but basically you will be pushing a "Kafka message cleanup" task and delegating that to Neo4j to perform, which is not a good strategy if you can avoid it.
 * **KISS Principle**:  The simpler the input format, the better / cleaner more evolvable the architecture, and the less work Neo4j has to do.
 * **Keep Topics Consistent**:  Topics which contain a variety of differently formatted messages should be avoided whenever possible.  They will be very difficult to deal with, and you shouldn't attempt it unless you absolutely have to.
@@ -92,7 +92,7 @@ If we want to load 8 types of nodes & relationships in a performant manner, how 
 
 * Break the data you're loading into multiple different topics of 1 partition each, rather than having 1 big topic of mixed / large content
 * OPTIONAL:
-** Consider configuring Neo4j-streams to run in parallel if in Kafka Connect
+** Consider configuring {product-name} to run in parallel
 ** If you do, take care to configure your topics to talk about disjoint parts of the graph, so that you don't run into concurrent locking issues with Neo4j writes (if possible)
 * Use stream transformers and KSQL techniques to craft messages into a format where you can use one of the other ingest strategies other than Cypher templates, to simplify the code you need to write, and to avoid needing to cycle the cluster due to cypher query changes.
 * Experiment with batch sizing & memory sizing until you get good throughput
