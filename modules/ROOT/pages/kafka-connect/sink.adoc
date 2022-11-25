@@ -84,8 +84,8 @@ described in the xref:#dlq-table[Dead Letter Queue configuration parameters tabl
 [%autowidth,cols="m,m,a",opts=header]
 |===
 | Name | Value | Note
-| errors.tolerance | none |  fail fast (default!) abort
-| errors.tolerance | all |  all == lenient, silently ignore bad messages
+| errors.tolerance | none | fail fast (default!) abort
+| errors.tolerance | all | all == lenient, silently ignore bad messages
 | errors.log.enable | false/true | log errors (default: false)
 | errors.log.include.messages | false/true | log bad messages too (default: false)
 | errors.deadletterqueue.topic.name | topic-name | dead letter queue topic name, if left off no DLQ, default: not set
