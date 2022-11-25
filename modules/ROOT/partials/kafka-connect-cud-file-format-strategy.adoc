@@ -1,19 +1,18 @@
-:id: neo4j
-==== CUD File Format
+=== CUD File Format Strategy
 
-The CUD file format is JSON file that represents Graph Entities (Nodes/Relationships) and how to manage them in term
-of **C**reate/**U**pdate/**D**elete operations.
+The CUD file format is JSON file that represents Graph Entities (Nodes/Relationships) and how to manage them in terms of **C**reate/**U**pdate/**D**elete operations.
+
 
 You can configure the topic in the following way:
 
-[source,ini,subs="verbatim,attributes"]
+[source,json,subs="verbatim,attributes"]
 ----
-{environment}.topic.cud=<LIST_OF_TOPICS_SEPARATED_BY_SEMICOLON>
+"{environment}.topic.cud": "<LIST_OF_TOPICS_SEPARATED_BY_SEMICOLON>"
 ----
 
-[source,ini,subs="attributes"]
+[source,json,subs="attributes"]
 ----
-{environment}.topic.cud=my-topic;my-other.topic
+"{environment}.topic.cud": "my-topic;my-other.topic"
 ----
 
 We have two formats:

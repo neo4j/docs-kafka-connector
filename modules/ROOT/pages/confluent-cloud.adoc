@@ -1,0 +1,11 @@
+= Confluent Cloud Support
+
+If you need to run the {product-name} as a managed service as part of Confluent Cloud, this is currently not possible.
+Users who are interested in running {product-name} as a Cloud managed connector by Confluent should raise this with Confluent.
+Right now there are only a few connectors such as that for S3 that can be run as managed services.
+Click {url-confluent-cloud}/connectors/index.html[here] to learn more.
+
+Other references to how to configure it to connect to the Confluent Cloud can be found at the following links:
+
+* {url-confluent-blog}/kafka-graph-visualizations/ (see the `Configuring Neo4j to interact with Kafka` section).
+* https://github.com/neo4j-contrib/neo4j-streams/issues/182

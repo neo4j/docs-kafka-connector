@@ -13,7 +13,7 @@ endif::env-docs[]
 link:https://neo4j.com/docs/operations-manual/current/clustering/[Neo4j Clustering] is a feature available in
 Enterprise Edition which allows high availability of the database.
 
-When the Kafka Connect Neo4j Connector is used with a Neo4j cluster, the most important consideration is to use
+When the {product-name} is used with a Neo4j cluster, the most important consideration is to use
 a routing driver. Generally, routing drivers are identified by a URI starting with `neo4j://` as the scheme instead of just `bolt://`.
 
 If your Neo4j cluster is located at `graph.mycompany.com:7687`, simply configure the Kafka Connect worker with the following:
@@ -26,15 +26,4 @@ neo4j.server.uri=neo4j://graph.mycompany.com:7687
 The use of the `neo4j` driver will mean that the Neo4j Driver itself will handle connecting to
 the correct cluster member, and managing changes to the cluster membership over time.
 
-For further information on routing drivers, see the link:https://neo4j.com/docs/driver-manual/current/[Neo4j Driver Manual].
-
-[[cluster_remote_clients]]
-== Remote Clients
-
-Sometimes there will be remote applications that talk to Neo4j via official drivers, that want to use
-streams functionality.  Best practices in these cases are:
-
-* Always use a `neo4j://` driver URI when communicating with the cluster in the client application.
-* Use link:https://neo4j.com/docs/driver-manual/current/session-api/configuration/#driver-simple-transaction-fn[Explicit Write Transactions] in
-your client application when using procedure calls such as `CALL streams.consume` to ensure that the routing
-driver routes the query to the leader.
+For further information on routing drivers, see the link:https://neo4j.com/docs/java-manual/current/[Neo4j Driver Manual].

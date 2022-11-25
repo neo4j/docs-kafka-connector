@@ -1,6 +1,6 @@
 = Optimizing Kafka
 
-Neo4j can't ingest fast if Kafka isn't set up correctly.   While this isn't a common source of problems, it has come up.  Confluent has {url-confluent-blog}/optimizing-apache-kafka-deployment/[good overall documentation] on optimizing Kafka that is worth being familiar with.
+Neo4j can't ingest fast if Kafka isn't set up correctly. While this isn't a common source of problems, it has come up. Confluent has {url-confluent-blog}/optimizing-apache-kafka-deployment/[good overall documentation] on optimizing Kafka that is worth being familiar with.
 
 The main trade-offs are these, and they have to make sense at the Kafka layer before they can make sense for Neo4j.
 

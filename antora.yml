@@ -11,6 +11,7 @@ asciidoc:
     copyright: Neo4j Inc.
     page-product: Neo4j Kafka Integration
     page-pagination: true
+    product-name: Kafka Connect Neo4j Connector
     url-common-license-page: https://neo4j.com/docs/license/
     url-confluent-blog: https://www.confluent.io/blog
     url-confluent-download: https://www.confluent.io/get-started/
@@ -23,4 +24,5 @@ asciidoc:
     url-confluent-java-client: https://docs.confluent.io/clients-kafka-java/current/overview.html
     url-confluent-hub-neo4j: https://www.confluent.io/hub/neo4j/kafka-connect-neo4j
     url-confluent-hub-datagen: https://www.confluent.io/hub/confluentinc/kafka-connect-datagen
+    url-github-releases: https://github.com/neo4j-contrib/neo4j-streams/releases
     page-canonical-root: /docs
