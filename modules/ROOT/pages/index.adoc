@@ -1,11 +1,5 @@
-
 = {product-name} User Guide
-:img: https://github.com/neo4j-contrib/neo4j-streams/raw/gh-pages/3.4/images
 :env-docs: true
-
-ifdef::backend-html5[(C) {copyright}]
-
-License: link:{url-common-license-page}[Creative Commons 4.0]
 
 include::partial$neo4j-streams-notice.adoc[]
 
@@ -16,3 +10,6 @@ The guide covers the following areas:
 * xref:kafka-connect.adoc[How to install and configure {product-name}]
 * xref:neo4j-cluster-connect.adoc[Usage with a Neo4j cluster]
 * xref:architecture.adoc[Architectural Guidance]
+
+(C) {copyright}
+License: link:{common-license-page-uri}[Creative Commons 4.0]
