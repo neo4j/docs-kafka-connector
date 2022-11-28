@@ -1,8 +1,6 @@
 = {product-name} User Guide
 :env-docs: true
 
-include::partial$neo4j-streams-notice.adoc[]
-
 The guide covers the following areas:
 
 * xref:overview.adoc[Project overview]
