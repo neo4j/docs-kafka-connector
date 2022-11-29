@@ -26,4 +26,4 @@ At this time, the Connect Worker can be used both to push data to Neo4j and to p
 
 == Compatibility between Neo4j and {product-name}
 
-We recommend the latest version of {product-name} to be compatible with all the supported versions of Neo4j.
+We recommend the latest version of {product-name} to be compatible with all the link:https://neo4j.com/developer/kb/neo4j-supported-versions/[supported versions] of Neo4j.
