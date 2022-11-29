@@ -1,6 +1,6 @@
 # tag::update[]
 [CAUTION]
 ====
-The documentation on the deprecated Neo4j Streams plugin and the previous version of the Kafka Connect Neo4 Connector can be found link:/docs/kafka-streams[here].
+The documentation on the deprecated Neo4j Streams plugin and the previous version of the Kafka Connect Neo4j Connector can be found link:/docs/kafka-streams[here].
 ====
 # end::update[]
