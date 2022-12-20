@@ -165,6 +165,15 @@ so the persisted node will be: *(User{userId: 1, name: 'Andrea', surname: 'Santu
 
 |===
 
+Be aware that by default this strategy will overwrite node properties. If you need a more flexible approach, where nodes properties has to be merged, then you have to add the following parameter in your connector configuration:
+
+[source,json,subs="verbatim,attributes"]
+----
+"{environment}.topic.pattern.merge.node.properties.enabled": "true"
+----
+
+This option is disabled by default.
+
 ===== The `Relationship Pattern` configuration
 
 You can configure the relationship pattern extraction in the following way:
@@ -197,7 +206,7 @@ or by specifying a Cypher like node pattern:
 "{environment}.topic.pattern.relationship.user": "(:User{!userId})-[:BOUGHT{price, currency}]->(:Product{!productId})"
 ----
 
-in this last case the we assume that `User` is the source node and `Product` the target node
+in this last case we assume that `User` is the source node and `Product` the target node
 
 
 Similar to the CDC pattern you can provide:
@@ -225,9 +234,18 @@ Similar to the CDC pattern you can provide:
 
 |===
 
+Similar to the `Node pattern` strategy, be aware that by default this strategy will overwrite relationship properties. Again, if you need a more flexible approach, where relationship properties has to be merged, then you have to add the following parameter in your connector configuration:
+
+[source,json,subs="verbatim,attributes"]
+----
+"{environment}.topic.pattern.merge.relationship.properties.enabled": "true"
+----
+
+This option is disabled by default.
+
 ===== Attach properties to node
 
-By default no properties will be attached to the edge nodes but you can specify which property attach to each node. Given the following `json` published via the `user` topic:
+By default, no properties will be attached to the edge nodes, but you can specify which property attach to each node. Given the following `json` published via the `user` topic:
 
 [source,json]
 ----
