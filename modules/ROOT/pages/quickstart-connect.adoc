@@ -5,20 +5,20 @@
 ifdef::env-docs[]
 [abstract]
 --
-Get started fast for common scenarios using the {product-name}
+Get started fast for common scenarios using the {product-name}.
 --
 endif::env-docs[]
 
 [[kafka_connect_neo4j_connector_quickstart]]
 == {product-name}
 
-=== Install the Connector
-
-Download and install the plugin via Confluent Hub client. See the chapter xref:kafka-connect/installation.adoc[Installation] for more details.
+In this quickstart, we will first create a source instance which will query changes on a specific label and publish the changes into the topic named `my-topic`.
+Next, we will create a sink instance which will listen for messages in `my-topic` topic, and apply a cypher statement on the messages received.
+You will have a complete flow of source and sink when you complete the following steps.
 
 === Run with Docker
 
-Inside the directory `/neo4j-kafka-connect-neo4j-<version>/doc/docker` you'll find a compose file that allows you to start the whole testing environment.
+Copy the following docker compose file into a desired directory.
 
 .docker-compose.yml
 [source,yaml]
@@ -26,28 +26,91 @@ Inside the directory `/neo4j-kafka-connect-neo4j-<version>/doc/docker` you'll fi
 include::ROOT:example$docker-data/quickstart-kafka-connect-docker-compose.yml[]
 ----
 
-Just go inside that folder from the terminal and run the following command:
+Just go inside that directory (where the docker compose file resides) from the terminal and run the following command:
 
 [source,bash]
 ----
-docker-compose up -d
+docker compose up -d
 ----
 
-When the process is terminated you have all the modules up and running:
+When the process is terminated you should have all the modules up and running.
+You can check the status of all services using the following command:
 
-* Neo4j
-* Zookeeper
-* Kafka Broker
-* Schema Registry
-* Kafka Connect
-* Kafka Control Center
+[source,bash]
+----
+docker compose ps
+----
+
+which should return a table like following, stating that every service is up and running.
+
+[source,text]
+----
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+broker              "/etc/confluent/dock…"   broker              running             0.0.0.0:9092->9092/tcp, 0.0.0.0:9101->9101/tcp
+connect             "bash -c '# confluen…"   connect             running             0.0.0.0:8083->8083/tcp, 9092/tcp
+control-center      "/etc/confluent/dock…"   control-center      running             0.0.0.0:9021->9021/tcp
+neo4j               "tini -g -- /startup…"   neo4j               running             0.0.0.0:7474->7474/tcp, 7473/tcp, 0.0.0.0:7687->7687/tcp
+schema-registry     "/etc/confluent/dock…"   schema-registry     running             0.0.0.0:8081->8081/tcp
+zookeeper           "/etc/confluent/dock…"   zookeeper           running             2888/tcp, 0.0.0.0:2181->2181/tcp, 3888/tcp
+----
 
 Now you can access your Neo4j instance under: \http://localhost:7474, log in with `neo4j` as username and
-`connect` as password (see the docker-compose file to change it).
+`password` as password (see the docker compose file to change it).
+
+=== Configure SOURCE instance
+
+Save the following JSON file into a local directory named as `contrib.source.avro.neo4j.json`.
+
+.contrib.source.avro.neo4j.json
+[source,json]
+----
+include::ROOT:example$docker-data/quickstart-contrib.source.avro.neo4j.json[]
+----
+
+We will now create the SOURCE instance by invoking the the following REST call:
+
+[source,shell]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H "Content-Type:application/json" \
+  -H "Accept:application/json" \
+  -d @contrib.source.avro.neo4j.json
+----
+
+This will create a Kafka Connect Source instance that will send `AVRO` message over the topic named `my-topic`.
+
+The property `topic` defines where each message will be pushed, the message structure is related is given by `RETURN` cause of the Cypher statement defined into the `neo4j.source.query` property.
+So given the above configuration, the structure of the message will be the following (serialized as an AVRO message):
+
+[source,json]
+----
+{"name": <name>, "surname": <surname>, "timestamp": <timestamp>}
+----
+
+Now that you have a running SOURCE instance, you can create the following nodes in Neo4j to generate messages:
+
+[source,cypher]
+----
+CREATE (:TestSource {name: 'john', surname: 'doe', timestamp: datetime().epochMillis});
+CREATE (:TestSource {name: 'mary', surname: 'doe', timestamp: datetime().epochMillis});
+CREATE (:TestSource {name: 'jack', surname: 'small', timestamp: datetime().epochMillis});
+----
+
+which in turn will result in there new messages to be published inside `my-topic` topic.
 
 === Configure SINK instance
 
-On the Kafka Connect side only one thing is missing, namely create the SINK instance. So let's do the following REST call:
+Now is the time to create a SINK instance, which will consume messages from `my-topic` topic and execute CYPHER statement for each of the consumed message.
+
+First, save the following JSON file into a local directory named as `contrib.sink.avro.neo4j.json`.
+
+.contrib.sink.avro.neo4j.json
+[source,json]
+----
+include::ROOT:example$docker-data/quickstart-contrib.sink.avro.neo4j.json[]
+----
+
+We will now create the SINK instance by invoking the following REST call:
 
 [source,shell]
 ----
@@ -58,44 +121,27 @@ curl -X POST http://localhost:8083/connectors \
 ----
 
 In this case, we are configuring the SINK instance to consume and deliver data in AVRO format.
-Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters,
-and check the created `my-topic` as specified into the `contrib.sink.avro.neo4j.json`.
+The property `neo4j.topic.cypher.my-topic` defines the CYPHER query that will be executed per each message consumed by the SINK instance on the Kafka Connect side.
 
-.contrib.sink.avro.neo4j.json
-[source,json]
+=== Testing It Out
+
+Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters, and check the created `my-topic` as specified in the connector configuration as well as the connect cluster.
+
+Having both SOURCE and SINK connectors running, we are expecting that the previously created `:TestSource` nodes to result in there messages to be published into the `my-topic` topic by the SOURCE instance.
+These messages will then be consumed by the SINK instance, and corresponding `:Person` and `:Family` nodes to be created inside Neo4j.
+
+Check that this is the case, by executing the following query:
+
+[source,cypher]
 ----
-include::ROOT:example$docker-data/quickstart-contrib.sink.avro.neo4j.json[]
-----
-
-The property `neo4j.topic.cypher.my-topic` defines each message that will be consumed by the SINK on
-the Kafka Connect side, will cause the execution of the specified cypher query on the Neo4j side.
-
-=== Configure SOURCE instance
-
-On the Kafka Connect side only one thing is missing, namely create the SOURCE instance. So let's do the following REST call:
-
-[source,shell]
-----
-curl -X POST http://localhost:8083/connectors \
-  -H 'Content-Type:application/json' \
-  -H 'Accept:application/json' \
-  -d @contrib.source.avro.neo4j.json
+MATCH (n:(Person | Family)) RETURN n
 ----
 
-This will create a Kafka Connect Source instance that will send `AVRO` message over the topic named `my-topic`.
+=== Troubleshooting
 
+If you don't see any messages being published into the `my-topic` topic, or any `:Family` and `:Person` nodes created, please check Kafka Connect logs by executing the following command and resolve any issues being reported.
 
-.contrib.source.avro.neo4j.json
-[source,json]
+[source,bash]
 ----
-include::ROOT:example$docker-data/quickstart-contrib.source.avro.neo4j.json[]
-----
-
-The property `topic` defines where each message will be pushed, the message structure
-is related is given by `RETURN` cause of the Cypher statement defined into the `neo4j.source.query` property.
-So given the JSON above the structure of the message will be the following:
-
-[source,json]
-----
-{"name": <name>, "timestamp": <timestamp>}
+docker compose logs connect
 ----
