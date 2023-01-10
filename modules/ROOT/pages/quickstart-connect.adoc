@@ -23,7 +23,7 @@ Copy the following docker compose file into a desired directory.
 .docker-compose.yml
 [source,yaml]
 ----
-include::ROOT:example$docker-data/quickstart-kafka-connect-docker-compose.yml[]
+include::ROOT:example$docker-data/docker-compose.yml[]
 ----
 
 Just go inside that directory (where the docker compose file resides) from the terminal and run the following command:
@@ -59,12 +59,12 @@ Now you can access your Neo4j instance under: \http://localhost:7474, log in wit
 
 === Configure SOURCE instance
 
-Save the following JSON file into a local directory named as `contrib.source.avro.neo4j.json`.
+Save the following JSON file into a local directory named as `source.avro.neo4j.json`.
 
-.contrib.source.avro.neo4j.json
+.source.avro.neo4j.json
 [source,json]
 ----
-include::ROOT:example$docker-data/quickstart-contrib.source.avro.neo4j.json[]
+include::ROOT:example$docker-data/contrib.source.avro.neo4j.json[]
 ----
 
 We will now create the SOURCE instance by invoking the the following REST call:
@@ -74,7 +74,7 @@ We will now create the SOURCE instance by invoking the the following REST call:
 curl -X POST http://localhost:8083/connectors \
   -H "Content-Type:application/json" \
   -H "Accept:application/json" \
-  -d @contrib.source.avro.neo4j.json
+  -d @source.avro.neo4j.json
 ----
 
 This will create a Kafka Connect Source instance that will send `AVRO` message over the topic named `my-topic`.
@@ -102,12 +102,12 @@ which in turn will result in there new messages to be published into `my-topic` 
 
 Now is the time to create a SINK instance, which will consume messages from `my-topic` topic and execute CYPHER statement for each of the consumed message.
 
-First, save the following JSON file into a local directory named as `contrib.sink.avro.neo4j.json`.
+First, save the following JSON file into a local directory named as `sink.avro.neo4j.json`.
 
-.contrib.sink.avro.neo4j.json
+.sink.avro.neo4j.json
 [source,json]
 ----
-include::ROOT:example$docker-data/quickstart-contrib.sink.avro.neo4j.json[]
+include::ROOT:example$docker-data/contrib.sink.avro.neo4j.json[]
 ----
 
 We will now create the SINK instance by invoking the following REST call:
@@ -117,7 +117,7 @@ We will now create the SINK instance by invoking the following REST call:
 curl -X POST http://localhost:8083/connectors \
   -H 'Content-Type:application/json' \
   -H 'Accept:application/json' \
-  -d @contrib.sink.avro.neo4j.json
+  -d @sink.avro.neo4j.json
 ----
 
 In this case, we are configuring the SINK instance to consume data in AVRO format.

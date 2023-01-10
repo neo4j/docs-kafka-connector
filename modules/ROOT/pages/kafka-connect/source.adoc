@@ -12,10 +12,10 @@ You can create a new Source instance with this REST call:
 curl -X POST http://localhost:8083/connectors \
   -H 'Content-Type:application/json' \
   -H 'Accept:application/json' \
-  -d @contrib.source.avro.neo4j.json
+  -d @source.avro.neo4j.json
 ----
 
-Let's look at the `contrib.source.avro.neo4j.json` file:
+Let's look at the `source.avro.neo4j.json` file:
 
 [source,json]
 ----
@@ -27,7 +27,7 @@ Every message in the topic will have the following structure:
 
 [source,json]
 ----
-{"name": <name>, "timestamp": <timestamp>}
+{"name": <name>, "surname": <surname>, "timestamp": <timestamp>}
 ----
 
 [NOTE]
