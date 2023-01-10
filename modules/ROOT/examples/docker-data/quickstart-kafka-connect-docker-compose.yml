@@ -100,7 +100,7 @@ services:
       - bash
       - -c
       - |
-        # confluent-hub install --no-prompt neo4j/kafka-connect-neo4j:latest
+        confluent-hub install --no-prompt neo4j/kafka-connect-neo4j:latest
         /etc/confluent/docker/run
 
   control-center:

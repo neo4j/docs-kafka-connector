@@ -87,7 +87,7 @@ So given the above configuration, the structure of the message will be the follo
 {"name": <name>, "surname": <surname>, "timestamp": <timestamp>}
 ----
 
-Now that you have a running SOURCE instance, you can create the following nodes in Neo4j to generate messages:
+Now that you have a running SOURCE instance, you can create the following nodes in Neo4j:
 
 [source,cypher]
 ----
@@ -96,7 +96,7 @@ CREATE (:TestSource {name: 'mary', surname: 'doe', timestamp: datetime().epochMi
 CREATE (:TestSource {name: 'jack', surname: 'small', timestamp: datetime().epochMillis});
 ----
 
-which in turn will result in there new messages to be published inside `my-topic` topic.
+which in turn will result in there new messages to be published into `my-topic` topic.
 
 === Configure SINK instance
 
@@ -120,14 +120,14 @@ curl -X POST http://localhost:8083/connectors \
   -d @contrib.sink.avro.neo4j.json
 ----
 
-In this case, we are configuring the SINK instance to consume and deliver data in AVRO format.
+In this case, we are configuring the SINK instance to consume data in AVRO format.
 The property `neo4j.topic.cypher.my-topic` defines the CYPHER query that will be executed per each message consumed by the SINK instance on the Kafka Connect side.
 
 === Testing It Out
 
-Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters, and check the created `my-topic` as specified in the connector configuration as well as the connect cluster.
+Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters, and check the created `my-topic` as specified in the connector configuration, as well as the connect cluster to see SINK and SOURCE instances running.
 
-Having both SOURCE and SINK connectors running, we are expecting that the previously created `:TestSource` nodes to result in there messages to be published into the `my-topic` topic by the SOURCE instance.
+Having both SOURCE and SINK connectors running, we are expecting that the previously created `:TestSource` nodes to trigger there messages in the `my-topic` topic by the SOURCE instance.
 These messages will then be consumed by the SINK instance, and corresponding `:Person` and `:Family` nodes to be created inside Neo4j.
 
 Check that this is the case, by executing the following query:
