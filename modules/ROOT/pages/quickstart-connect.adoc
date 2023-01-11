@@ -12,7 +12,8 @@ endif::env-docs[]
 [[kafka_connect_neo4j_connector_quickstart]]
 == {product-name}
 
-In this quickstart guide, we will use Docker Compose to create an environment with Confluent and Neo4j running inside Docker and then create a source instance which will query changes when nodes of specific label are created in a Neo4j database and publish the changes into a Kafka topic named `my-topic`.
+In this quick start guide, we will use Docker Compose to create an environment with Confluent and Neo4j running inside Docker.
+The Neo4j Connector will be configured with a source instance which will query for changes when nodes of specific label are created in a Neo4j database and publish the changes into a Kafka topic named my-topic. 
 Next, we will create a sink instance which will listen for messages in `my-topic`, and apply a Cypher statement to create a new set of nodes and relationships in Neo4j when the messages are received.
 The result is Neo4j database being used as a source of events for Kafka topics that act as a sink for the same Neo4j database so that you can see the connector acting as both a source and sink for Neo4j databases. 
 
@@ -45,7 +46,6 @@ docker compose ps
 ----
 
 which should return a table like following, stating that every service is up and running.
-If you access your Confluent Control Center instance under http://localhost:9021/clusters, then it should report that the cluster is healthy, with one Broker and connect-default should appear under the Connect instance.
 
 [source,text]
 ----
@@ -167,7 +167,6 @@ curl -X POST http://localhost:8083/connectors \
 
 This configures the SINK instance to consume data in your preferred serialization format.
 The property `neo4j.topic.cypher.my-topic` defines the Cypher query that will be executed per each message consumed by the SINK instance on the Kafka Connect side.
-In Control Center, you can confirm that `my-topic` appears in Topics, and the Sink instance Neo4jSinkConnector appears under Connect, connect-default.
 
 === Testing It Out
 
