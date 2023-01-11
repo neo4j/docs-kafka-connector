@@ -1,5 +1,5 @@
 {
-  "name": "Neo4jSinkConnector",
+  "name": "Neo4jSinkConnectorJSONString",
   "config": {
     "topics": "my-topic",
     "connector.class": "streams.kafka.connect.sink.Neo4jSinkConnector",

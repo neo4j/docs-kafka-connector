@@ -59,17 +59,38 @@ zookeeper           "/etc/confluent/dock…"   zookeeper           running      
 ----
 
 Now you can access your Neo4j instance under: \http://localhost:7474, log in with `neo4j` as username and `password` as password (Refer to the Docker Compose file to change it).
-Confirm that you can access the Confluent Control Center instance at http://localhost:9021/clusters and that the Cluster reports as healthy (this may take 90-120s). You should have one Broker, several Topics and one Connect in the Control Center
+Confirm that you can access the Confluent Control Center instance at http://localhost:9021/clusters and that the Cluster reports as healthy (this may take 90-120s).
+You should have one Broker, several Topics and one Connect cluster in the Control Center.
 
 === Configure SOURCE instance
 
-First up, we need to set up Neo4j as a source database that will provide messages for topics, do do this save the following JSON file into a local directory named as `source.avro.neo4j.json`.
+First up, we need to set up Neo4j as a source database that will provide messages for topics.
+Pick one of the following message serialization formats given below, save the content of the provided file into a local directory, named as `source.neo4j.json`.
 
-.source.avro.neo4j.json
+[.tabbed-example]
+====
+[.include-with-AVRO-Messages]
+=====
 [source,json]
 ----
 include::ROOT:example$docker-data/contrib.source.avro.neo4j.json[]
 ----
+=====
+[.include-with-JSON-Messages-With-Schema]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/contrib.source.json.neo4j.json[]
+----
+=====
+[.include-with-JSON-Messages-As-String]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/contrib.source.json-string.neo4j.json[]
+----
+=====
+====
 
 We will now create the SOURCE instance by invoking the the following REST call:
 
@@ -78,14 +99,14 @@ We will now create the SOURCE instance by invoking the the following REST call:
 curl -X POST http://localhost:8083/connectors \
   -H "Content-Type:application/json" \
   -H "Accept:application/json" \
-  -d @source.avro.neo4j.json
+  -d @source.neo4j.json
 ----
 
-This will create a Kafka Connect Source instance that will send `AVRO` message over the topic named `my-topic`.
-In Control Center, confirm that the Neo4jSourceConnectorAVRO source connector has been created in the Connect tab, under connect-default.
+This will create a Kafka Connect Source instance that will send messages over to the topic named `my-topic`, using your preferred serialization format.
+In Control Center, confirm that the Source connector has been created in the Connect tab, under connect-default.
 
 The property `topic` defines where each message will be pushed, the message structure is defined by the `RETURN` cause of the Cypher statement in the `neo4j.source.query` property.
-So given the above configuration, the structure of the message will be the following (serialized as an AVRO message):
+So given the above configuration, the structure of the message will be the following (serialized as a your preferred serialization format):
 
 [source,json]
 ----
@@ -107,13 +128,32 @@ which will result in there new messages being published into the `my-topic` topi
 
 To get the messages created inside `my-topic` sinked back to the Neo4j database as nodes and relationships, we need to create a SINK instance, which will consume messages from `my-topic` topic and execute a defined Cypher statement for each of the consumed message.
 
-First, save the following JSON file into a local directory named as `sink.avro.neo4j.json`.
+First, save the following JSON file into a local directory named as `sink.neo4j.json`.
 
-.sink.avro.neo4j.json
+[.tabbed-example]
+====
+[.include-with-AVRO-Messages]
+=====
 [source,json]
 ----
 include::ROOT:example$docker-data/contrib.sink.avro.neo4j.json[]
 ----
+=====
+[.include-with-JSON-Messages-With-Schema]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/contrib.sink.json.neo4j.json[]
+----
+=====
+[.include-with-JSON-Messages-As-String]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/contrib.sink.json-string.neo4j.json[]
+----
+=====
+====
 
 We will now create the SINK instance by invoking the following REST call:
 
@@ -122,10 +162,10 @@ We will now create the SINK instance by invoking the following REST call:
 curl -X POST http://localhost:8083/connectors \
   -H "Content-Type:application/json" \
   -H "Accept:application/json" \
-  -d @sink.avro.neo4j.json
+  -d @sink.neo4j.json
 ----
 
-This configures the SINK instance to consume data in AVRO format.
+This configures the SINK instance to consume data in your preferred serialization format.
 The property `neo4j.topic.cypher.my-topic` defines the Cypher query that will be executed per each message consumed by the SINK instance on the Kafka Connect side.
 In Control Center, you can confirm that `my-topic` appears in Topics, and the Sink instance Neo4jSinkConnector appears under Connect, connect-default.
 

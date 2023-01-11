@@ -2,7 +2,7 @@
 
 [source,json]
 ----
-include::ROOT:example$docker-data/contrib.sink.string-json.neo4j.json[]
+include::ROOT:example$docker-data/contrib.sink.json-string.neo4j.json[]
 ----
 
 In particular this line:

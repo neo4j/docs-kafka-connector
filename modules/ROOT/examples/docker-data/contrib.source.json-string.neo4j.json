@@ -1,10 +1,12 @@
 {
-  "name": "Neo4jSourceConnectorString",
+  "name": "Neo4jSourceConnectorJSONString",
   "config": {
     "topic": "my-topic",
     "connector.class": "streams.kafka.connect.source.Neo4jSourceConnector",
     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "key.converter.schemas.enable": false,
     "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter.schemas.enable": false,
     "neo4j.server.uri": "bolt://neo4j:7687",
     "neo4j.authentication.basic.username": "neo4j",
     "neo4j.authentication.basic.password": "password",
