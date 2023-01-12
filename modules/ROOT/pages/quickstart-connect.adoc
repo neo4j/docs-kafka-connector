@@ -5,97 +5,200 @@
 ifdef::env-docs[]
 [abstract]
 --
-Get started fast for common scenarios using the {product-name}
+Get started fast for common scenarios using the {product-name}.
 --
 endif::env-docs[]
 
 [[kafka_connect_neo4j_connector_quickstart]]
 == {product-name}
 
-=== Install the Connector
+In this quick start guide, we will use Docker Compose to create an environment with Confluent and Neo4j running inside Docker.
+The Neo4j Connector will be configured with a source instance which will query for changes when nodes of specific label are created in a Neo4j database and publish the changes into a Kafka topic named my-topic. 
+Next, we will create a sink instance which will listen for messages in `my-topic`, and apply a Cypher statement to create a new set of nodes and relationships in Neo4j when the messages are received.
+The result is Neo4j database being used as a source of events for Kafka topics that act as a sink for the same Neo4j database so that you can see the connector acting as both a source and sink for Neo4j databases. 
 
-Download and install the plugin via Confluent Hub client. See the chapter xref:kafka-connect/installation.adoc[Installation] for more details.
+[NOTE]
+The following guide uses the Kafka Connect Neo4j Connector with Confluent, the Docker Compose file will need to be modified to work with Apache Kafka.
 
 === Run with Docker
 
-Inside the directory `/neo4j-kafka-connect-neo4j-<version>/doc/docker` you'll find a compose file that allows you to start the whole testing environment.
+Copy the following Docker Compose file into a desired directory.
 
 .docker-compose.yml
 [source,yaml]
 ----
-include::ROOT:example$docker-data/quickstart-kafka-connect-docker-compose.yml[]
+include::ROOT:example$docker-data/docker-compose.yml[]
 ----
 
-Just go inside that folder from the terminal and run the following command:
+Just go inside that directory (where the Docker Compose file resides) from the terminal and run the following command:
 
 [source,bash]
 ----
-docker-compose up -d
+docker compose up -d
 ----
 
-When the process is terminated you have all the modules up and running:
+When the process completes you should have all the modules up and running.
+You can check the status of all services using the following command:
 
-* Neo4j
-* Zookeeper
-* Kafka Broker
-* Schema Registry
-* Kafka Connect
-* Kafka Control Center
+[source,bash]
+----
+docker compose ps
+----
 
-Now you can access your Neo4j instance under: \http://localhost:7474, log in with `neo4j` as username and
-`connect` as password (see the docker-compose file to change it).
+which should return a table like following, stating that every service is up and running.
 
-=== Configure SINK instance
+[source,text]
+----
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+broker              "/etc/confluent/dock…"   broker              running             0.0.0.0:9092->9092/tcp, 0.0.0.0:9101->9101/tcp
+connect             "bash -c '# confluen…"   connect             running             0.0.0.0:8083->8083/tcp, 9092/tcp
+control-center      "/etc/confluent/dock…"   control-center      running             0.0.0.0:9021->9021/tcp
+neo4j               "tini -g -- /startup…"   neo4j               running             0.0.0.0:7474->7474/tcp, 7473/tcp, 0.0.0.0:7687->7687/tcp
+schema-registry     "/etc/confluent/dock…"   schema-registry     running             0.0.0.0:8081->8081/tcp
+zookeeper           "/etc/confluent/dock…"   zookeeper           running             2888/tcp, 0.0.0.0:2181->2181/tcp, 3888/tcp
+----
 
-On the Kafka Connect side only one thing is missing, namely create the SINK instance. So let's do the following REST call:
+Now you can access your Neo4j instance under: \http://localhost:7474, log in with `neo4j` as username and `password` as password (Refer to the Docker Compose file to change it).
+Confirm that you can access the Confluent Control Center instance at http://localhost:9021/clusters and that the Cluster reports as healthy (this may take 90-120s).
+You should have one Broker, several Topics and one Connect cluster in the Control Center.
+
+=== Configure Source instance
+
+First up, we need to set up Neo4j as a source database that will provide messages for topics.
+Pick one of the following message serialization formats given below, save the content of the provided file into a local directory, named as `source.neo4j.json`.
+
+[.tabbed-example]
+====
+[.include-with-AVRO-messages]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/contrib.source.avro.neo4j.json[]
+----
+=====
+[.include-with-JSON-messages-with-schema]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/contrib.source.json.neo4j.json[]
+----
+=====
+[.include-with-JSON-messages-as-string]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/contrib.source.json-string.neo4j.json[]
+----
+=====
+====
+
+We will now create the source instance by invoking the the following REST call:
 
 [source,shell]
 ----
 curl -X POST http://localhost:8083/connectors \
-  -H 'Content-Type:application/json' \
-  -H 'Accept:application/json' \
-  -d @contrib.sink.avro.neo4j.json
+  -H "Content-Type:application/json" \
+  -H "Accept:application/json" \
+  -d @source.neo4j.json
 ----
 
-In this case, we are configuring the SINK instance to consume and deliver data in AVRO format.
-Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters,
-and check the created `my-topic` as specified into the `contrib.sink.avro.neo4j.json`.
+This will create a Kafka Connect source instance that will send messages over to the topic named `my-topic`, using your preferred serialization format.
+In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.
 
-.contrib.sink.avro.neo4j.json
+The property `topic` defines where each message will be pushed, the message structure is defined by the `RETURN` cause of the Cypher statement in the `neo4j.source.query` property.
+So given the above configuration, the structure of the message will be the following (serialized as a your preferred serialization format):
+
 [source,json]
 ----
-include::ROOT:example$docker-data/quickstart-contrib.sink.avro.neo4j.json[]
+{"name": <name>, "surname": <surname>, "timestamp": <timestamp>}
 ----
 
-The property `neo4j.topic.cypher.my-topic` defines each message that will be consumed by the SINK on
-the Kafka Connect side, will cause the execution of the specified cypher query on the Neo4j side.
+Now that you have a running source instance, you can create the following nodes in Neo4j:
 
-=== Configure SOURCE instance
+[source,cypher]
+----
+CREATE (:TestSource {name: 'john', surname: 'doe', timestamp: datetime().epochMillis});
+CREATE (:TestSource {name: 'mary', surname: 'doe', timestamp: datetime().epochMillis});
+CREATE (:TestSource {name: 'jack', surname: 'small', timestamp: datetime().epochMillis});
+----
 
-On the Kafka Connect side only one thing is missing, namely create the SOURCE instance. So let's do the following REST call:
+which will result in there new messages being published into the `my-topic` topic.
+
+=== Configure Sink instance
+
+To get the messages created inside `my-topic` sinked back to the Neo4j database as nodes and relationships, we need to create a sink instance, which will consume messages from `my-topic` topic and execute a defined Cypher statement for each of the consumed message.
+
+First, save the following JSON file into a local directory named as `sink.neo4j.json`.
+
+[.tabbed-example]
+====
+[.include-with-AVRO-messages]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/contrib.sink.avro.neo4j.json[]
+----
+=====
+[.include-with-JSON-messages-with-schema]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/contrib.sink.json.neo4j.json[]
+----
+=====
+[.include-with-JSON-messages-as-string]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/contrib.sink.json-string.neo4j.json[]
+----
+=====
+====
+
+We will now create the sink instance by invoking the following REST call:
 
 [source,shell]
 ----
 curl -X POST http://localhost:8083/connectors \
-  -H 'Content-Type:application/json' \
-  -H 'Accept:application/json' \
-  -d @contrib.source.avro.neo4j.json
+  -H "Content-Type:application/json" \
+  -H "Accept:application/json" \
+  -d @sink.neo4j.json
 ----
 
-This will create a Kafka Connect Source instance that will send `AVRO` message over the topic named `my-topic`.
+This configures the sink instance to consume data in your preferred serialization format.
+The property `neo4j.topic.cypher.my-topic` defines the Cypher query that will be executed per each message consumed by the sink instance on the Kafka Connect side.
 
+=== Testing It Out
 
-.contrib.source.avro.neo4j.json
-[source,json]
+Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters, and check the created `my-topic` as specified in the connector configuration, as well as the source and sink connector instances are running under Connect, connect-default.
+
+With both source and sink connectors running, the previously created `:TestSource` nodes will result in messages being published into the `my-topic` topic by the source instance.
+These messages will then be consumed by the sink instance, and corresponding `:Person` and `:Family` nodes to be created inside Neo4j.
+
+Check that this is the case, by executing the following query in the Neo4j Browser at http://localhost:7474/browser/:
+
+[source,cypher]
 ----
-include::ROOT:example$docker-data/quickstart-contrib.source.avro.neo4j.json[]
+MATCH (n:(Person | Family)) RETURN n
 ----
 
-The property `topic` defines where each message will be pushed, the message structure
-is related is given by `RETURN` cause of the Cypher statement defined into the `neo4j.source.query` property.
-So given the JSON above the structure of the message will be the following:
+You can create more Person and Family nodes by executing more statements like:
 
-[source,json]
+[source,cypher]
 ----
-{"name": <name>, "timestamp": <timestamp>}
+CREATE (:TestSource {name: 'Ann', surname: 'Bolin', timestamp: datetime().epochMillis});
+----
+
+=== Summary
+
+In this Quick Start, we have shown how to configure a Neo4j database to act as both the source of messages for Confluent topics and the sink for those same messages from via topics to create new nodes and relationships in the database.
+Typically, our connector is used as either a sink when pulling data from other data sources via Apache Kafka or Confluent or as source for Apache Kafka or Confluent to push data into other databases.
+
+=== Troubleshooting
+
+If you don't see any messages being published into the `my-topic` topic, or any `:Family` and `:Person` nodes created, please check Kafka Connect logs by executing the following command and resolve any issues being reported.
+
+[source,bash]
+----
+docker compose logs connect
 ----
