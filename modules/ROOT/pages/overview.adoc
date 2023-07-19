@@ -11,7 +11,7 @@ endif::env-docs[]
 
 The Neo4j Connector for Apache Kafka and Neo4j Connector for Confluent are designed for customers who want to stream data from distributed event stores and streaming platforms like Apache Kafka (TM) into Neo4j or Aura to make decisions in real time.
 
-The Neo4j Connector for Apache Kafka or Neo4j Connector for Confluent can be used to sink data into Aura, or Neo4j from Topics (ingest), or used as a source of updates and new data (change data capture - CDC) for Kafka Topics - that can be consumed by other systems.
+Both connectors can be used to sink data into Aura and Neo4j from Kafka Topics (ingest), or as a source of updates and new data (change data capture - CDC) for Kafka Topics to be consumed by other systems.
 
 The Neo4j Connector for Confluent runs as a **Kafka-Connect Plugin** on the Confluent Platform or deployed into the Confluent Cloud using their Custom Connectors. 
 It is available from the link:https://www.confluent.io/hub/neo4j/kafka-connect-neo4j[Confluent Hub], or from the link:https://neo4j.com/download-center[Neo4j Download Center].
