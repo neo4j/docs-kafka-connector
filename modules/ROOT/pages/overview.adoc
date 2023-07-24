@@ -9,17 +9,15 @@ This chapter provides an introduction to the {product-name}.
 --
 endif::env-docs[]
 
-For customers who want to stream data from distributed event stores and streaming platforms like Apache Kafka (TM) into Neo4j or Aura to make decisions in real time, we provide the Neo4j Connector for Apache Kafka and Neo4j Connector for Confluent.
+The Neo4j Connector for Apache Kafka and Neo4j Connector for Confluent are designed for customers who want to stream data from distributed event stores and streaming platforms like Apache Kafka (TM) into Neo4j or Aura to make decisions in real time.
 
-The Neo4j Connector for Apache Kafka or Neo4j Connector for Confluent can be used to sink data into Aura, or Neo4j from Topics (ingest), or used as a source of updates and new data (change data capture - CDC) for Kafka Topics - that can be consumed by other systems.
+Both connectors can be used to sink data into Aura and Neo4j from Kafka Topics (ingest), or as a source of updates and new data (change data capture - CDC) for Kafka Topics to be consumed by other systems.
 
-The Neo4j Connector for Confluent runs as a **Kafka-Connect Plugin** on the Confluent Platform or deployed into the Confluent Cloud using their Custom Connectors. 
+The Neo4j Connector for Confluent runs as a **Kafka Connect Plugin** on the Confluent Platform and can be deployed into the Confluent Cloud using their Custom Connectors. 
 It is available from the link:https://www.confluent.io/hub/neo4j/kafka-connect-neo4j[Confluent Hub], or from the link:https://neo4j.com/download-center[Neo4j Download Center].
 
-The Neo4j Connector for Apache Kafka runs as a **Kafka-Connect Plugin** on Apache Kafka or deployed into Amazon Managed Streaming for Apache Kafka (Amazon MSK). 
+The Neo4j Connector for Apache Kafka runs as a **Kafka Connect Plugin** on Apache Kafka and can be deployed into Amazon Managed Streaming for Apache Kafka (Amazon MSK). 
 It is available from the link:https://neo4j.com/download-center[Neo4j Download Center].
-
-Both connectors support sinking data from Kafka Topics into Neo4j, or using Neo4j as a source for publishing data to Kafka Topics via Cypher queries.
 
 
 // [[kafka_connect_neo4j_connector_overview]]
@@ -31,7 +29,7 @@ The Connect Worker can be used both to sink data to Neo4j and as a source to pub
 
 == Compatibility between Neo4j and {product-name}
 
-We recommend the latest version of {product-name} to be compatible with all the link:https://neo4j.com/developer/kb/neo4j-supported-versions/[supported versions] of Neo4j.
+We recommend using the latest version of {product-name} to be compatible with all the link:https://neo4j.com/developer/kb/neo4j-supported-versions/[supported versions] of Neo4j.
 
 == Support for {product-name}
 
