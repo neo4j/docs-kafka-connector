@@ -1,11 +1,9 @@
 = Confluent Cloud Support
 
-If you need to run the {product-name} as a managed service as part of Confluent Cloud, this is currently not possible.
-Users who are interested in running {product-name} as a Cloud managed connector by Confluent should raise this with Confluent.
-Right now there are only a few connectors such as that for S3 that can be run as managed services.
-Click {url-confluent-cloud}/connectors/index.html[here] to learn more.
+Neo4j supports the Confluent Cloud with the Neo4j Connector for Confluent running as a Custom Connector. 
+Confluent's Custom Connectors provide a way to extend the Confluent Cloud beyond the fully managed connectors available on their platform.
 
-Other references to how to configure it to connect to the Confluent Cloud can be found at the following links:
+Custom Connectors are Kafka Connect plugins created by users, modified open-source connector plugins, or third-party connector plugins like the Neo4j Connector for Confluent. 
+Find out more about Custom Connectors in the link:https://docs.confluent.io/cloud/current/connectors/bring-your-connector/overview.html[Confluent documentation].
 
-* {url-confluent-blog}/kafka-graph-visualizations/ (see the `Configuring Neo4j to interact with Kafka` section).
-* https://github.com/neo4j-contrib/neo4j-streams/issues/182
+Confluent Cloud does not provide the Neo4j Connector for Confluent as a managed connector, if you are interested in a managed connector please raise the request with Confluent.
