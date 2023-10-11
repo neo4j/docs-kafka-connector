@@ -18,6 +18,19 @@ We'll define the Sink configuration in several ways:
 
 == Sink ingestion strategies
 
+[NOTE]
+====
+**The Cypher Template strategy is the only Sink strategy that guarantees messages to be processed in the same order as they arrive in a topic.**
+
+Other Sink strategies group messages together by type of operation, which can also be optimised into batches. 
+In this case, the execution order is the following:
+
+. All `MERGE` operations on nodes
+. All `DELETE` operations on nodes
+. All `MERGE` operations on relationships
+. All `DELETE` operations on relationships
+====
+
 [#kafka-connect-cypher-strategy]
 include::partial$kafka-connect-cypher-strategy.adoc[]
 
