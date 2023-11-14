@@ -15,4 +15,4 @@ as databases, key-value stores, search indexes, and file systems.
 Neo4j provides a {product-name} that can be installed into the Confluent Platform enabling:
 
 - Ingesting data from Kafka topics directly into Neo4j via templated Cypher queries;
-- Streaming data from Neo4j queries.
+- Streaming data from Neo4j queries with link:https://neo4j.com/docs/cdc/current/[Change Data Capture].
