@@ -3,7 +3,7 @@
 ifdef::env-docs[]
 [abstract]
 --
-This chapter describes considerations around using Neo4j Streams with Neo4j Enterprise Causal Cluster.
+This chapter describes considerations around using the {product-name} with Neo4j Enterprise Causal Cluster.
 --
 endif::env-docs[]
 
