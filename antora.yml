@@ -9,9 +9,9 @@ asciidoc:
   attributes:
     theme: docs
     copyright: Neo4j Inc.
-    page-product: Neo4j Kafka Integration
+    page-product: Neo4j Kafka Connector
     page-pagination: true
-    product-name: Kafka Connect Neo4j Connector
+    product-name: Neo4j Kafka Connector
     url-common-license-page: https://neo4j.com/docs/license/
     url-confluent-blog: https://www.confluent.io/blog
     url-confluent-download: https://www.confluent.io/get-started/
