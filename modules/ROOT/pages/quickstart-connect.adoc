@@ -12,13 +12,16 @@ endif::env-docs[]
 [[kafka_connect_neo4j_connector_quickstart]]
 == {product-name}
 
-In this quick start guide, we will use Docker Compose to create an environment with Confluent and Neo4j running inside Docker.
-The Neo4j Connector will be configured with a source instance which will query for changes when nodes of specific label are created in a Neo4j database and publish the changes into a Kafka topic named my-topic. 
+We will use Docker Compose to create an environment with Confluent and Neo4j running inside Docker.
+
+The {product-name} will first be configured with a source instance.
+The source will retrieve changes for the configured pattern.
+These changes are then serialized and published to the configured topic.
+
 Next, we will create a sink instance which will listen for messages in `my-topic`, and apply a Cypher statement to create a new set of nodes and relationships in Neo4j when the messages are received.
-The result is Neo4j database being used as a source of events for Kafka topics that act as a sink for the same Neo4j database so that you can see the connector acting as both a source and sink for Neo4j databases. 
 
 [NOTE]
-The following guide uses the Kafka Connect Neo4j Connector with Confluent, the Docker Compose file will need to be modified to work with Apache Kafka.
+The following guide uses the {product-name} for Confluent, the provided Docker Compose file cannot be used as-in for Apache Kafka.
 
 === Run with Docker
 
@@ -30,7 +33,7 @@ Copy the following Docker Compose file into a desired directory.
 include::ROOT:example$docker-data/docker-compose.yml[]
 ----
 
-Just go inside that directory (where the Docker Compose file resides) from the terminal and run the following command:
+Open a terminal, proceed to the Docker Compose file's directory and run:
 
 [source,bash]
 ----
@@ -38,14 +41,14 @@ docker compose up -d
 ----
 
 When the process completes you should have all the modules up and running.
-You can check the status of all services using the following command:
+You can check the status of all services as follows:
 
 [source,bash]
 ----
 docker compose ps
 ----
 
-which should return a table like following, stating that every service is up and running.
+This should return a table that shows every service is up and running.
 
 [source,text]
 ----
@@ -62,7 +65,7 @@ Now you can access your Neo4j instance under: \http://localhost:7474, log in wit
 Confirm that you can access the Confluent Control Center instance at http://localhost:9021/clusters and that the Cluster reports as healthy (this may take 90-120s).
 You should have one Broker, several Topics and one Connect cluster in the Control Center.
 
-=== Configure Source instance
+=== Source with CDC
 
 First up, we need to set up Neo4j as a source database that will provide messages for topics.
 Pick one of the following message serialization formats given below, save the content of the provided file into a local directory, named as `source.neo4j.json`.
@@ -105,8 +108,8 @@ curl -X POST http://localhost:8083/connectors \
 This will create a Kafka Connect source instance that will send messages over to the topic named `my-topic`, using your preferred serialization format.
 In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.
 
-The property `topic` defines where each message will be pushed, the message structure is defined by the `RETURN` cause of the Cypher statement in the `neo4j.source.query` property.
-So given the above configuration, the structure of the message will be the following (serialized as a your preferred serialization format):
+The property `topic` defines where each message will be pushed.
+So given the above configuration, the structure of the message will be the following (serialized according to the selected message format):
 
 [source,json]
 ----
@@ -122,11 +125,11 @@ CREATE (:TestSource {name: 'mary', surname: 'doe', timestamp: datetime().epochMi
 CREATE (:TestSource {name: 'jack', surname: 'small', timestamp: datetime().epochMillis});
 ----
 
-which will result in there new messages being published into the `my-topic` topic.
+This will result in new messages being published to the topic named `my-topic`.
 
-=== Configure Sink instance
+=== Sink
 
-To get the messages created inside `my-topic` sinked back to the Neo4j database as nodes and relationships, we need to create a sink instance, which will consume messages from `my-topic` topic and execute a defined Cypher statement for each of the consumed message.
+One way to consume the messages published above to `my-topic` is to use the sink.
 
 First, save the following JSON file into a local directory named as `sink.neo4j.json`.
 
@@ -191,7 +194,7 @@ CREATE (:TestSource {name: 'Ann', surname: 'Bolin', timestamp: datetime().epochM
 
 === Summary
 
-In this Quick Start, we have shown how to configure a Neo4j database to act as both the source of messages for Confluent topics and the sink for those same messages from via topics to create new nodes and relationships in the database.
+In this Quick Start, we have shown how to configure a Neo4j database to act as both the source of messages for Confluent topics and the sink for those same messages to create new nodes and relationships in the database.
 Typically, our connector is used as either a sink when pulling data from other data sources via Apache Kafka or Confluent or as source for Apache Kafka or Confluent to push data into other databases.
 
 === Troubleshooting

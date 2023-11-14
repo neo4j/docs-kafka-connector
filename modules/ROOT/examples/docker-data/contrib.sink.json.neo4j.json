@@ -2,7 +2,7 @@
   "name": "Neo4jSinkConnectorJSONSchema",
   "config": {
     "topics": "my-topic",
-    "connector.class": "streams.kafka.connect.sink.Neo4jSinkConnector",
+    "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",
     "key.converter": "io.confluent.connect.json.JsonSchemaConverter",
     "key.converter.schemas.enable": true,
     "key.converter.schema.registry.url": "http://schema-registry:8081",
@@ -14,7 +14,8 @@
     "errors.tolerance": "all",
     "errors.log.enable": true,
     "errors.log.include.messages": true,
-    "neo4j.server.uri": "bolt://neo4j:7687",
+    "neo4j.uri": "neo4j://neo4j:7687",
+    "neo4j.authentication.type": "BASIC",
     "neo4j.authentication.basic.username": "neo4j",
     "neo4j.authentication.basic.password": "password",
     "neo4j.topic.cypher.my-topic": "MERGE (p:Person{name: event.name, surname: event.surname}) MERGE (f:Family{name: event.surname}) MERGE (p)-[:BELONGS_TO]->(f)"
