@@ -9,28 +9,40 @@ This chapter provides an introduction to the {product-name}.
 --
 endif::env-docs[]
 
-The Neo4j Connector for Apache Kafka and Neo4j Connector for Confluent are designed for customers who want to stream data from distributed event stores and streaming platforms like Apache Kafka (TM) into Neo4j or Aura to make decisions in real time.
+The {product-name} is designed for customers who want to stream data from distributed event stores and streaming platforms like Apache Kafka (TM) into Neo4j or Aura to make decisions in real time.
 
-Both connectors can be used to sink data into Aura and Neo4j from Kafka Topics (ingest), or as a source of updates and new data (change data capture - CDC) for Kafka Topics to be consumed by other systems.
+== Distribution
 
-The Neo4j Connector for Confluent runs as a **Kafka Connect Plugin** on the Confluent Platform and can be deployed into the Confluent Cloud using their Custom Connectors. 
+It is available in two packaging variants.
+
+=== Confluent Cloud
+
+The package can be deployed to Confluent Cloud using their Custom Connectors.
 It is available from the link:https://www.confluent.io/hub/neo4j/kafka-connect-neo4j[Confluent Hub], or from the link:https://neo4j.com/download-center[Neo4j Download Center].
 
-The Neo4j Connector for Apache Kafka runs as a **Kafka Connect Plugin** on Apache Kafka and can be deployed into Amazon Managed Streaming for Apache Kafka (Amazon MSK). 
+=== Apache Kafka
+
+The package can be deployed into Amazon Managed Streaming for Apache Kafka (Amazon MSK).
 It is available from the link:https://neo4j.com/download-center[Neo4j Download Center].
 
 
+== Components
+
+The connector provides a sink component.
+This is used to import data into Neo4j from Kafka Topics.
+
+The connector also provides a source component.
+It reads data changes using link:https://neo4j.com/docs/cdc/current/[Change Data Capture]. These changes are then published to Kafka Topics, to be consumed by other systems.
+
 // [[kafka_connect_neo4j_connector_overview]]
-== {product-name}
+== Deployment
 
-**{product-name}** is deployed separately from the Neo4j database.
-The Connect Worker can be used both to sink data to Neo4j and as a source to publish data from the database itself.
+{product-name} is deployed separately from the Neo4j database.
 
-
-== Compatibility between Neo4j and {product-name}
+== Compatibility with Neo4j
 
 We recommend using the latest version of {product-name} to be compatible with all the link:https://neo4j.com/developer/kb/neo4j-supported-versions/[supported versions] of Neo4j.
 
-== Support for {product-name}
+== Support
 
-The support for Neo4j Connectors deployed into Apache Kafka, Amazon MSK and Confluent is provided by Neo4j.
+The support for the {product-name} deployed into Apache Kafka, Amazon MSK and Confluent is provided by Neo4j.
