@@ -30,10 +30,6 @@ Every message in the topic will have the following structure:
 {"name": <name>, "surname": <surname>, "timestamp": <timestamp>}
 ----
 
-[NOTE]
-====
-Please check the xref::kafka-connect/configuration.adoc[Configuration Summary] for a detailed guide about the supported configuration parameters.
-====
 
 == How the Source module pushes the data to the defined Kafka topic
 
