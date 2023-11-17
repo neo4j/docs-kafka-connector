@@ -98,8 +98,6 @@ described in the xref:#dlq-table[Dead Letter Queue configuration parameters tabl
 | errors.deadletterqueue.topic.replication.factor | 3/1 | replication factor, need to set to 1 for single partition, default:3
 |===
 
-For the Neo4j extension you prefix them with `{environment}` in the Neo4j configuration.
-
 |===
 | Name | mandatory | Description
 
