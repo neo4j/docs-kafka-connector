@@ -25,13 +25,13 @@ Under the hood the Sink inject the event object in this way
 
 [source,cypher]
 ----
-UNWIND $batch AS event
+UNWIND $events AS event
 MERGE (p:Person{name: event.name, surname: event.surname})
 MERGE (f:Family{name: event.surname})
 MERGE (p)-[:BELONGS_TO]->(f)
 ----
 
-Where `$batch` is a list of event objects.
+Where `$events` is a list of event objects.
 
 You can change the query or remove the property and add your own, but you must follow the following convention:
 
@@ -79,23 +79,23 @@ with a list of topic separated by comma. For example:
 {
   "name": "Neo4jSinkConnector",
   "config": {
-    "connector.class": "streams.kafka.connect.sink.Neo4jSinkConnector",
-    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "topics": "topicA,topicB",
+    "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": false,
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
     "value.converter.schemas.enable": false,
-    "topics": "topicA,topicB",
-    "_comment": "Cypher template example configuration",
-    "neo4j.topic.cypher.topicA": "<YOUR_CYPHER_QUERY>",
-    "neo4j.topic.cypher.topicB": "<YOUR_CYPHER_QUERY>",
     "errors.retry.timeout": "-1",
     "errors.retry.delay.max.ms": "1000",
     "errors.tolerance": "all",
     "errors.log.enable": true,
     "errors.log.include.messages": true,
-    "neo4j.server.uri": "bolt://neo4j:7687",
+    "neo4j.uri": "neo4j://neo4j:7687",
+    "neo4j.authentication.type": "BASIC",
     "neo4j.authentication.basic.username": "neo4j",
     "neo4j.authentication.basic.password": "password",
-    "neo4j.encryption.enabled": false
+    "neo4j.topic.cypher.topicA": "<YOUR_CYPHER_QUERY>",
+    "neo4j.topic.cypher.topicB": "<YOUR_CYPHER_QUERY>"
   }
 }
 ----
