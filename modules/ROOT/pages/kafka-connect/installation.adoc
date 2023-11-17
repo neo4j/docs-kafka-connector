@@ -42,9 +42,7 @@ Once you downloaded the file please place it into your Kafka Connect `plugins` d
 
 == Download the zip from Github Releases
 
-Please go to the Github releases page of the plugin:
-
-{url-github-releases}
+Please go to the link:{url-github}/releases[Github releases page of the plugin].
 
 And download the latest {product-name}.
 
@@ -53,17 +51,7 @@ Once you download the file please place it into your Kafka Connect `plugins` dir
 
 == Build it locally
 
-Download the project from Github:
+Please follow the instructions in link:{url-github}#build-locally[the repository's README].
 
-    git clone https://github.com/neo4j-contrib/neo4j-streams.git
-
-Go into the `neo4j-streams` directory:
-
-    cd neo4j-streams
-
-Build the project by running the following command:
-
-    mvn clean install
-
-Inside the directory `<neo4j-streams>/kafka-connect-neo4j/target/component/packages` you'll find a file named `neo4j-kafka-connect-neo4j-<VERSION>.zip`, please unpackage and place it into your Kafka Connect `plugins` dir.
+Then, unpack the archive and place it into your Kafka Connect `plugins` dir.
 
