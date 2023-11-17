@@ -6,8 +6,6 @@ The guide covers the following areas:
 * xref:overview.adoc[Project overview]
 * xref:quickstart-connect.adoc[Quick start with {product-name}]
 * xref:kafka-connect.adoc[How to install and configure {product-name}]
-* xref:neo4j-cluster-connect.adoc[Usage with a Neo4j cluster]
-* xref:architecture.adoc[Architectural Guidance]
 
 (C) {copyright}
 License: link:{common-license-page-uri}[Creative Commons 4.0]
