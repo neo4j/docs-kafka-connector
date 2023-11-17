@@ -57,9 +57,10 @@ Following an example:
   "name": "Neo4jSinkConnector",
   "config": {
     "neo4j.database": "<database_name>",
-    "topics": "topic",
-    "connector.class": "streams.kafka.connect.sink.Neo4jSinkConnector",
-    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "topics": "my-topic",
+    "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": false,
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
     "value.converter.schemas.enable": false,
     "errors.retry.timeout": "-1",
@@ -67,21 +68,11 @@ Following an example:
     "errors.tolerance": "all",
     "errors.log.enable": true,
     "errors.log.include.messages": true,
-    "neo4j.server.uri": "bolt://neo4j:7687",
+    "neo4j.uri": "neo4j://neo4j:7687",
+    "neo4j.authentication.type": "BASIC",
     "neo4j.authentication.basic.username": "neo4j",
     "neo4j.authentication.basic.password": "password",
-    "neo4j.encryption.enabled": false,
-    "_comment": "Sink CDC SourceId Strategy",
-    "neo4j.topic.cdc.sourceId": "topic",
-    "neo4j.topic.cdc.sourceId.labelName": "<the label attached to the node, default=SourceEvent>",
-    "neo4j.topic.cdc.sourceId.idName": "<the id name given to the CDC id field, default=sourceId>",
-    "_comment": "Sink CDC Schema Strategy",
-    "neo4j.topic.cdc.schema": "<list_of_topics_separated_by_semicolon>",
-    "_comment": "Sink Node/Relationship Pattern Strategy",
-    "neo4j.topic.pattern.node.<TOPIC_NAME>": "<node_extraction_pattern>",
-    "neo4j.topic.pattern.relationship.<TOPIC_NAME>": "<relationship_extraction_pattern>",
-    "_comment": "Sink CUD File forma Strategy",
-    "neo4j.topic.cud": "<list_of_topics_separated_by_semicolon>"
+    "neo4j.topic.cypher.my-topic": "MERGE (p:Person{name: event.name, surname: event.surname}) MERGE (f:Family{name: event.surname}) MERGE (p)-[:BELONGS_TO]->(f)"
   }
 }
 ----
