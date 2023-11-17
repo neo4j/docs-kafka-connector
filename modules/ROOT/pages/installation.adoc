@@ -47,11 +47,3 @@ Please go to the link:{url-github}/releases[Github releases page of the plugin].
 And download the latest {product-name}.
 
 Once you download the file please place it into your Kafka Connect `plugins` dir.
-
-
-== Build it locally
-
-Please follow the instructions in link:{url-github}#build-locally[the repository's README].
-
-Then, unpack the archive and place it into your Kafka Connect `plugins` dir.
-
