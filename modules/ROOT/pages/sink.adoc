@@ -2,14 +2,11 @@
 
 In this chapter we'll discuss how the Sink instance is configured.
 
-
 == Create the Sink Instance
 :environment: neo4j
 :id: neo4j
 
-Create the Sink instance:
-
-We'll define the Sink configuration in several ways:
+Sink connector can be configured with different strategies:
 
 * by providing a Cypher template
 * by ingesting the events emitted from another Neo4j instance via the Change Data Capture module
@@ -22,7 +19,7 @@ We'll define the Sink configuration in several ways:
 ====
 **The Cypher Template strategy is the only Sink strategy that guarantees messages to be processed in the same order as they arrive in a topic.**
 
-Other Sink strategies group messages together by type of operation, which can also be optimised into batches. 
+Other Sink strategies group messages together by type of operation, which can also be optimised into batches.
 In this case, the execution order is the following:
 
 . All `MERGE` operations on nodes
@@ -51,7 +48,7 @@ If you don't specify that property, the home database for the configured user wi
 
 Following an example:
 
-[source, json]
+[source,json]
 ----
 {
   "name": "Neo4jSinkConnector",
@@ -80,8 +77,7 @@ Following an example:
 [#kafka_connect_error_handling]
 == How to deal with bad data
 
-In {product-name}, in the creation phase of the Sink instance, in addition to the properties
-described in the xref:#dlq-table[Dead Letter Queue configuration parameters table], you need to define kafka broker connection properties:
+In {product-name}, in the creation phase of the Sink instance, in addition to the properties described in the xref:#dlq-table[Dead Letter Queue configuration parameters table], you need to define kafka broker connection properties:
 
 [[dlq-table]]
 .Dead Letter Queue configuration parameters
@@ -108,12 +104,8 @@ setting by adding the `kafka.` prefix (i.e the configuration `acks` become `kafk
 
 |===
 
-As you may have noticed we're asking to provide the `bootstrap.server` property,
-this because the Kafka Connect Framework provides an out-of-the-box support
-only for deserialization errors and message transformations
-(please look into the following link for further details: {url-confluent-blog}/kafka-connect-deep-dive-error-handling-dead-letter-queues/).
+As you may have noticed we're asking to provide the `bootstrap.server` property, this because the Kafka Connect Framework provides an out-of-the-box support only for deserialization errors and message transformations (please look into the following link for further details: {url-confluent-blog}/kafka-connect-deep-dive-error-handling-dead-letter-queues/).
 We want to extend this feature for transient errors in order to cover the 100% of failures.
-So to do that at this moment as suggested by Confluent we need to ask again the broker location,
-until this JIRA issue will not be addressed: https://issues.apache.org/jira/browse/KAFKA-8597.
+So to do that at this moment as suggested by Confluent we need to ask again the broker location, until this JIRA issue will not be addressed: https://issues.apache.org/jira/browse/KAFKA-8597.
 Said that, these properties has to be added only if you want to also redirect Neo4j errors into the DLQ.
 

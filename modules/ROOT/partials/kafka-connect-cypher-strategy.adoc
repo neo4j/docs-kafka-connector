@@ -1,101 +1,130 @@
 === Cypher Strategy
 
+This strategy executes corresponding Cypher statements for each message received.
+
+To configure a cypher strategy for a desired topic, you must follow the following convention:
+
+[source,json,subs="verbatim,attributes"]
+----
+"neo4j.topic.cypher.<YOUR_TOPIC>": "<YOUR_CYPHER_QUERY>"
+----
+
+==== Example
+
+Given that you configure the topics your sink connector subscribes to within the sink configuration settings as follows;
+
 [source,json]
 ----
-include::ROOT:example$docker-data/contrib.sink.json-string.neo4j.json[]
+  "topics": "creates,updates,deletes"
 ----
 
-In particular this line:
+You need to declare that you want to use `cypher` strategy and provide the corresponding Cypher statement for each topic, similar to the following;
 
-[source,json,subs="verbatim,attributes"]
+[source,json]
 ----
-"{environment}.topic.cypher.my-topic": "MERGE (p:Person{name: event.name, surname: event.surname}) MERGE (f:Family{name: event.surname}) MERGE (p)-[:BELONGS_TO]->(f)"
+  "topics": "creates,updates,deletes",
+  "neo4j.topic.cypher.creates": "WITH event AS message WITH message.event.state.after AS state MERGE (p:Person {name: state.properties.name, surname: state.properties.surname}) MERGE (f:Family {name: state.properties.surname}) MERGE (p)-[:BELONGS_TO]->(f)",
+  "neo4j.topic.cypher.updates": "WITH event AS message WITH message.event.state.before AS before, message.event.state.after AS after MATCH (p:Person {name: before.properties.name, surname: before.properties.surname}) MATCH (fPre:Family {name: before.properties.surname}) OPTIONAL MATCH (p)-[b:BELONGS_TO]->(fPre) DELETE b WITH after, p SET p.name = after.properties.name, p.surname = after.properties.surname MERGE (f:Family {name: after.properties.surname}) MERGE (p)-[:BELONGS_TO]->(f)",
+  "neo4j.topic.cypher.deletes": "WITH event AS message WITH message.event.state.before AS before MATCH (p:Person {name: before.properties.name, surname: before.properties.surname}) DETACH DELETE p"
 ----
 
-defines that all the data that comes from the topic `my-topic` will be unpacked by the Sink into Neo4j with the following Cypher query:
+The above configuration excerpt defines that;
 
+* messages received from `creates` topic will be unpacked by the sink connector into Neo4j with the following Cypher query:
++
 [source,cypher]
 ----
-MERGE (p:Person{name: event.name, surname: event.surname})
-MERGE (f:Family{name: event.surname})
+WITH event AS message
+WITH message.event.state.after AS state
+MERGE (p:Person {name: state.properties.name, surname: state.properties.surname})
+MERGE (f:Family {name: state.properties.surname})
 MERGE (p)-[:BELONGS_TO]->(f)
 ----
 
-Under the hood the Sink inject the event object in this way
-
+* messages received from `updates` topic will be unpacked by the sink connector into Neo4j with the following Cypher query:
++
 [source,cypher]
 ----
-UNWIND $events AS event
-MERGE (p:Person{name: event.name, surname: event.surname})
-MERGE (f:Family{name: event.surname})
+WITH event AS message
+WITH message.event.state.before AS before, message.event.state.after AS after
+MATCH (p:Person {name: before.properties.name, surname: before.properties.surname})
+MATCH (fPre:Family {name: before.properties.surname})
+OPTIONAL MATCH (p)-[b:BELONGS_TO]->(fPre)
+DELETE b
+WITH after, p
+SET p.name = after.properties.name, p.surname = after.properties.surname
+MERGE (f:Family {name: after.properties.surname})
 MERGE (p)-[:BELONGS_TO]->(f)
 ----
 
-Where `$events` is a list of event objects.
-
-You can change the query or remove the property and add your own, but you must follow the following convention:
-
-[source,json,subs="verbatim,attributes"]
+* messages received from `deletes` topic will be unpacked by the sink connector into Neo4j with the following Cypher query:
++
+[source,cypher]
 ----
-"{environment}.topic.cypher.<YOUR_TOPIC>": "<YOUR_CYPHER_QUERY>"
+WITH event AS message
+WITH message.event.state.before AS before
+MATCH (p:Person {name: before.properties.name, surname: before.properties.surname})
+DETACH DELETE p
 ----
 
-Let's load the configuration into the Confluent Platform with this REST call:
+===== Creating Sink Instance
+
+Based on the above example, we can use one of the following configurations.
+Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as `sink.cypher.neo4j.json`.
+
+[.tabbed-example]
+====
+[.include-with-AVRO-messages]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/contrib.source.avro.neo4j.json[]
+----
+=====
+
+[.include-with-JSON-messages-with-schema]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/contrib.source.json.neo4j.json[]
+----
+=====
+
+[.include-with-JSON-messages-as-string]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/contrib.source.json-string.neo4j.json[]
+----
+=====
+====
+
+Let's load the configuration into the Kafka Connect with this REST call:
 
 [source,shell]
 ----
 curl -X POST http://localhost:8083/connectors \
   -H 'Content-Type:application/json' \
   -H 'Accept:application/json' \
-  -d @sink.string-json.neo4j.json
+  -d @sink.cypher.neo4j.json
 ----
 
-The file `sink.string-json.neo4j.json` contains a configuration that shows a sample JSON consumer configuration.
+Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters, and verify that the configured connector instance is running under Connect, connect-default.
 
-Please check that everything is fine by going into:
+[NOTE]
+====
+Under the hood the connector will create a batch of changes for each topic, and will execute the query with a prepended `UNWIND` clause.
+For the above example, the executed query for messages received from `creates` topic would look like;
 
-\http://localhost:9021/management/connect
-
-and click to the **Sink** tab. You must find a table just like this:
-
-[cols="4*",options="header"]
-|===
-|Status
-|Active Tasks
-|Name
-|Topics
-
-|Running
-|1
-|Neo4jSinkConnector
-|my-topic
-|===
-
-Note that the Sink instance can be configured also to monitor multiple topics. Just evaluate the property `**topics**`
-with a list of topic separated by comma. For example:
-
-[source,json]
+[source,cypher]
 ----
-{
-  "name": "Neo4jSinkConnector",
-  "config": {
-    "topics": "topicA,topicB",
-    "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",
-    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "key.converter.schemas.enable": false,
-    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "value.converter.schemas.enable": false,
-    "errors.retry.timeout": "-1",
-    "errors.retry.delay.max.ms": "1000",
-    "errors.tolerance": "all",
-    "errors.log.enable": true,
-    "errors.log.include.messages": true,
-    "neo4j.uri": "neo4j://neo4j:7687",
-    "neo4j.authentication.type": "BASIC",
-    "neo4j.authentication.basic.username": "neo4j",
-    "neo4j.authentication.basic.password": "password",
-    "neo4j.topic.cypher.topicA": "<YOUR_CYPHER_QUERY>",
-    "neo4j.topic.cypher.topicB": "<YOUR_CYPHER_QUERY>"
-  }
-}
+UNWIND $events AS event
+WITH event AS message
+WITH message.event.state.after AS state
+MERGE (p:Person {name: state.properties.name, surname: state.properties.surname})
+MERGE (f:Family {name: state.properties.surname})
+MERGE (p)-[:BELONGS_TO]->(f)
 ----
+
+where `$events` is a batch of change events.
+====
