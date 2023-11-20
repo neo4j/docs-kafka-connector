@@ -50,3 +50,99 @@ following output:
 ----
 {"name": "John Doe", "timestamp": 1624549598834}
 ----
+
+== Configuration Summary
+
+=== Common Connector Settings
+
+[%width="100%",cols="m,a,m,a",opts=header]
+|===
+| Name
+| Value
+| Mandatory
+| Note
+
+| connector.class | `org.neo4j.connectors.kafka.source.Neo4jConnector` | true |
+| key.converter | `io.confluent.connect.avro.AvroConverter` | false | link:https://docs.confluent.io/platform/current/installation/configuration/connect/source-connect-configs.html#key-converter[Converter class for keys]
+| value.converter | `io.confluent.connect.avro.AvroConverter` | false | link:https://docs.confluent.io/platform/current/installation/configuration/connect/source-connect-configs.html#value-converter[Converter class for values]
+| key.converter.schemas.enable | one of `true`, `false` | false | If true the key will be treated as a composite JSON object containing schema and the data. Default value is false
+| value.converter.schemas.enable | one of `true`, `false` | false | If true the value will be treated as a composite JSON object containing schema and the data. Default value is false
+| key.converter.schema.registry.url | | false | [AvroConverter only] Avro Schema Registry URL
+| value.converter.schema.registry.url | | false | [AvroConverter only] Avro Schema Registry URL
+| neo4j.uri | | true | Neo4j URI. link:https://neo4j.com/docs/java-manual/current/client-applications/#_examples[Valid URI examples]
+| neo4j.database | | false | Neo4j Database
+| neo4j.authentication.type | one of `NONE`, `BASIC`, `KERBEROS`, `BEARER`, `CUSTOM` | true |
+| neo4j.authentication.basic.username | | false | Neo4j username. Required by `BASIC` authentication type
+| neo4j.authentication.basic.password | | false | Neo4j password. Required by `BASIC` authentication type
+| neo4j.authentication.basic.realm | | false | Basic authentication realm
+| neo4j.authentication.kerberos.ticket | | false | Kerberos ticket. Required by `KERBEROS` authentication type
+| neo4j.authentication.bearer.token | | false | Bearer authentication token. Required by `BEARER` authentication type
+| neo4j.authentication.custom.principal | | false | Custom authentication principal. Required by `CUSTOM` authentication type
+| neo4j.authentication.custom.credentials | | false | Custom authentication credentials. Required by `CUSTOM` authentication type
+| neo4j.authentication.custom.realm | | false | Custom authentication realm
+| neo4j.authentication.custom.scheme | | false | Custom authentication scheme. Required by `CUSTOM` authentication type
+| neo4j.connection-timeout | | false | Connection timeout duration in milliseconds, seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
+| neo4j.max-retry-time | | false | Maximum transaction retry duration in milliseconds, seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
+| neo4j.max-retry-attempts | | false | Maximum transaction retry attempt count
+| neo4j.pool.max-connection-pool-size | | false | Maximum connection pool size
+| neo4j.pool.connection-acquisition-timeout | | false | Maximum connection pool acquisition timeout duration in milliseconds, seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
+| neo4j.pool.idle-time-before-connection-test |  | false | Duration of idle time before connection liveness check in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
+| neo4j.pool.max-connection-lifetime |  | false | Max connection lifetime duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
+| neo4j.security.encrypted | One of `true`, `false` | false |
+| neo4j.security.trust-strategy | One of `TRUST_ALL_CERTIFICATES`, `TRUST_SYSTEM_CA_SIGNED_CERTIFICATES`, `TRUST_CUSTOM_CA_SIGNED_CERTIFICATES` | false |
+| neo4j.security.cert-files |  | false | List of certificate files. Required by `TRUST_CUSTOM_CA_SIGNED_CERTIFICATES`
+
+|===
+
+=== Common Source Settings
+
+[%width="100%",cols="m,a,m,a",opts=header]
+|===
+| Name
+| Value
+| Mandatory
+| Note
+
+| neo4j.start-from | One of `EARLIEST`, `NOW`, `USER_PROVIDED` | true |
+| neo4j.start-from.value | | false | Value to start from. Required by `USER_PROVIDED`
+| neo4j.ignore-stored-offset | One of `true`, `false` | false |
+| neo4j.source-strategy | One of `CDC`, `QUERY` | true |
+| neo4j.batch-size | | false | Batch size (Default is `1000`)
+
+|===
+
+=== `CDC` Strategy Settings
+
+[%width="100%",cols="m,a,m,a",opts=header]
+|===
+| Name
+| Value
+| Mandatory (for `CDC`)
+| Note
+
+| neo4j.cdc.poll-interval |  | true | Interval duration between consecutive CDC polls in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms` (Default: `10s`)
+| neo4j.cdc.poll-duration |  | true | CDC poll duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms` (Default: `1s`)
+| neo4j.cdc.topic.{NAME}.patterns |  | false | Comma-separated list of graph patterns, with optional event property filters (prefixed with `+` or `-` for inclusion or exclusion respectively).  Example setting: `neo4j.cdc.topic.my-topic.patterns=(:Person {+name}),(:Person)-[:WORKS_FOR]->(:Company),(:Company {-id})`. The change event for `Company` nodes will not include the `id` property.
+| neo4j.cdc.topic.{NAME}.patterns.{INDEX}.pattern |  | false | Indexed graph pattern, with optional event property filters (prefixed with `+` or `-` for inclusion or exclusion respectively). Example: `neo4j.cdc.topic.my-topic.patterns.0.pattern=(:Company {+name})`. The change event for `Company` nodes will either always include the `name` property (in CDC `FULL` enrichment mode) or when the `name` property has changed (in CDC `DIFF` enrichment mode).
+| neo4j.cdc.topic.{NAME}.patterns.{INDEX}.operation | One of `CREATE`, `UPDATE`, `DELETE` | false | Operation to perform when receiving events of corresponding indexed graph pattern. Event properties can be explicitly included (`+` prefix`) or excluded (`-`). Example: `neo4j.cdc.topic.my-topic.patterns.0.operation=DELETE`
+| neo4j.cdc.topic.{NAME}.patterns.{INDEX}.changesTo | | false | Comma-separated list of property selectors. Example: `neo4j.cdc.topic.my-topic.patterns.0.changesTo=name, age`. See link:https://neo4j.com/docs/cdc/current/selectors/#combining-selectors[how selectors are combined].
+| neo4j.cdc.topic.{NAME}.patterns.{INDEX}.metadata.{KEY} | | false | Key-value metadata selector. If the key starts `txMetadata.`, then the key-value pair is matched against the actual transaction metadata (with the key stripped of the aforementioned prefix). Example: `neo4j.cdc.topic.my-topic.patterns.0.metadata.txMetadata.app=neo4j-browser`
+
+|===
+
+=== `QUERY` strategy Settings
+
+[%width="100%",cols="m,a,m,a",opts=header]
+|===
+| Name
+| Value
+| Mandatory (for `QUERY`)
+| Note
+
+| neo4j.enforce-schema | One of `true`, `false` | false |
+| neo4j.topic | | true | Topic to write to
+| neo4j.query | | true | Read query to execute
+| neo4j.query.streaming-property | | true | Property to watch changes for
+| neo4j.query.poll-interval | | false | Query poll duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms` (Default: `10s`)
+| neo4j.query.timeout | | false | Transaction timeout duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms` (Default: `0s`)
+|===
