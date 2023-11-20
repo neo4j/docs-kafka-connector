@@ -1,7 +1,6 @@
 = Quick Start
 
 [[quickstart]]
-
 ifdef::env-docs[]
 [abstract]
 --
@@ -15,15 +14,15 @@ endif::env-docs[]
 We will use Docker Compose to create an environment with Confluent and Neo4j running inside Docker.
 
 The {product-name} will first be configured with a source instance.
-The source will retrieve changes for the configured pattern.
-These changes are then serialized and published to the configured topic.
+The source will retrieve changes for the node pattern `(:TestSource)`.
+These changes are then serialized and published to the `changes` topic.
 
-Next, we will create a sink instance which will listen for messages in `my-topic`, and apply a Cypher statement to create a new set of nodes and relationships in Neo4j when the messages are received.
+Next, we will create a sink instance which will listen for messages in `changes` topic, and apply a Cypher statement to create a new set of nodes and relationships in Neo4j when the messages are received.
 
 [NOTE]
 The following guide uses the {product-name} for Confluent, the provided Docker Compose file cannot be used as-in for Apache Kafka.
 
-=== Run with Docker
+=== Run with Docker Compose
 
 Copy the following Docker Compose file into a desired directory.
 
@@ -31,6 +30,19 @@ Copy the following Docker Compose file into a desired directory.
 [source,yaml]
 ----
 include::ROOT:example$docker-data/docker-compose.yml[]
+----
+
+Copy the following {product-name} artifacts into a directory named `plugins` in the same directory as your `docker-compose.yml` file.
+The directory structure should look like;
+
+[source,text,subs="attributes+"]
+----
+quickstart/
+├─ plugins/
+│  ├─ neo4j-kafka-connect-neo4j-sink-{exact-connector-version}.jar
+│  ├─ neo4j-kafka-connect-neo4j-source-{exact-connector-version}.jar
+├─ docker-compose.yml
+
 ----
 
 Open a terminal, proceed to the Docker Compose file's directory and run:
@@ -65,6 +77,16 @@ Now you can access your Neo4j instance under: \http://localhost:7474, log in wit
 Confirm that you can access the Confluent Control Center instance at http://localhost:9021/clusters and that the Cluster reports as healthy (this may take 90-120s).
 You should have one Broker, several Topics and one Connect cluster in the Control Center.
 
+=== Enable CDC
+
+Enable Change Data Capture on the source database by executing the following Cypher command.
+For more information on Change Data Capture and enabling it, please refer to link:{page-canonical-root}/cdc/current/getting-started/enrichment[Change Data Capture > Enrichment mode].
+
+[source,shell]
+----
+ALTER DATABASE neo4j SET OPTION txLogEnrichment FULL;
+----
+
 === Source with CDC
 
 First up, we need to set up Neo4j as a source database that will provide messages for topics.
@@ -79,6 +101,7 @@ Pick one of the following message serialization formats given below, save the co
 include::ROOT:example$docker-data/contrib.source.avro.neo4j.json[]
 ----
 =====
+
 [.include-with-JSON-messages-with-schema]
 =====
 [source,json]
@@ -86,6 +109,7 @@ include::ROOT:example$docker-data/contrib.source.avro.neo4j.json[]
 include::ROOT:example$docker-data/contrib.source.json.neo4j.json[]
 ----
 =====
+
 [.include-with-JSON-messages-as-string]
 =====
 [source,json]
@@ -105,31 +129,65 @@ curl -X POST http://localhost:8083/connectors \
   -d @source.neo4j.json
 ----
 
-This will create a Kafka Connect source instance that will send messages over to the topic named `my-topic`, using your preferred serialization format.
+This will create a Kafka Connect source instance that will send change event messages over to the topic named `changes`, using your preferred serialization format.
 In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.
 
-The property `topic` defines where each message will be pushed.
-So given the above configuration, the structure of the message will be the following (serialized according to the selected message format):
+You can configure multiple patterns to read changes for, and have them published to topics of your choice.
+So given the above configuration, the connector will read changes happening on nodes of label `TestSource` and the structure of the message will be based on link:{page-canonical-root}/cdc/current/procedures/output-schema/[Change Data Capture > Change event schema], serialized according to the configured message format.
 
 [source,json]
 ----
-{"name": <name>, "surname": <surname>, "timestamp": <timestamp>}
+{
+  "id": "<id>",
+  "txId": 12,
+  "seq": 0,
+  "metadata": {
+    "executingUser": "neo4j",
+    "authenticatedUser": "neo4j",
+    "captureMode": "FULL",
+    "connectionClient": "127.0.0.1:51320",
+    "serverId": "<server-id>",
+    "databaseId": "<database-id>",
+    "connectionType": "bolt",
+    "connectionServer": "127.0.0.1:51316",
+    "txStartTime": "2023-11-03T11:58:30.429Z",
+    "txCommitTime": "2023-11-03T11:58:30.526Z",
+    "txMetadata": {}
+  },
+  "event": {
+    "elementId": "4:b7e35973-0aff-42fa-873b-5de31868cb4a:1",
+    "keys": {},
+    "eventType": "n",
+    "state": {
+      "before": null,
+      "after": {
+        "properties": {
+          "name": "<name>",
+          "surname": "<surname>"
+        },
+        "labels": ["TestSource"]
+      }
+    },
+    "operation": "c",
+    "labels": ["TestSource"]
+  }
+}
 ----
 
 Now that you have a running source instance, you can create the following nodes in Neo4j:
 
 [source,cypher]
 ----
-CREATE (:TestSource {name: 'john', surname: 'doe', timestamp: datetime().epochMillis});
-CREATE (:TestSource {name: 'mary', surname: 'doe', timestamp: datetime().epochMillis});
-CREATE (:TestSource {name: 'jack', surname: 'small', timestamp: datetime().epochMillis});
+CREATE (:TestSource {name: 'john', surname: 'doe'});
+CREATE (:TestSource {name: 'mary', surname: 'doe'});
+CREATE (:TestSource {name: 'jack', surname: 'small'});
 ----
 
-This will result in new messages being published to the topic named `my-topic`.
+This will result in new messages being published to the topic named `changes`.
 
 === Sink
 
-One way to consume the messages published above to `my-topic` is to use the sink.
+Having set up the source connector, the next step is to configure a sink connector that consumes messages published to the `changes` topic.
 
 First, save the following JSON file into a local directory named as `sink.neo4j.json`.
 
@@ -142,6 +200,7 @@ First, save the following JSON file into a local directory named as `sink.neo4j.
 include::ROOT:example$docker-data/contrib.sink.avro.neo4j.json[]
 ----
 =====
+
 [.include-with-JSON-messages-with-schema]
 =====
 [source,json]
@@ -149,6 +208,7 @@ include::ROOT:example$docker-data/contrib.sink.avro.neo4j.json[]
 include::ROOT:example$docker-data/contrib.sink.json.neo4j.json[]
 ----
 =====
+
 [.include-with-JSON-messages-as-string]
 =====
 [source,json]
@@ -169,13 +229,13 @@ curl -X POST http://localhost:8083/connectors \
 ----
 
 This configures the sink instance to consume data in your preferred serialization format.
-The property `neo4j.topic.cypher.my-topic` defines the Cypher query that will be executed per each message consumed by the sink instance on the Kafka Connect side.
+The property `neo4j.topic.cypher.changes` defines the Cypher query that will be executed per each message consumed by the sink instance on the Kafka Connect side.
 
 === Testing It Out
 
-Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters, and check the created `my-topic` as specified in the connector configuration, as well as the source and sink connector instances are running under Connect, connect-default.
+Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters, and check the created `changes` as specified in the connector configuration, as well as the source and sink connector instances are running under Connect, connect-default.
 
-With both source and sink connectors running, the previously created `:TestSource` nodes will result in messages being published into the `my-topic` topic by the source instance.
+With both source and sink connectors running, the previously created `:TestSource` nodes will result in messages being published into the `changes` topic by the source instance.
 These messages will then be consumed by the sink instance, and corresponding `:Person` and `:Family` nodes to be created inside Neo4j.
 
 Check that this is the case, by executing the following query in the Neo4j Browser at http://localhost:7474/browser/:
@@ -199,7 +259,7 @@ Typically, our connector is used as either a sink when pulling data from other d
 
 === Troubleshooting
 
-If you don't see any messages being published into the `my-topic` topic, or any `:Family` and `:Person` nodes created, please check Kafka Connect logs by executing the following command and resolve any issues being reported.
+If you don't see any messages being published into the `changes` topic, or any `:Family` and `:Person` nodes created, please check Kafka Connect logs by executing the following command and resolve any issues being reported.
 
 [source,bash]
 ----

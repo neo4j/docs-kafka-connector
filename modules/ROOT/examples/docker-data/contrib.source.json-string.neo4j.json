@@ -1,13 +1,11 @@
 {
   "name": "Neo4jSourceConnectorJSONString",
   "config": {
-    "topic": "my-topic",
     "connector.class": "org.neo4j.connectors.kafka.source.Neo4jConnector",
     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
     "key.converter.schemas.enable": false,
     "value.converter": "org.apache.kafka.connect.storage.StringConverter",
     "value.converter.schemas.enable": false,
-    "neo4j.enforce-schema": true,
     "neo4j.uri": "neo4j://neo4j:7687",
     "neo4j.authentication.type": "BASIC",
     "neo4j.authentication.basic.username": "neo4j",
@@ -15,6 +13,6 @@
     "neo4j.source-strategy": "CDC",
     "neo4j.start-from": "NOW",
     "neo4j.cdc.poll-interval": "5s",
-    "neo4j.cdc.topic.my-topic": "(:TestSource)"
+    "neo4j.cdc.topic.changes.patterns": "(:TestSource)"
   }
 }

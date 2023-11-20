@@ -1,7 +1,6 @@
 = Project Overview
 
 [[overview]]
-
 ifdef::env-docs[]
 [abstract]
 --
@@ -9,39 +8,84 @@ This chapter provides an introduction to the {product-name}.
 --
 endif::env-docs[]
 
-The {product-name} is designed for customers who want to stream data from distributed event stores and streaming platforms like Apache Kafka (TM) into Neo4j or Aura to make decisions in real time.
+The {product-name} is designed for customers who want to stream data from Apache Kafka (TM) topics into Neo4j or Aura, or publish changes occurring in Neo4j or Aura into Apache Kafka (TM) topics.
 
 == Distribution
 
 It is available in two packaging variants.
 
-=== Confluent Cloud
+=== Confluent
 
-The package can be deployed to Confluent Cloud using their Custom Connectors.
-It is available from the link:https://www.confluent.io/hub/neo4j/kafka-connect-neo4j[Confluent Hub], or from the link:https://neo4j.com/download-center[Neo4j Download Center].
+These packages can be deployed to Confluent platforms, including Confluent Cloud using their Custom Connectors.
 
 === Apache Kafka
 
-The package can be deployed into Amazon Managed Streaming for Apache Kafka (Amazon MSK).
-It is available from the link:https://neo4j.com/download-center[Neo4j Download Center].
-
+These packages can be deployed to Apache Kafka variants, such as Amazon Managed Streaming for Apache Kafka (Amazon MSK).
 
 == Components
 
-The connector provides a sink component.
-This is used to import data into Neo4j from Kafka Topics.
+=== Sink
 
-The connector also provides a source component.
-It reads data changes using link:https://neo4j.com/docs/cdc/current/[Change Data Capture]. These changes are then published to Kafka Topics, to be consumed by other systems.
+The connector provides a sink component, which consumes messages from Apache Kafka topics and applies configured changes into a Neo4j or Aura database.
+
+* *neo4j-kafka-connect-neo4j-sink-{exact-connector-version}.zip*
++
+Confluent Hub Component Archive that contains the sink connector.
+* *neo4j-kafka-connect-neo4j-sink-{exact-connector-version}.jar*
++
+An Uber-JAR that contains the sink connector and it's dependencies, prepared for use within Confluent platform.
+* *neo4j-kafka-connect-neo4j-sink-{exact-connector-version}-kc-oss.jar*
++
+An Uber-JAR that contains the sink connector and it's dependencies, prepared for use with Apache Kafka Connect or variants, such as Amazon MSK.
+
+=== Source
+
+The connector provides a source component, which listens for changes occurring in a Neo4j or Aura database and publishes messages into Apache Kafka topics.
+Source component can be configured to read changes using link:{page-canonical-root}/cdc[Change Data Capture] feature or a provided custom query.
+
+* *neo4j-kafka-connect-neo4j-source-{exact-connector-version}.zip*
++
+Confluent Hub Component Archive that contains the source connector.
+* *neo4j-kafka-connect-neo4j-source-{exact-connector-version}.jar*
++
+An Uber-JAR that contains the source connector and it's dependencies, prepared for use within Confluent platform.
+* *neo4j-kafka-connect-neo4j-source-{exact-connector-version}-kc-oss.jar*
++
+An Uber-JAR that contains the source connector and it's dependencies, prepared for use with Apache Kafka Connect or variants, such as Amazon MSK.
+
+=== Legacy
+
+The connector also provides another set of sink and source components which are being provided for backward compatibility.
+You can use these as drop-in replacements of {product-name} 5.0.x versions.
+
+* *neo4j-kafka-connect-neo4j-legacy-{exact-connector-version}.zip*
++
+Confluent Hub Component Archive that contains the legacy sink and source connectors.
+* *neo4j-kafka-connect-neo4j-legacy-{exact-connector-version}.jar*
++
+An Uber-JAR that contains the legacy sink and source connectors and their dependencies, prepared for use within Confluent platform.
+* *neo4j-kafka-connect-neo4j-legacy-{exact-connector-version}-kc-oss.jar*
++
+An Uber-JAR that contains the legacy sink and source connectors and their dependencies, prepared for use with Apache Kafka Connect or variants, such as Amazon MSK.
 
 // [[kafka_connect_neo4j_connector_overview]]
-== Deployment
+== Deployment and Installation
 
-{product-name} is deployed separately from the Neo4j database.
+{product-name} is a plugin designed to be run in an Apache Kafka Connect environment, which is deployed separately from the Neo4j database.
+For installation, copy the files for the components you want to install into your Kafka Connect `plugins` directory.
 
-== Compatibility with Neo4j
+== Compatibility
 
-We recommend using the latest version of {product-name} to be compatible with all the link:https://neo4j.com/developer/kb/neo4j-supported-versions/[supported versions] of Neo4j.
+=== Neo4j and Aura
+
+The connector is compatible with 4.4.x and 5.x versions of Neo4j and Aura 4 and 5.
+
+[IMPORTANT]
+Change Data Capture is a new feature introduced with Neo4j 5.13.0 and Aura 5, and source connector with CDC support requires at least these versions of Neo4j and Aura.
+
+=== Kafka Connect
+
+The connector is designed to be compatible with Apache Kafka Connect 2.8 and later versions.
 
 == Support
 
