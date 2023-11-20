@@ -1,27 +1,50 @@
 === Change Data Capture Event Strategy
 
-This method allows to ingest CDC events coming from another Neo4j Instance. You can use two sub strategies:
+[IMPORTANT]
+Change Data Capture Event Strategy currently does not support Change Data Capture feature provided with Neo4j Enterprise and Aura Enterprise.
+Support for this will be added in upcoming releases of the connector.
 
-* The `SourceId` sub-strategy which merges the nodes/relationships by the CDC event `id` field (it's related to the Neo4j physical ID)
-* The `Schema` sub-strategy which merges the nodes/relationships by the constraints (UNIQUENESS, NODE_KEY) defined in your graph model
+This strategy allows to ingest CDC events coming from another Neo4j instance, that generates change events based on neo4j streams plugin.
+There are two sub-strategies that can be used;
 
-==== The `SourceId` sub-strategy
+* SourceId
++
+This strategy merges nodes and relationships by the CDC event `id` field (it's related to the Neo4j physical ID).
 
-You can configure the topic in the following way:
+* Schema
++
+This strategy merges nodes and relationships by the constraints (UNIQUENESS, NODE_KEY) defined in the source database.
+
+==== SourceId sub-strategy
+
+`SourceId` strategy merges nodes and relationships by the source entity's `id` values, by storing this value as an explicit property on the target node and by marking nodes with an explicit label.
+
+Configuration of this strategy requires declaration of list of topics to read change events from, and optional label name to be used as a marker and also the property name to store the `id` values of the source entities.
 
 [source,json,subs="verbatim,attributes"]
 ----
-"{environment}.topic.cdc.sourceId": "<list of topics separated by semicolon>"
-"{environment}.topic.cdc.sourceId.labelName": "<the label attached to the node, default=SourceEvent>"
-"{environment}.topic.cdc.sourceId.idName": "<the id name given to the CDC id field, default=sourceId>"
+"neo4j.topic.cdc.sourceId": "<list of topics separated by semicolon>"
+"neo4j.topic.cdc.sourceId.labelName": "<the label attached to the node, default=SourceEvent>"
+"neo4j.topic.cdc.sourceId.idName": "<the id name given to the CDC id field, default=sourceId>"
 ----
+
+==== Example
+
+Given that you configure the topics your sink connector subscribes to within the sink configuration settings as follows;
+
+[source,json]
+----
+"topics": "topic.1,topic.2"
+----
+
+You need to declare that you want to use `cdc.sourceId` strategy by providing the list of topics you want to consume change events from.
 
 [source,json,subs="verbatim,attributes"]
 ----
-"{environment}.topic.cdc.sourceId": "my-topic;my-other.topic"
+"neo4j.topic.cdc.sourceId": "topic.1;topic.2"
 ----
 
-Each streams event will be projected into the related graph entity, for instance the following event:
+Each streams change event will then be projected into a graph entity, for instance the following event:
 
 [source,json]
 ----
@@ -32,31 +55,39 @@ will be persisted as the following node:
 
 [source,cypher]
 ----
-Person:SourceEvent{first_name: "Anne Marie", last_name: "Kretchmar", email: "annek@noanswer.org", sourceId: "1004"}
+(:Person:SourceEvent {first_name: "Anne Marie", last_name: "Kretchmar", email: "annek@noanswer.org", sourceId: "1004"})
 ----
 
-as you can notice, ingested event has been projected with two peculiarities:
+==== Schema sub-strategy
 
-* the `id` field has transformed into `sourceId`;
-* the node has an additional label `SourceEvent`;
+`Schema` strategy merges nodes and relationships by the constraints declared in the change event, thus preserves the source schema structure.
 
-these two fields will be used in order to match the node/relationship for future updates/deletes
-
-==== The `Schema` sub-strategy
-
-You can configure the topic in the following way:
+Configuration of this strategy requires declaration of list of topics to read change events from.
 
 [source,json,subs="verbatim,attributes"]
 ----
 "{environment}.topic.cdc.schema": "<LIST_OF_TOPICS_SEPARATED_BY_SEMICOLON>"
 ----
 
-[source,json,subs="verbatim,attributes"]
+==== Example
+
+Given that you configure the topics your sink connector subscribes to within the sink configuration settings as follows;
+
+[source,json]
 ----
-"{environment}.topic.cdc.schema": "my-topic;my-other.topic"
+"topics": "topic.1,topic.2"
 ----
 
-Each streams event will be projected into the related graph entity, for instance the following event:
+You need to declare that you want to use `cdc.schema` strategy by providing the list of topics you want to consume change events from.
+
+[source,json,subs="verbatim,attributes"]
+----
+"{environment}.topic.cdc.schema": "topic.1;topic.2"
+----
+
+Each streams change event will then be projected into a graph entity.
+
+For instance the following node creation event:
 
 [source,json]
 ----
@@ -67,16 +98,23 @@ will be persisted as the following node:
 
 [source,cypher]
 ----
-Person{first_name: "Anne Marie", last_name: "Kretchmar", email: "annek@noanswer.org"}
+(:Person {first_name: "Anne Marie", last_name: "Kretchmar", email: "annek@noanswer.org"})
 ----
 
-The `Schema` sub-strategy leverages the `schema` field in order to insert/update the nodes so no extra fields will be created.
+where the sink connector will use the `schema` field in order to insert/update the nodes, without a need for extra properties or labels.
 
-In case of relationship
+In case of relationship, the following relationship creation event:
 
 [source,json]
 ----
 include::ROOT:example$producer-data/relationship.created.json[]
 ----
 
-the `Schema` sub-strategy leverages the `ids` fields in order to insert/update the relationships so no extra fields will be created.
+wll be persisted as the following relationship:
+
+[source,cypher]
+----
+(:Person {last_name: "Santurbano", first_name: "Andrea"})-[:KNOWS {since: "2018-04-05T12:34:00[Europe/Berlin]"}]->(:Person {last_name: "Hunger", first_name: "Michael"})
+----
+
+where the sink connector will use the `ids` fields of the start & end nodes of the change event to create or update the relationship, again without a need for extra properties or labels.

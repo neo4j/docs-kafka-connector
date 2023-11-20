@@ -1,37 +1,72 @@
-=== The `Pattern` strategy
+=== The Pattern strategy
 
-The `Pattern` strategy allows you to extract nodes and relationships from a json by providing a extraction pattern
+This strategy allows you to extract nodes and relationships from a JSON object through extraction patterns.
 
-Each property can be prefixed with:
+==== Node Patterns
 
-* `!`: identify the id (could be more than one property), it's *mandatory*
-* `-`: exclude the property from the extraction
-If no prefix is specified this means that the property will be included
+Node patterns are defined similar to Cypher node patterns.
+
+. start with `(`
+. define optional list of labels, separated by `:`, such as `:Person` or `:Person:Employee`
+. open property section with `{`
+. define properties to be treated as keys, each prepended with `!`, where at least one key property needs to be provided
+. either
+.. nothing or `*`, meaning that assign all properties from JSON object to the node
+.. list of property names to be assigned to the node from JSON object
+.. list of property names _not_ to be assigned to the node, each prepended with `-`, all other properties from JSON object will be assigned to the node
+. close property section with `}`
+. end with `)`
 
 [NOTE]
-**You cannot mix inclusion and exclusion so your pattern must contains all exclusion
-or inclusion properties**
+You cannot mix inclusion and exclusion so your pattern must contains all exclusion or inclusion properties.
 
-Labels can be chained via `:`
+===== Examples
 
-.Tombstone Record Management
-The pattern strategy come out with the support to the https://en.wikipedia.org/wiki/Tombstone_(data_store)[Tombstone Record],
-in order to leverage it your event should contain as key the record that you want to delete and `null` for the value.
+* `MERGE` operation on `User` label with `userId` treated as a key and assigning all properties from JSON object to the node
++
+[source]
+----
+(:User{!userId})
+----
++
+or
++
+[source]
+----
+(:User{!userId, *})
+----
 
-[NOTE]
-**Currently you can't concatenate multiple patterns (for example in case you use just one topic and produce more then one node/relationship type).
-So you have to use a different topic for each type of node/relationship and define a pattern for each of them**
+* `MERGE` operation on `User` label with `userId` treated as a key and assigning *only* `surname` property from JSON object to the node
++
+[source]
+----
+(:User{!userId, surname})
+----
 
-==== The `Node Pattern` configuration
+* `MERGE` operation on `User` label with `userId` treated as a key and assigning *only* `surname` and `address.city` properties from JSON object to the node
++
+[source]
+----
+(:User{!userId, surname, address.city})
+----
 
-You can configure the node pattern extraction in the following way:
+* `MERGE` operation on `User` label with `userId` treated as key and assigning all properties excluding `address` property from JSON object to the node
++
+[source]
+----
+(:User{!userId, -address})
+----
+
+===== Configuration
+
+You can configure the node pattern as follows;
 
 [source,json,subs="verbatim,attributes"]
 ----
-"{environment}.topic.pattern.node.<TOPIC_NAME>": "<NODE_EXTRACTION_PATTERN>"
+"neo4j.topic.pattern.node.<TOPIC_NAME>": "<NODE_PATTERN>"
 ----
 
-So for instance, given the following `json` published via the `user` topic:
+For instance, given the following `json` published via the `user` topic:
 
 [source,json]
 ----
@@ -40,56 +75,77 @@ So for instance, given the following `json` published via the `user` topic:
 
 You can transform it into a node by providing the following configuration:
 
+[source,json,subs="verbatim,attributes"]
+----
+"neo4j.topic.pattern.node.user": "(:User{!userId})"
+----
 
-by specifying a simpler pattern:
+==== Relationship Patterns
+
+Relationship patterns are defined similar to Cypher relationship patterns.
+
+. node pattern for start node
+. `-[`
+. define relationship type, prepended by `:`, such as `:BOUGHT` or `:KNOWS`
+. open property section with `{`
+. either
+.. nothing or `*`, meaning that assign all properties from JSON object to the node
+.. list of property names to be assigned to the node from JSON object
+.. list of property names _not_ to be assigned to the node, each prepended with `-`, all other properties from JSON object will be assigned to the node
+. close property section with `}`
+. `]\->`
+. node pattern for end node
+
+[NOTE]
+You cannot mix inclusion and exclusion so your pattern must contains all exclusion or inclusion properties.
+
+===== Examples
+
+. `MERGE` operation on `User` and `Product` labels with `userId` and `productId` treated as keys respectively and `MERGE` a `BOUGHT` relationship between them assigning all other JSON properties to the relationship
++
+[source]
+----
+(:User{!userId})-[:BOUGHT]->(:Product{!productId})
+----
+
+. `MERGE` operation on `User` and `Product` labels with `userId` and `productId` treated as keys respectively and `MERGE` a `BOUGHT` relationship between them assigning *only* `price` and `currency` properties from JSON object to the relationship
++
+[source]
+----
+(:User{!userId})-[:BOUGHT{price,currency}]->(:Product{!productId})
+----
+
+. `MERGE` operation on `User` and `Product` labels with `userId` and `productId` treated as keys respectively and `MERGE` a `BOUGHT` relationship between them assigning *only* `price`,  `currency` and `shippingAddress.city` properties from JSON object to the relationship
++
+[source]
+----
+(:User{!userId})-[:BOUGHT{price,currency,shippingAddress.city}]->(:Product{!productId})
+----
+
+. `MERGE` operation on `User` and `Product` labels with `userId` and `productId` treated as keys respectively and `MERGE` a `BOUGHT` relationship between them assigning all properties *excluding* `shippingAddress` from JSON object to the relationship
++
+[source]
+----
+(:User{!userId})-[:BOUGHT{-shippingAddress}]->(:Product{!productId})
+----
+
+. `MERGE` operation on `User` and `Product` labels with `userId` and `productId` treated as keys respectively, assign `userFirstName` and `userLastName` properties from JSON object to the `User` node and `MERGE` a `BOUGHT` relationship between them assigning *only* `price` and `currency` properties from JSON object to the relationship
++
+[source]
+----
+(:User{!userId, userFirstName, userLastName})-[:BOUGHT{price, currency}]->(:Product{!productId})
+----
+
+===== Configuration
+
+You can configure the relationship pattern as follows;
 
 [source,json,subs="verbatim,attributes"]
 ----
-"{environment}.topic.pattern.node.user": "User{!userId}"
+"neo4j.topic.pattern.relationship.<TOPIC_NAME>": "<RELATIONSHIP_PATTERN>"
 ----
 
-or by specifying a Cypher like node pattern:
-
-[source,json,subs="verbatim,attributes"]
-----
-"{environment}.topic.pattern.node.user": "(:User{!userId})"
-----
-
-Similar to the CDC pattern you can provide:
-
-[cols="1m,3a",opts=header]
-|===
-| pattern
-| meaning
-
-| User:Actor{!userId} or User:Actor{!userId,*}
-| the userId will be used as ID field and all properties of the json will be attached to the node with the provided
-labels (`User` and `Actor`) so the persisted node will be: *(User:Actor{userId: 1, name: 'Andrea', surname: 'Santurbano', `address.city`: 'Venice', `address.cap`: 30100})*
-
-| User{!userId, surname}
-| the userId will be used as ID field and *only* the surname property of the json will be attached to the node with the provided
-labels (`User`) so the persisted node will be: *(User{userId: 1, surname: 'Santurbano'})*
-
-| User{!userId, surname, address.city}
-| the userId will be used as ID field and *only* the surname and the `address.city` property of the json will be attached to the node with the provided
-labels (`User`) so the persisted node will be: *(User{userId: 1, surname: 'Santurbano', `address.city`: 'Venice'})*
-
-| User{!userId,-address}
-| the userId will be used as ID field and the `address` property will be excluded
-so the persisted node will be: *(User{userId: 1, name: 'Andrea', surname: 'Santurbano'})*
-
-|===
-
-==== The `Relationship Pattern` configuration
-
-You can configure the relationship pattern extraction in the following way:
-
-[source,json,subs="verbatim,attributes"]
-----
-"{environment}.topic.pattern.relationship.<TOPIC_NAME>": "<RELATIONSHIP_EXTRACTION_PATTERN>"
-----
-
-So for instance, given the following `json` published via the `user` topic:
+For instance, given the following `json` published via the `user` topic:
 
 [source,json]
 ----
@@ -98,72 +154,16 @@ So for instance, given the following `json` published via the `user` topic:
 
 You can transform it into a path, like `(n)-[r]->(m)`, by providing the following configuration:
 
-By specifying a simpler pattern:
-
 [source,json,subs="verbatim,attributes"]
 ----
-"{environment}.topic.pattern.relationship.user": "User{!userId} BOUGHT{price, currency} Product{!productId}"
+"neo4j.topic.pattern.relationship.user": "(:User{!userId})-[:BOUGHT{price, currency}]->(:Product{!productId})"
 ----
 
-or by specifying a Cypher like node pattern:
+==== Tombstone Records
 
-[source,json,subs="verbatim,attributes"]
-----
-"{environment}.topic.pattern.relationship.user": "(:User{!userId})-[:BOUGHT{price, currency}]->(:Product{!productId})"
-----
+The pattern strategy supports https://en.wikipedia.org/wiki/Tombstone_(data_store)[tombstone records].
+In order to use it, message key should contain at least the key properties present in the provided pattern and message value should be set as `null`.
 
-in this last case the we assume that `User` is the source node and `Product` the target node
-
-
-Similar to the CDC pattern you can provide:
-
-[cols="1m,3a",opts=header]
-|===
-| pattern
-| meaning
-
-| (User{!userId})-[:BOUGHT]->(Product{!productId}) or (User{!userId})-[:BOUGHT{price, currency}]->(Product{!productId})
-| this will merge fetch/create the two nodes by the provided identifier and the `BOUGHT` relationship between them. And then set all the other json properties on them so the persisted data will be:
-*(User{userId: 1})-[:BOUGHT{price: 10, currency: '€', `shippingAddress.city`: 'Venice', `shippingAddress.cap`: 30100}]->(Product{productId: 100})*
-
-| (User{!userId})-[:BOUGHT\{price\}]->(Product{!productId})
-| this will merge fetch/create the two nodes by the provided identifier and the `BOUGHT` relationship between them. And then set all the specified json properties so the persisted pattern will be:
-*(User{userId: 1})-[:BOUGHT{price: 10}]->(Product{productId: 100})*
-
-| (User{!userId})-[:BOUGHT{-shippingAddress}]->(Product{!productId})
-| this will merge fetch/create the two nodes by the provided identifier and the `BOUGHT` relationship between them. And then set all the specified json properties (by the exclusion) so the persisted pattern will be:
-*(User{userId: 1})-[:BOUGHT{price: 10, currency: '€'}]->(Product{productId: 100})*
-
-| (User{!userId})-[:BOUGHT{price,currency, shippingAddress.city}]->(Product{!productId})
-| this will merge fetch/create the two nodes by the provided identifier and the `BOUGHT` relationship between them. And then set all the specified json properties so the persisted pattern will be:
-*(User{userId: 1})-[:BOUGHT{price: 10, currency: '€', `shippingAddress.city`: 'Venice'}]->(Product{productId: 100})*
-
-|===
-
-==== Attach properties to node
-
-By default no properties will be attached to the edge nodes but you can specify which property attach to each node. Given the following `json` published via the `user` topic:
-
-[source,json]
-----
-{
-    "userId": 1,
-    "userName": "Andrea",
-    "userSurname": "Santurbano",
-    "productId": 100,
-    "productName": "My Awesome Product!",
-    "price": 10,
-    "currency": "€"
-}
-----
-
-[cols="1m,3a",opts=header]
-|===
-| pattern
-| meaning
-
-| (User{!userId, userName, userSurname})-[:BOUGHT]->(Product{!productId, productName})
-| this will merge two nodes and the `BOUGHT` relationship between with all json properties them so the persisted pattern will be:
-*(User{userId: 1, userName: 'Andrea', userSurname: 'Santurbano'})-[:BOUGHT{price: 10, currency: '€'}]->(Product{productId: 100, name: 'My Awesome Product!'})*
-
-|===
+[IMPORTANT]
+**Currently you can't define multiple patterns for a single topic, such as extracting more than one node or relationship type from a single message.
+In order to achieve this, you have to use a different topic for each pattern.**

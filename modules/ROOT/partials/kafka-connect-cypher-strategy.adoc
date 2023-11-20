@@ -78,7 +78,7 @@ Pick one of the following message serialization formats, save the content of the
 =====
 [source,json]
 ----
-include::ROOT:example$docker-data/contrib.source.avro.neo4j.json[]
+include::ROOT:example$docker-data/contrib.sink.avro.neo4j.json[]
 ----
 =====
 
@@ -86,7 +86,7 @@ include::ROOT:example$docker-data/contrib.source.avro.neo4j.json[]
 =====
 [source,json]
 ----
-include::ROOT:example$docker-data/contrib.source.json.neo4j.json[]
+include::ROOT:example$docker-data/contrib.sink.json.neo4j.json[]
 ----
 =====
 
@@ -94,7 +94,7 @@ include::ROOT:example$docker-data/contrib.source.json.neo4j.json[]
 =====
 [source,json]
 ----
-include::ROOT:example$docker-data/contrib.source.json-string.neo4j.json[]
+include::ROOT:example$docker-data/contrib.sink.json-string.neo4j.json[]
 ----
 =====
 ====

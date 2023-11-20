@@ -40,40 +40,6 @@ include::partial$kafka-connect-pattern-strategy.adoc[]
 [#kafka-connect-cud-file-format-strategy]
 include::partial$kafka-connect-cud-file-format-strategy.adoc[]
 
-== Multi Database Support
-
-Neo4j Enterprise Edition has https://neo4j.com/docs/operations-manual/current/manage-databases/introduction/[multi-tenancy support].
-In order to support this feature with {product-name}, we have to add the `neo4j.database` property to the sink configuration, which tells the Connector the database to use as default.
-If you don't specify that property, the home database for the configured user will be used.
-
-Following an example:
-
-[source,json]
-----
-{
-  "name": "Neo4jSinkConnector",
-  "config": {
-    "neo4j.database": "<database_name>",
-    "topics": "my-topic",
-    "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",
-    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "key.converter.schemas.enable": false,
-    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "value.converter.schemas.enable": false,
-    "errors.retry.timeout": "-1",
-    "errors.retry.delay.max.ms": "1000",
-    "errors.tolerance": "all",
-    "errors.log.enable": true,
-    "errors.log.include.messages": true,
-    "neo4j.uri": "neo4j://neo4j:7687",
-    "neo4j.authentication.type": "BASIC",
-    "neo4j.authentication.basic.username": "neo4j",
-    "neo4j.authentication.basic.password": "password",
-    "neo4j.topic.cypher.my-topic": "MERGE (p:Person{name: event.name, surname: event.surname}) MERGE (f:Family{name: event.surname}) MERGE (p)-[:BELONGS_TO]->(f)"
-  }
-}
-----
-
 [#kafka_connect_error_handling]
 == How to deal with bad data
 
