@@ -14,10 +14,10 @@ endif::env-docs[]
 We will use Docker Compose to create an environment with Confluent and Neo4j running inside Docker.
 
 The {product-name} will first be configured with a source instance.
-The source will retrieve changes for the node pattern `(:TestSource)`.
-These changes are then serialized and published to the `changes` topic.
+The source will retrieve changes from `CREATE`, `UPDATE` and `DELETE` operations for the node pattern `(:TestSource)`.
+Received changes will then be published into `creates`, `updates` and `deletes` topics based on the operation.
 
-Next, we will create a sink instance which will listen for messages in `changes` topic, and apply a Cypher statement to create a new set of nodes and relationships in Neo4j when the messages are received.
+Next, we will create a sink instance which will listen for messages in `creates`, `updates` and `deletes` topics, and execute a Cypher statement to apply the corresponding change in Neo4j when the messages are received.
 
 [NOTE]
 The following guide uses the {product-name} for Confluent, the provided Docker Compose file cannot be used as-in for Apache Kafka.
@@ -90,7 +90,7 @@ ALTER DATABASE neo4j SET OPTION txLogEnrichment FULL;
 === Source with CDC
 
 First up, we need to set up Neo4j as a source database that will provide messages for topics.
-Pick one of the following message serialization formats given below, save the content of the provided file into a local directory, named as `source.neo4j.json`.
+Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as `source.neo4j.json`.
 
 [.tabbed-example]
 ====
@@ -119,7 +119,7 @@ include::ROOT:example$docker-data/contrib.source.json-string.neo4j.json[]
 =====
 ====
 
-We will now create the source instance by invoking the the following REST call:
+We will now create the source instance by invoking the following REST call:
 
 [source,shell]
 ----
@@ -129,12 +129,17 @@ curl -X POST http://localhost:8083/connectors \
   -d @source.neo4j.json
 ----
 
-This will create a Kafka Connect source instance that will send change event messages over to the topic named `changes`, using your preferred serialization format.
+This will create a Kafka Connect source instance that will send change event messages over to the topics named `creates`, `updates` and `deletes`, using your preferred serialization format.
 In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.
 
-You can configure multiple patterns to read changes for, and have them published to topics of your choice.
+As illustrated, you can configure multiple patterns to read changes for, and have them published to topics of your choice.
 So given the above configuration, the connector will read changes happening on nodes of label `TestSource` and the structure of the message will be based on link:{page-canonical-root}/cdc/current/procedures/output-schema/[Change Data Capture > Change event schema], serialized according to the configured message format.
+The expected change events, based on the type of operation, will have the following structure.
 
+[.tabbed-example]
+====
+[.include-with-CREATE-events]
+=====
 [source,json]
 ----
 {
@@ -173,6 +178,96 @@ So given the above configuration, the connector will read changes happening on n
   }
 }
 ----
+=====
+[.include-with-UPDATE-events]
+=====
+[source,json]
+----
+{
+  "id": "<id>",
+  "txId": 12,
+  "seq": 0,
+  "metadata": {
+    "executingUser": "neo4j",
+    "authenticatedUser": "neo4j",
+    "captureMode": "FULL",
+    "connectionClient": "127.0.0.1:51320",
+    "serverId": "<server-id>",
+    "databaseId": "<database-id>",
+    "connectionType": "bolt",
+    "connectionServer": "127.0.0.1:51316",
+    "txStartTime": "2023-11-03T11:58:30.429Z",
+    "txCommitTime": "2023-11-03T11:58:30.526Z",
+    "txMetadata": {}
+  },
+  "event": {
+    "elementId": "4:b7e35973-0aff-42fa-873b-5de31868cb4a:1",
+    "keys": {},
+    "eventType": "n",
+    "state": {
+      "before": {
+        "properties": {
+          "name": "<old-name>",
+          "surname": "<old-surname>"
+        },
+        "labels": ["TestSource"]
+      },
+      "after": {
+        "properties": {
+          "name": "<new-name>",
+          "surname": "<new-surname>"
+        },
+        "labels": ["TestSource"]
+      }
+    },
+    "operation": "u",
+    "labels": ["TestSource"]
+  }
+}
+----
+=====
+[.include-with-DELETE-events]
+=====
+[source,json]
+----
+{
+  "id": "<id>",
+  "txId": 12,
+  "seq": 0,
+  "metadata": {
+    "executingUser": "neo4j",
+    "authenticatedUser": "neo4j",
+    "captureMode": "FULL",
+    "connectionClient": "127.0.0.1:51320",
+    "serverId": "<server-id>",
+    "databaseId": "<database-id>",
+    "connectionType": "bolt",
+    "connectionServer": "127.0.0.1:51316",
+    "txStartTime": "2023-11-03T11:58:30.429Z",
+    "txCommitTime": "2023-11-03T11:58:30.526Z",
+    "txMetadata": {}
+  },
+  "event": {
+    "elementId": "4:b7e35973-0aff-42fa-873b-5de31868cb4a:1",
+    "keys": {},
+    "eventType": "n",
+    "state": {
+      "before": {
+        "properties": {
+          "name": "<name>",
+          "surname": "<surname>"
+        },
+        "labels": ["TestSource"]
+      },
+      "after": null
+    },
+    "operation": "d",
+    "labels": ["TestSource"]
+  }
+}
+----
+=====
+====
 
 Now that you have a running source instance, you can create the following nodes in Neo4j:
 
@@ -183,11 +278,11 @@ CREATE (:TestSource {name: 'mary', surname: 'doe'});
 CREATE (:TestSource {name: 'jack', surname: 'small'});
 ----
 
-This will result in new messages being published to the topic named `changes`.
+This will result in new messages being published to the topic named `creates`.
 
 === Sink
 
-Having set up the source connector, the next step is to configure a sink connector that consumes messages published to the `changes` topic.
+Having set up the source connector, the next step is to configure a sink connector that consumes messages published to the `creates`, `updates` and `deletes` topics.
 
 First, save the following JSON file into a local directory named as `sink.neo4j.json`.
 
@@ -229,14 +324,15 @@ curl -X POST http://localhost:8083/connectors \
 ----
 
 This configures the sink instance to consume data in your preferred serialization format.
-The property `neo4j.topic.cypher.changes` defines the Cypher query that will be executed per each message consumed by the sink instance on the Kafka Connect side.
+The properties `neo4j.topic.cypher.creates`, `neo4j.topic.cypher.updates` and `neo4j.topic.cypher.deletes` define the Cypher queries that will be executed per each message consumed by the sink instance on the Kafka Connect side.
 
 === Testing It Out
 
-Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters, and check the created `changes` as specified in the connector configuration, as well as the source and sink connector instances are running under Connect, connect-default.
+Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters, and verify at least the `creates` topic is created as specified in the connector configuration, as well as the source and sink connector instances are running under Connect, connect-default.
 
-With both source and sink connectors running, the previously created `:TestSource` nodes will result in messages being published into the `changes` topic by the source instance.
+With both source and sink connectors running, the previously created `:TestSource` nodes will result in messages being published into the `creates` topic by the source instance.
 These messages will then be consumed by the sink instance, and corresponding `:Person` and `:Family` nodes to be created inside Neo4j.
+As you create, update and delete the `TestSource` labelled nodes, `updates` and `deletes` topics will also be created.
 
 Check that this is the case, by executing the following query in the Neo4j Browser at http://localhost:7474/browser/:
 
@@ -245,21 +341,41 @@ Check that this is the case, by executing the following query in the Neo4j Brows
 MATCH (n:(Person | Family)) RETURN n
 ----
 
-You can create more Person and Family nodes by executing more statements like:
+You can now create, update or delete Person and Family nodes by executing more statements like:
 
+.Create a new person
 [source,cypher]
 ----
-CREATE (:TestSource {name: 'Ann', surname: 'Bolin', timestamp: datetime().epochMillis});
+CREATE (:TestSource {name: 'Ann', surname: 'Bolin'});
 ----
+
+Verify that a new `Person` and a new `Family` node is created and linked together.
+
+.Update an existing person
+[source,cypher]
+----
+MATCH (n:TestSource {name: 'mary', surname: 'doe'}) SET n.surname = 'ex-doe';
+----
+
+Verify that the existing `Person` node is now updated with a surname of `ex-doe` and linked to a new `Family` node.
+
+.Delete an existing person
+[source,cypher]
+----
+MATCH (n:TestSource {name: 'mary', surname: 'doe'}) DELETE n;
+----
+
+Verify that the existing `Person` node is now deleted.
+
 
 === Summary
 
-In this Quick Start, we have shown how to configure a Neo4j database to act as both the source of messages for Confluent topics and the sink for those same messages to create new nodes and relationships in the database.
+In this Quick Start, we have shown how to configure a Neo4j database to act as both the source of messages for Kafka topics and the sink for those same messages to create, update or delete nodes and relationships in the database.
 Typically, our connector is used as either a sink when pulling data from other data sources via Apache Kafka or Confluent or as source for Apache Kafka or Confluent to push data into other databases.
 
 === Troubleshooting
 
-If you don't see any messages being published into the `changes` topic, or any `:Family` and `:Person` nodes created, please check Kafka Connect logs by executing the following command and resolve any issues being reported.
+If you don't see any messages being published into the `creates`, `updates` and `deletes` topics, or any `:Family` and `:Person` nodes created, please check Kafka Connect logs by executing the following command and resolve any issues being reported.
 
 [source,bash]
 ----
