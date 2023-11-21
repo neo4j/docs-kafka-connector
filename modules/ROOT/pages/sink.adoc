@@ -75,3 +75,8 @@ We want to extend this feature for transient errors in order to cover the 100% o
 So to do that at this moment as suggested by Confluent we need to ask again the broker location, until this JIRA issue will not be addressed: https://issues.apache.org/jira/browse/KAFKA-8597.
 Said that, these properties has to be added only if you want to also redirect Neo4j errors into the DLQ.
 
+
+== Configuration Summary
+
+[#connector-common-configuration]
+include::partial$connector-common-configuration.adoc[]
