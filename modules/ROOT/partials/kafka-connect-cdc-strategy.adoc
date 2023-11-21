@@ -48,7 +48,7 @@ Each streams change event will then be projected into a graph entity, for instan
 
 [source,json]
 ----
-include::ROOT:example$producer-data/node.created.json[]
+include::example$producer-data/node.created.json[]
 ----
 
 will be persisted as the following node:
@@ -91,7 +91,7 @@ For instance the following node creation event:
 
 [source,json]
 ----
-include::ROOT:example$producer-data/node.created.json[]
+include::example$producer-data/node.created.json[]
 ----
 
 will be persisted as the following node:
@@ -107,7 +107,7 @@ In case of relationship, the following relationship creation event:
 
 [source,json]
 ----
-include::ROOT:example$producer-data/relationship.created.json[]
+include::example$producer-data/relationship.created.json[]
 ----
 
 wll be persisted as the following relationship:

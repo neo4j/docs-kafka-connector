@@ -29,7 +29,7 @@ Copy the following Docker Compose file into a desired directory.
 .docker-compose.yml
 [source,yaml]
 ----
-include::ROOT:example$docker-data/docker-compose.yml[]
+include::example$docker-data/docker-compose.yml[]
 ----
 
 Copy the following {product-name} artifacts into a directory named `plugins` in the same directory as your `docker-compose.yml` file.
@@ -98,7 +98,7 @@ Pick one of the following message serialization formats, save the content of the
 =====
 [source,json]
 ----
-include::ROOT:example$docker-data/quickstart.source.cdc.avro.neo4j.json[]
+include::example$docker-data/quickstart.source.cdc.avro.neo4j.json[]
 ----
 =====
 
@@ -106,7 +106,7 @@ include::ROOT:example$docker-data/quickstart.source.cdc.avro.neo4j.json[]
 =====
 [source,json]
 ----
-include::ROOT:example$docker-data/quickstart.source.cdc.json.neo4j.json[]
+include::example$docker-data/quickstart.source.cdc.json.neo4j.json[]
 ----
 =====
 
@@ -114,7 +114,7 @@ include::ROOT:example$docker-data/quickstart.source.cdc.json.neo4j.json[]
 =====
 [source,json]
 ----
-include::ROOT:example$docker-data/quickstart.source.cdc.json-string.neo4j.json[]
+include::example$docker-data/quickstart.source.cdc.json-string.neo4j.json[]
 ----
 =====
 ====
@@ -292,7 +292,7 @@ First, save the following JSON file into a local directory named as `sink.neo4j.
 =====
 [source,json]
 ----
-include::ROOT:example$docker-data/quickstart.sink.avro.neo4j.json[]
+include::example$docker-data/quickstart.sink.avro.neo4j.json[]
 ----
 =====
 
@@ -300,7 +300,7 @@ include::ROOT:example$docker-data/quickstart.sink.avro.neo4j.json[]
 =====
 [source,json]
 ----
-include::ROOT:example$docker-data/quickstart.sink.json.neo4j.json[]
+include::example$docker-data/quickstart.sink.json.neo4j.json[]
 ----
 =====
 
@@ -308,7 +308,7 @@ include::ROOT:example$docker-data/quickstart.sink.json.neo4j.json[]
 =====
 [source,json]
 ----
-include::ROOT:example$docker-data/quickstart.sink.json-string.neo4j.json[]
+include::example$docker-data/quickstart.sink.json-string.neo4j.json[]
 ----
 =====
 ====
