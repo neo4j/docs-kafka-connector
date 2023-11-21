@@ -57,7 +57,7 @@ You can take a look at {url-confluent-blog}/kafka-connect-deep-dive-error-handli
 
 == Configuration Summary
 
-[#connector-common-configuration]
+[#connector-sink-common-configuration]
 include::partial$connector-common-configuration.adoc[]
 
 === Common Sink Settings

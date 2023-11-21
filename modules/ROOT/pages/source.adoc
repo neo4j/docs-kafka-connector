@@ -333,7 +333,7 @@ Generated change event messages in this case will have the following structure:
 
 == Configuration Summary
 
-[#connector-common-configuration]
+[#connector-source-common-configuration]
 include::partial$connector-common-configuration.adoc[]
 
 
