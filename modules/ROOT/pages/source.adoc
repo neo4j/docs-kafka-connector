@@ -345,8 +345,8 @@ include::partial$connector-common-configuration.adoc[]
 | Description
 
 | neo4j.source-strategy |
-label:current[Mandatory] One of `CDC`, `QUERY`
-| neo4j.start-from | label:current[Mandatory] One of `EARLIEST`, `NOW`, `USER_PROVIDED`.
+label:mandatory[] One of `CDC`, `QUERY`
+| neo4j.start-from | label:mandatory[] One of `EARLIEST`, `NOW`, `USER_PROVIDED`.
 Only used on initial run of the connector instance, and ignored when there is already a stored offset in Kafka Connect.
 
 Default: `NOW`
@@ -368,10 +368,10 @@ Default: `1000`
 | Name
 | Description
 
-| neo4j.cdc.poll-interval | label:current[Mandatory] Interval duration between consecutive CDC polls in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
+| neo4j.cdc.poll-interval | label:mandatory[] Interval duration between consecutive CDC polls in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
 
 Default: `10s`
-| neo4j.cdc.poll-duration | label:current[Mandatory] CDC poll duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
+| neo4j.cdc.poll-duration | label:mandatory[] CDC poll duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
 
 Default: `1s`
 | neo4j.cdc.topic.\{NAME}.patterns | Comma-separated list of graph patterns, with optional event property filters (prefixed with `+` or `-` for inclusion or exclusion respectively).  Example setting: `"neo4j.cdc.topic.my-topic.patterns": "(:Person {+name}),(:Person)-[:WORKS_FOR]->(:Company),(:Company {-id})"`. The change event for `Company` nodes will not include the `id` property.
@@ -389,9 +389,9 @@ Default: `1s`
 | Name
 | Description
 
-| neo4j.topic | label:current[Mandatory] Topic to write to
-| neo4j.query | label:current[Mandatory] Read query to execute
-| neo4j.query.streaming-property | label:current[Mandatory] Property to watch changes for
+| neo4j.topic | label:mandatory[] Topic to write to
+| neo4j.query | label:mandatory[] Read query to execute
+| neo4j.query.streaming-property | label:mandatory[] Property to watch changes for
 | neo4j.enforce-schema | One of `true`, `false`
 
 Default: `false`
