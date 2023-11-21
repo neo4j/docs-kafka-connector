@@ -74,7 +74,7 @@ zookeeper           "/etc/confluent/dock…"   zookeeper           running      
 ----
 
 Now you can access your Neo4j instance under: \http://localhost:7474, log in with `neo4j` as username and `password` as password (Refer to the Docker Compose file to change it).
-Confirm that you can access the Confluent Control Center instance at http://localhost:9021/clusters and that the Cluster reports as healthy (this may take 90-120s).
+Confirm that you can access the Confluent Control Center instance at \http://localhost:9021/clusters and that the Cluster reports as healthy (this may take 90-120s).
 You should have one Broker, several Topics and one Connect cluster in the Control Center.
 
 === Enable CDC
@@ -334,7 +334,7 @@ With both source and sink connectors running, the previously created `:TestSourc
 These messages will then be consumed by the sink instance, and corresponding `:Person` and `:Family` nodes to be created inside Neo4j.
 As you create, update and delete the `TestSource` labelled nodes, `updates` and `deletes` topics will also be created.
 
-Check that this is the case, by executing the following query in the Neo4j Browser at http://localhost:7474/browser/:
+Check that this is the case, by executing the following query in the Neo4j Browser at \http://localhost:7474/browser/:
 
 [source,cypher]
 ----

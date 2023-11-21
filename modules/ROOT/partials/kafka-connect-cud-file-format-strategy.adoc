@@ -57,7 +57,7 @@ MERGE (n:Foo:Bar {key: event.ids.key, otherkey: event.ids.otherkey})
 SET n += event.properties
 ----
 
-Lets describe the fields:
+Let us describe the fields:
 
 [#{id}_table_cud_node_fields]
 .CUD file **Node format** fields description
@@ -75,17 +75,17 @@ Lets describe the fields:
 *N.B.* delete messages are for **individual nodes** it’s not intended to be a generic way of doing cypher query building from JSON
 
 | properties
-| no in case the operation is `delete`, otherwise yes
+| no, in case the operation is `delete`, otherwise yes
 | The properties attached to the node
 
 | ids
-| no in case the operation is `create`, otherwise yes
+| no, in case the operation is `create`, otherwise yes
 | In case the operation is merge/update/delete this field is **mandatory** and contains
-the primary/unique keys of the node that will be use to do the lookup to the entity.
+the primary/unique keys of the node that will be used to do the lookup to the entity.
 In case you use as key the `_id` name the cud format will refer to Neo4j's node internal for the node lookup.
 
 *N.B.* If you'll use the `_id` reference with the op `merge` it will work as simple update, this means that if the node
-with the passed internal id does not exists it will not be created.
+with the passed internal id does not exist, it will not be created.
 
 | labels
 | no
@@ -99,7 +99,7 @@ with the passed internal id does not exists it will not be created.
 
 | detach
 | no
-| In case the operation is delete you can specify if perform a https://neo4j.com/docs/cypher-manual/current/clauses/delete/["detach" delete] that means delete any incident relationships when you delete a node
+| In case the operation is "delete", you can specify if perform a https://neo4j.com/docs/cypher-manual/current/clauses/delete/["detach" delete] that means delete any incident relationships when you delete a node
 
 *N.B.* if no value is provided, the default is true
 
@@ -157,7 +157,7 @@ CREATE (from)-[r:MY_REL]->(to)
 SET r = event.properties
 ----
 
-Lets describe the fields:
+Let's describe the fields:
 
 [#{id}_table_cud_rels_fields]
 .CUD file **Relationship format** fields description
@@ -180,18 +180,18 @@ Lets describe the fields:
 | The relationship type
 
 | from
-| yes, if you use the `_id` field reference into `ids` you can left labels blank
+| yes, if you use the `_id` field reference into `ids` you can leave labels blank
 | Contains the info about the source node of the relationship.
-For the description of the `ids` and `labels` fields please please look at the node fields description above
+For the description of the `ids` and `labels` fields, please look at the node fields description above
 
 | to
-| yes, if you use the `_id` field reference into `ids` you can left labels blank
+| yes, if you use the `_id` field reference into `ids` you can leave labels blank
 | Contains the info about the target node of the relationship.
-For the description of the `ids` and `labels` fields please please look at the node fields description above
+For the description of the `ids` and `labels` fields, please look at the node fields description above
 
 | type
 | yes
-| The entity type: node/relationship => relationship in this case
+| The entity type: `node`/`relationship` => `relationship` in this case
 
 |===
 

@@ -149,7 +149,7 @@ For instance, given the following `json` published via the `user` topic:
 
 [source,json]
 ----
-{"userId": 1, "productId": 100, "price": 10, "currency": "€", "shippingAddress": {"city": "Venice", cap: "30100"}}
+{"userId": 1, "productId": 100, "price": 10, "currency": "€", "shippingAddress": {"city": "Venice", "cap": "30100"}}
 ----
 
 You can transform it into a path, like `(n)-[r]->(m)`, by providing the following configuration:
@@ -165,5 +165,5 @@ The pattern strategy supports https://en.wikipedia.org/wiki/Tombstone_(data_stor
 In order to use it, message key should contain at least the key properties present in the provided pattern and message value should be set as `null`.
 
 [IMPORTANT]
-**Currently you can't define multiple patterns for a single topic, such as extracting more than one node or relationship type from a single message.
+**Currently, you cannot define multiple patterns for a single topic, such as extracting more than one node or relationship type from a single message.
 In order to achieve this, you have to use a different topic for each pattern.**

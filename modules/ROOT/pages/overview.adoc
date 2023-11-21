@@ -33,10 +33,10 @@ The connector provides a sink component, which consumes messages from Apache Kaf
 Confluent Hub Component Archive that contains the sink connector.
 * *neo4j-kafka-connect-neo4j-sink-{exact-connector-version}.jar*
 +
-An Uber-JAR that contains the sink connector and it's dependencies, prepared for use within Confluent platform.
+An Uber-JAR that contains the sink connector and its dependencies, prepared for use within Confluent platform.
 * *neo4j-kafka-connect-neo4j-sink-{exact-connector-version}-kc-oss.jar*
 +
-An Uber-JAR that contains the sink connector and it's dependencies, prepared for use with Apache Kafka Connect or variants, such as Amazon MSK.
+An Uber-JAR that contains the sink connector and its dependencies, prepared for use with Apache Kafka Connect or variants, such as Amazon MSK.
 
 === Source
 
@@ -48,10 +48,10 @@ Source component can be configured to read changes using link:{page-canonical-ro
 Confluent Hub Component Archive that contains the source connector.
 * *neo4j-kafka-connect-neo4j-source-{exact-connector-version}.jar*
 +
-An Uber-JAR that contains the source connector and it's dependencies, prepared for use within Confluent platform.
+An Uber-JAR that contains the source connector and its dependencies, prepared for use within Confluent platform.
 * *neo4j-kafka-connect-neo4j-source-{exact-connector-version}-kc-oss.jar*
 +
-An Uber-JAR that contains the source connector and it's dependencies, prepared for use with Apache Kafka Connect or variants, such as Amazon MSK.
+An Uber-JAR that contains the source connector and its dependencies, prepared for use with Apache Kafka Connect or variants, such as Amazon MSK.
 
 === Legacy
 
@@ -89,4 +89,4 @@ The connector is designed to be compatible with Apache Kafka Connect 2.8 and lat
 
 == Support
 
-The support for the {product-name} deployed into Apache Kafka, Amazon MSK and Confluent is provided by Neo4j.
+The support for the {product-name} deployed into Apache Kafka, Amazon MSK and Confluent Cloud is provided by Neo4j.
