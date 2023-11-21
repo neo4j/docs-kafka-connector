@@ -1,0 +1,7 @@
+| errors.tolerance | One of `none`: fail fast, `all`: ignore bad messages (Default: `none`)
+| errors.log.enable | One of `true`, `false`. Log errors (Default: `false`)
+| errors.log.include.messages | One of `true`, `false`. Log bad messages (Default: `false`)
+| errors.deadletterqueue.topic.name | Dead letter queue topic name. (Default: no dead letter queue)
+| errors.deadletterqueue.context.headers.enable | One of `true, `false`. Enrich messages with metadata headers (Default: `false`)
+| errors.deadletterqueue.context.headers.prefix | Common prefix for header entries
+| errors.deadletterqueue.topic.replication.factor | Replication factor. Set 1 for single partition (Default: 3)

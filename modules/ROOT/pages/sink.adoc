@@ -47,36 +47,40 @@ In {product-name}, in the creation phase of the Sink instance, in addition to th
 
 [[dlq-table]]
 .Dead Letter Queue configuration parameters
-[%autowidth,cols="m,m,a",opts=header]
+[%autowidth,cols="m,a",opts=header]
 |===
-| Name | Value | Note
-| errors.tolerance | none | fail fast (default!) abort
-| errors.tolerance | all | all == lenient, silently ignore bad messages
-| errors.log.enable | false/true | log errors (default: false)
-| errors.log.include.messages | false/true | log bad messages too (default: false)
-| errors.deadletterqueue.topic.name | topic-name | dead letter queue topic name, if left off no DLQ, default: not set
-| errors.deadletterqueue.context.headers.enable | false/true | enrich messages with metadata headers like exception, timestamp, org. topic, org.part, default:false
-| errors.deadletterqueue.context.headers.prefix | prefix-text | common prefix for header entries, e.g. `"__streams.errors."` , default: not set
-| errors.deadletterqueue.topic.replication.factor | 3/1 | replication factor, need to set to 1 for single partition, default:3
+| Name | Description
+include::partial$sink-dlq-config.adoc[]
 |===
 
+[%autowidth,cols="m,a",opts=header]
 |===
-| Name | mandatory | Description
-
-| kafka.bootstrap.servers | true | It's the Kafka Broker url. *(please look at the description below)
-
-| kafka.<any_other_kafka_property> | false | You can also specify any other kafka Producer
-setting by adding the `kafka.` prefix (i.e the configuration `acks` become `kafka.acks`). See the https://kafka.apache.org/documentation/#brokerconfigs[Apache Kafka documentation] for details on these settings.
-
+| Name | Description
+include::partial$sink-kafka-config.adoc[]
 |===
 
-As you may have noticed we're asking to provide the `bootstrap.server` property, this because the Kafka Connect Framework provides an out-of-the-box support only for deserialization errors and message transformations (please look into the following link for further details: {url-confluent-blog}/kafka-connect-deep-dive-error-handling-dead-letter-queues/).
-We want to extend this feature for transient errors in order to cover the 100% of failures.
-So to do that at this moment as suggested by Confluent we need to ask again the broker location, until this JIRA issue will not be addressed: https://issues.apache.org/jira/browse/KAFKA-8597.
-Said that, these properties has to be added only if you want to also redirect Neo4j errors into the DLQ.
+
+`bootstrap.servers` property is required by the Kafka Connect Framework.
+The latter provides support only for deserialization errors and message transformations (please look into the following link for further details: {url-confluent-blog}/kafka-connect-deep-dive-error-handling-dead-letter-queues/).
+In order to cover all failure modes, the broker locations are required until link:https://issues.apache.org/jira/browse/KAFKA-8597[this issue] is addressed.
 
 
 == Configuration Summary
 
 [#connector-common-configuration]
 include::partial$connector-common-configuration.adoc[]
+
+=== Common Sink Settings
+
+[%autowidth,cols="m,a",opts=header]
+|===
+
+| Name | Description
+include::partial$sink-kafka-config.adoc[]
+include::partial$sink-dlq-config.adoc[]
+| `neo4j.batch-parallelize | One of `true`, `false`
+| `neo4j.batch-size | (Default: 1000)
+| `neo4j.batch-timeout | Batch transaction timeout duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms` (Default: `0s`)
+
+|===
+
