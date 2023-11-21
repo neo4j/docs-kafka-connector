@@ -53,17 +53,7 @@ In {product-name}, in the creation phase of the Sink instance, in addition to th
 include::partial$sink-dlq-config.adoc[]
 |===
 
-[%autowidth,cols="m,a",opts=header]
-|===
-| Name | Description
-include::partial$sink-kafka-config.adoc[]
-|===
-
-
-`bootstrap.servers` property is required by the Kafka Connect Framework.
-The latter provides support only for deserialization errors and message transformations (please look into the following link for further details: {url-confluent-blog}/kafka-connect-deep-dive-error-handling-dead-letter-queues/).
-In order to cover all failure modes, the broker locations are required until link:https://issues.apache.org/jira/browse/KAFKA-8597[this issue] is addressed.
-
+You can take a look at {url-confluent-blog}/kafka-connect-deep-dive-error-handling-dead-letter-queues/[Kafka Connect Deep Dive – Error Handling and Dead Letter Queues] for more information about error handling.
 
 == Configuration Summary
 
@@ -79,8 +69,10 @@ include::partial$connector-common-configuration.adoc[]
 include::partial$sink-kafka-config.adoc[]
 include::partial$sink-dlq-config.adoc[]
 | `neo4j.batch-parallelize | One of `true`, `false`
-| `neo4j.batch-size | (Default: 1000)
-| `neo4j.batch-timeout | Batch transaction timeout duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms` (Default: `0s`)
+| `neo4j.batch-size | Default: `1000`
+| `neo4j.batch-timeout | Batch transaction timeout duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
+
+Default: `0s`
 
 |===
 
@@ -90,9 +82,8 @@ include::partial$sink-dlq-config.adoc[]
 |===
 
 | Name | Description
-| neo4j.topic.cypher.\{NAME} | Cypher statement to run for the specified topic. Example: `neo4j.topic.cypher.my-topic=MERGE (n:Person {name: event.name})`
+| neo4j.topic.cypher.\{NAME} | Cypher statement to run for the specified topic. Example: `"neo4j.topic.cypher.my-topic": "MERGE (n:Person {name: event.name})"`
 |===
-
 
 === Pattern Strategy Settings
 
@@ -100,5 +91,9 @@ include::partial$sink-dlq-config.adoc[]
 |===
 
 | Name | Description
+| neo4j.topic.pattern.node.\{NAME} | Node pattern to apply on the messages received from the specified topic.
+Example: `"neo4j.topic.pattern.node.user": "(:User\{!userId})"`
+| neo4j.topic.pattern.relationship.\{NAME} | Relationship pattern to apply on the messages received from the specified topic.
+Example: `"neo4j.topic.pattern.node.user": "(:User\{!userId})-[:KNOWS]->(:User\{!otherUserId})"`
 
 |===

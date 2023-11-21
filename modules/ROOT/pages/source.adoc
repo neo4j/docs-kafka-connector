@@ -2,53 +2,333 @@
 
 In this chapter we'll discuss how the Source instance is configured.
 
+== Strategies
 
-== Create the Source Instance
+Source connector can be configured with two different strategies;
 
-You can create a new Source instance with this REST call:
+* Change Data Capture
+* Query
+
+=== Change Data Capture strategy
+
+Change Data Capture strategy makes use of the link:{page-canonical-root}/cdc/current[Change Data Capture] feature provided by Neo4j and Aura Enterprise 5, and is the preferred strategy for source connector instances as it doesn't require any schema changes and can capture deletions reliably.
+Please make sure that you take the necessary steps described at link:{page-canonical-root}/cdc/current/getting-started[Change Data Capture > Getting Started] before configuring your source instance with this strategy.
+
+In order to configure this strategy, you need to define selectors that describe which nodes or relationships you want to track changes and assign them to topics.
+
+==== Node Patterns
+
+Node patterns are defined similar to Cypher node patterns.
+
+. start with `(`
+. [optional] define optional list of labels, separated by `:`, such as `:Person` or `:Person:Employee`
+. [optional] open property section with `{`
+.. [optional] define properties to be used as key filters, with their values, in `key: value` format.
+Multiple properties can be defined and must be separated by `,`.
+These properties must correspond to a NODE KEY constraint properties.
+.. either
+... nothing or `*`, meaning that assign all properties from JSON object to the node
+... list of property names, separated by `,`, to be assigned to the node from JSON object
+... list of property names _not_ to be assigned to the node, each prepended with `-` and separated by `,`, all other properties from JSON object will be assigned to the node
+.. close property section with `}`
+. end with `)`
+
+[NOTE]
+You cannot mix inclusion and exclusion so your pattern must contains all exclusion or inclusion properties.
+
+===== Examples
+
+* Select all changes on any node
++
+[source]
+----
+()
+----
+
+* Select all changes on nodes with label `:User`
++
+[source]
+----
+(:User)
+----
+
+* Select all changes on nodes with both labels `:User` and `:Employee`
++
+[source]
+----
+(:User:Employee)
+----
+
+* Select all changes on nodes with label `:User` and only include `name` and `surname` properties in the change event
++
+[source]
+----
+(:User{name, surname})
+----
+
+* Select all changes on nodes with label `:User` and exclude `adress` and `dob` properties in the change event
++
+[source]
+----
+(:User{-address, -dob})
+----
+
+* Select all changes on node with label `:User` and key property `userId` equals `1001` and include `name` and `surname` properties in the change event
++
+[source]
+----
+(:User{userId: 1001, name, surname})
+----
++
+[NOTE]
+This example requires a NODE KEY constraint on `userId` property for `:User` label.
+
+* Select all changes on node with both labels `:User` and `Employee`, and key properties `name` equals `john` and `surname` equals `doe`
++
+[source]
+----
+(:User:Employee{name: 'john', surname: 'doe'})
+----
++
+[NOTE]
+This example requires a NODE KEY constraint on `name` and `surname` properties either for `:User` or `:Employee` label or both.
+
+==== Relationship Patterns
+
+Relationship patterns are defined similar to Cypher relationship patterns.
+
+. node pattern for start node, without any property inclusion or exclusion list.
+. `-[`
+. define relationship type, prepended by `:`, such as `:BOUGHT` or `:KNOWS`
+. [optional] open property section with `{`
+.. [optional] define properties to be used as key filters, with their values, in `key: value` format.
+.. either
+... nothing or `*`, meaning that assign all properties from JSON object to the node
+... list of property names, separated by `,`, to be assigned to the node from JSON object
+... list of property names _not_ to be assigned to the node, each prepended with `-` and separated by `,`, all other properties from JSON object will be assigned to the node
+.. close property section with `}`
+. `]\->`
+. node pattern for end node, without any property inclusion or exclusion list.
+
+[NOTE]
+You cannot mix inclusion and exclusion so your pattern must contains all exclusion or inclusion properties.
+
+===== Examples
+
+. Select all changes on `:BOUGHT` relationships
++
+[source]
+----
+()-[:BOUGHT]->()
+----
+
+. Select all changes on `:BOUGHT` relationships with start nodes of label `:User` and end nodes of label `:Product`
++
+[source]
+----
+(:User)-[:BOUGHT]->(:Product)
+----
+
+. Select all changes on `:BOUGHT` relationships with start nodes of labels `:User` and `:Employee` and end nodes of label `:Product`
++
+[source]
+----
+(:User:Employee)-[:BOUGHT]->(:Product)
+----
+
+. Select all changes on `:BOUGHT` relationships with start nodes of label `:User` and end nodes of label `:Product` and only include `price` and `currency` properties in the change event
++
+[source]
+----
+(:User)-[:BOUGHT{price, currency]->(:Product)
+----
+
+. Select all changes on `:BOUGHT` relationships with start nodes of label `:User` and end nodes of label `:Product` and exclude `card` property from the change event
++
+[source]
+----
+(:User)-[:BOUGHT{-card]->(:Product)
+----
+
+. Select all changes on `:WORKS_FOR` relationship identified by key property `contractId` equals `5910`
++
+[source]
+----
+()-[:WORKS_FOR{contractId: 5910}]->()
+----
++
+[NOTE]
+This example requires a RELATIONSHIP KEY constraint on `contractId` property for `:WORKS_FOR` relationship type.
+
+. Select all changes on `:WORKS_FOR` relationship identified by key property `contractId` equals `5910` and exclude `salary` property from the change event
++
+[source]
+----
+()-[:WORKS_FOR{contractId: 5910,-salary}]->()
+----
+
+. Select all changes on relationships having node of label `:User` identified by key property `userId` equals `1001`
++
+[source]
+----
+(:User)-[]->()
+----
+
+==== Configuration
+
+First, you need to select CDC strategy for the connector instance;
+
+[source,json]
+----
+"neo4j.source-strategy": "CDC"
+----
+
+Second, you need to define your selectors and map them to your topics;
+
+[source,json]
+----
+"neo4j.cdc.topic.my-topic.patterns": "(:Person),(:Person)-[:KNOWS]-(:Person)"
+----
+
+While the above configuration is provided for convenience, if you need to define other filters for change events, such as operation, changed property names or metadata fields, you will need to use the indexed configuration approach as shown below;
+
+[source,json]
+----
+"neo4j.cdc.topic.my-topic.patterns.0.pattern": "(:Person)",
+"neo4j.cdc.topic.my-topic.patterns.0.operation": "create",
+"neo4j.cdc.topic.my-topic.patterns.0.changesTo": "name,surname",
+"neo4j.cdc.topic.my-topic.patterns.0.metadata.authenticatedUser": "neo4j",
+"neo4j.cdc.topic.my-topic.patterns.0.metadata.executingUser": "neo4j",
+"neo4j.cdc.topic.my-topic.patterns.0.metadata.txMetadata.app": "sales",
+"neo4j.cdc.topic.my-topic.patterns.1.pattern": "(:Person)-[:KNOWS]->(:Person)",
+"neo4j.cdc.topic.my-topic.patterns.1.operation": "update",
+"neo4j.cdc.topic.my-topic.patterns.1.changesTo": "since",
+"neo4j.cdc.topic.my-topic.patterns.1.metadata.authenticatedUser": "neo4j",
+"neo4j.cdc.topic.my-topic.patterns.1.metadata.executingUser": "neo4j",
+"neo4j.cdc.topic.my-topic.patterns.1.metadata.txMetadata.app": "sales"
+----
+
+[NOTE]
+Only `pattern` settings are mandatory in the above example, and others are optional and can be added based on your requirements.
+
+==== Creating Source instance
+
+Based on the above example, we can use one of the following configurations.
+Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as source.cdc.neo4j.json.
+
+[.tabbed-example]
+====
+[.include-with-AVRO-messages]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/source.cdc.avro.neo4j.json[]
+----
+=====
+
+[.include-with-JSON-messages-with-schema]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/source.cdc.json.neo4j.json[]
+----
+=====
+
+[.include-with-JSON-messages-as-string]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/source.cdc.json-string.neo4j.json[]
+----
+=====
+====
+
+We will now create the source instance by invoking the following REST call:
 
 [source,shell]
 ----
 curl -X POST http://localhost:8083/connectors \
-  -H 'Content-Type:application/json' \
-  -H 'Accept:application/json' \
-  -d @source.avro.neo4j.json
+  -H "Content-Type:application/json" \
+  -H "Accept:application/json" \
+  -d @source.cdc.neo4j.json
 ----
 
-Let's look at the `source.avro.neo4j.json` file:
+This will create a Kafka Connect source instance that will send change event messages matching the provided selectors over to the `my-topic` topic, using your preferred serialization format.
+In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.
+
+=== Query strategy
+
+Query strategy allows users to define their own Cypher query to extract changes.
+This requires proper schema modifications, such as tracking changes through a dedicated change tracking property such as timestamps on nodes or relationships or using soft-deletes to track deletion of entities.
+
+==== Configuration
+
+First, you need to select QUERY strategy for the connector instance;
 
 [source,json]
 ----
-include::ROOT:example$docker-data/contrib.source.avro.neo4j.json[]
+"neo4j.source-strategy": "QUERY"
 ----
 
-This will create a Kafka Connect Source instance that will send `AVRO` message over the topic named `my-topic`.
-Every message in the topic will have the following structure:
+Second, you need to define your query to track changes and where to publish them.
+
+[source,json]
+----
+"neo4j.topic": "my-topic",
+"neo4j.query": "MATCH (ts:TestSource) WHERE ts.timestamp > $lastCheck RETURN ts.name AS name, ts.surname AS surname, ts.timestamp AS timestamp",
+"neo4j.query.streaming-property": "timestamp"
+----
+
+==== Creating Source instance
+
+Based on the above example, we can use one of the following configurations.
+Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as source.query.neo4j.json.
+
+[.tabbed-example]
+====
+[.include-with-AVRO-messages]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/source.query.avro.neo4j.json[]
+----
+=====
+
+[.include-with-JSON-messages-with-schema]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/source.query.json.neo4j.json[]
+----
+=====
+
+[.include-with-JSON-messages-as-string]
+=====
+[source,json]
+----
+include::ROOT:example$docker-data/source.query.json-string.neo4j.json[]
+----
+=====
+====
+
+We will now create the source instance by invoking the following REST call:
+
+[source,shell]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H "Content-Type:application/json" \
+  -H "Accept:application/json" \
+  -d @source.query.neo4j.json
+----
+
+This will create a Kafka Connect source instance that will send change event messages derived by the provided query over to the `my-topic` topic, using your preferred serialization format.
+In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.
+
+Generated change event messages in this case will have the following structure:
 
 [source,json]
 ----
 {"name": <name>, "surname": <surname>, "timestamp": <timestamp>}
-----
-
-
-== How the Source module pushes the data to the defined Kafka topic
-
-The source connector pulls change events from Neo4j at the internal specified with `neo4j.cdc.poll-interval`.
-
-Assuming a new node with label `TestSource` is created with a `name` and `timestamp` properties, the following event will be published the configured topic:
-
-[source,json]
-----
-{"name":{"string":"John Doe"},"timestamp":{"long":1624551349362}}
-----
-
-Since the configuration includes `neo4j.enforce.schema=true`, this means a schema is attached to each record, in case
-you want to stream pure simple JSON strings just use the relative serializer with `neo4j.enforce.schema=false` with the
-following output:
-
-[source,json]
-----
-{"name": "John Doe", "timestamp": 1624549598834}
 ----
 
 == Configuration Summary
@@ -65,10 +345,18 @@ include::partial$connector-common-configuration.adoc[]
 | Description
 
 | neo4j.source-strategy | image:https://img.shields.io/badge/mandatory-008000[] One of `CDC`, `QUERY`
-| neo4j.start-from | image:https://img.shields.io/badge/mandatory-008000[] One of `EARLIEST`, `NOW`, `USER_PROVIDED`
+| neo4j.start-from | image:https://img.shields.io/badge/mandatory-008000[] One of `EARLIEST`, `NOW`, `USER_PROVIDED`.
+Only used on initial run of the connector instance, and ignored when there is already a stored offset in Kafka Connect.
+
+Default: `NOW`
 | neo4j.start-from.value | Value to start from. Required by `USER_PROVIDED`
-| neo4j.ignore-stored-offset | One of `true`, `false`
-| neo4j.batch-size | Batch size (Default: `1000`)
+| neo4j.ignore-stored-offset | One of `true`, `false`.
+Allows to reset the stored offset if any. Starts from the point specified by `neo4j.start-from`.
+
+Default: `false`
+| neo4j.batch-size | Batch size
+
+Default: `1000`
 
 |===
 
@@ -79,13 +367,17 @@ include::partial$connector-common-configuration.adoc[]
 | Name
 | Description
 
-| neo4j.cdc.poll-interval | image:https://img.shields.io/badge/mandatory-008000[] Interval duration between consecutive CDC polls in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms` (Default: `10s`)
-| neo4j.cdc.poll-duration | image:https://img.shields.io/badge/mandatory-008000[] CDC poll duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms` (Default: `1s`)
-| neo4j.cdc.topic.\{NAME}.patterns | Comma-separated list of graph patterns, with optional event property filters (prefixed with `+` or `-` for inclusion or exclusion respectively).  Example setting: `neo4j.cdc.topic.my-topic.patterns=(:Person {+name}),(:Person)-[:WORKS_FOR]->(:Company),(:Company {-id})`. The change event for `Company` nodes will not include the `id` property.
-| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.pattern | Indexed graph pattern, with optional event property filters (prefixed with `+` or `-` for inclusion or exclusion respectively). Example: `neo4j.cdc.topic.my-topic.patterns.0.pattern=(:Company {+name})`. The change event for `Company` nodes will either always include the `name` property (in CDC `FULL` enrichment mode) or when the `name` property has changed (in CDC `DIFF` enrichment mode).
-| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.operation | One of `CREATE`, `UPDATE`, `DELETE`. Operation to perform when receiving events of corresponding indexed graph pattern. Event properties can be explicitly included (`+` prefix`) or excluded (`-`). Example: `neo4j.cdc.topic.my-topic.patterns.0.operation=DELETE`
-| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.changesTo | Comma-separated list of property selectors. Example: `neo4j.cdc.topic.my-topic.patterns.0.changesTo=name, age` (see link:https://neo4j.com/docs/cdc/current/selectors/#combining-selectors[how selectors are combined])
-| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.metadata.\{KEY} | Key-value metadata selector. If the key starts `txMetadata.`, then the key-value pair is matched against the actual transaction metadata (with the key stripped of the aforementioned prefix). Example: `neo4j.cdc.topic.my-topic.patterns.0.metadata.txMetadata.app=neo4j-browser`
+| neo4j.cdc.poll-interval | image:https://img.shields.io/badge/mandatory-008000[] Interval duration between consecutive CDC polls in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
+
+Default: `10s`
+| neo4j.cdc.poll-duration | image:https://img.shields.io/badge/mandatory-008000[] CDC poll duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
+
+Default: `1s`
+| neo4j.cdc.topic.\{NAME}.patterns | Comma-separated list of graph patterns, with optional event property filters (prefixed with `+` or `-` for inclusion or exclusion respectively).  Example setting: `"neo4j.cdc.topic.my-topic.patterns": "(:Person {+name}),(:Person)-[:WORKS_FOR]->(:Company),(:Company {-id})"`. The change event for `Company` nodes will not include the `id` property.
+| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.pattern | Indexed graph pattern, with optional event property filters (prefixed with `+` or `-` for inclusion or exclusion respectively). Example: `"neo4j.cdc.topic.my-topic.patterns.0.pattern": "(:Company {+name})"`. The change event for `Company` nodes will either always include the `name` property (in CDC `FULL` enrichment mode) or when the `name` property has changed (in CDC `DIFF` enrichment mode).
+| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.operation | One of `CREATE`, `UPDATE`, `DELETE`. Operation to perform when receiving events of corresponding indexed graph pattern. Event properties can be explicitly included (`+` prefix`) or excluded (`-`). Example: `"neo4j.cdc.topic.my-topic.patterns.0.operation": "DELETE"`
+| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.changesTo | Comma-separated list of property selectors. Example: `"neo4j.cdc.topic.my-topic.patterns.0.changesTo": "name, age"` (see link:https://neo4j.com/docs/cdc/current/selectors/#combining-selectors[how selectors are combined])
+| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.metadata.\{KEY} | Key-value metadata selector. If the key starts `txMetadata.`, then the key-value pair is matched against the actual transaction metadata (with the key stripped of the aforementioned prefix). Example: `"neo4j.cdc.topic.my-topic.patterns.0.metadata.txMetadata.app": "neo4j-browser"`
 
 |===
 
@@ -100,7 +392,12 @@ include::partial$connector-common-configuration.adoc[]
 | neo4j.query | image:https://img.shields.io/badge/mandatory-008000[] Read query to execute
 | neo4j.query.streaming-property | image:https://img.shields.io/badge/mandatory-008000[] Property to watch changes for
 | neo4j.enforce-schema | One of `true`, `false`
-| neo4j.query.poll-interval | Query poll duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms` (Default: `10s`)
-| neo4j.query.timeout | Transaction timeout duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms` (Default: `0s`)
 
+Default: `false`
+| neo4j.query.poll-interval | Query poll duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
+
+Default: `10s`
+| neo4j.query.timeout | Transaction timeout duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
+
+Default: `0s`
 |===

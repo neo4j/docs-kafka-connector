@@ -8,13 +8,19 @@
 | connector.class | image:https://img.shields.io/badge/mandatory-008000[] `org.neo4j.connectors.kafka.source.Neo4jConnector`
 | key.converter | image:https://img.shields.io/badge/mandatory-008000[] Example: `io.confluent.connect.avro.AvroConverter` (see link:https://docs.confluent.io/platform/current/installation/configuration/connect/source-connect-configs.html#key-converter[converter class for keys])
 | value.converter | image:https://img.shields.io/badge/mandatory-008000[] Example: `io.confluent.connect.avro.AvroConverter` (see link:https://docs.confluent.io/platform/current/installation/configuration/connect/source-connect-configs.html#value-converter[converter class for values])
-| key.converter.schemas.enable | If `true` the key will be treated as a composite JSON object containing schema and the data. Default value is `false`
-| value.converter.schemas.enable | If `true` the value will be treated as a composite JSON object containing schema and the data. Default value is `false`
-| key.converter.schema.registry.url | [AvroConverter only] Avro Schema Registry URL
-| value.converter.schema.registry.url | [AvroConverter only] Avro Schema Registry URL
+| key.converter.schemas.enable | If `true` the key will be treated as a composite JSON object containing schema and the data.
+
+Default: `false`
+| value.converter.schemas.enable | If `true` the value will be treated as a composite JSON object containing schema and the data.
+
+Default: `false`
+| key.converter.schema.registry.url | Schema Registry URL for key schema, applicable if key converter makes use of schemas
+| value.converter.schema.registry.url | Schema Registry URL for value schema, applicable if value converter makes use of schemas
 | neo4j.uri | image:https://img.shields.io/badge/mandatory-008000[] Neo4j URI. (See link:https://neo4j.com/docs/java-manual/current/client-applications/#_examples[valid URI examples])
 | neo4j.database | Neo4j Database
 | neo4j.authentication.type | image:https://img.shields.io/badge/mandatory-008000[] one of `NONE`, `BASIC`, `KERBEROS`, `BEARER`, `CUSTOM`
+
+Default: `BASIC`
 | neo4j.authentication.basic.username | Neo4j username. Required by `BASIC` authentication type
 | neo4j.authentication.basic.password | Neo4j password. Required by `BASIC` authentication type
 | neo4j.authentication.basic.realm | Basic authentication realm
