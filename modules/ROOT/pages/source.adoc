@@ -131,10 +131,10 @@ following output:
 | Name
 | Description
 
-| neo4j.enforce-schema |
-| neo4j.topic | Topic to write to
-| neo4j.query | Read query to execute
-| neo4j.query.streaming-property | Property to watch changes for
+| neo4j.topic | image:https://img.shields.io/badge/mandatory-008000[] Topic to write to
+| neo4j.query | image:https://img.shields.io/badge/mandatory-008000[] Read query to execute
+| neo4j.query.streaming-property | image:https://img.shields.io/badge/mandatory-008000[] Property to watch changes for
+| neo4j.enforce-schema | One of `true`, `false`
 | neo4j.query.poll-interval | Query poll duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms` (Default: `10s`)
 | neo4j.query.timeout | Transaction timeout duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms` (Default: `0s`)
 
