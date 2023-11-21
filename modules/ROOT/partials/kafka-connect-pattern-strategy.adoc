@@ -1,4 +1,4 @@
-=== The Pattern strategy
+=== Pattern strategy
 
 This strategy allows you to extract nodes and relationships from a JSON object through extraction patterns.
 

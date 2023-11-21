@@ -9,9 +9,9 @@ In this chapter we'll discuss how the Sink instance is configured.
 Sink connector can be configured with different strategies:
 
 * by providing a Cypher template
-* by ingesting the events emitted from another Neo4j instance via the Change Data Capture module
+// * by ingesting the events emitted from another Neo4j instance via the Change Data Capture module
 * by providing a pattern extraction to a JSON or AVRO file
-* by managing a CUD file format
+// * by managing a CUD file format
 
 == Sink ingestion strategies
 
@@ -31,14 +31,14 @@ In this case, the execution order is the following:
 [#kafka-connect-cypher-strategy]
 include::partial$kafka-connect-cypher-strategy.adoc[]
 
-[#kafka-connect-cdc-strategy]
-include::partial$kafka-connect-cdc-strategy.adoc[]
+// [#kafka-connect-cdc-strategy]
+// include::partial$kafka-connect-cdc-strategy.adoc[]
 
 [#kafka-connect-pattern-strategy]
 include::partial$kafka-connect-pattern-strategy.adoc[]
 
-[#kafka-connect-cud-file-format-strategy]
-include::partial$kafka-connect-cud-file-format-strategy.adoc[]
+// [#kafka-connect-cud-file-format-strategy]
+// include::partial$kafka-connect-cud-file-format-strategy.adoc[]
 
 [#kafka_connect_error_handling]
 == How to deal with bad data
