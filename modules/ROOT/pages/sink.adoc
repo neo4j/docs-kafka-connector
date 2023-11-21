@@ -84,3 +84,21 @@ include::partial$sink-dlq-config.adoc[]
 
 |===
 
+=== Cypher Strategy Settings
+
+[%autowidth,cols="m,a",opts=header]
+|===
+
+| Name | Description
+| neo4j.topic.cypher.\{NAME} | Cypher statement to run for the specified topic. Example: `neo4j.topic.cypher.my-topic=MERGE (n:Person {name: event.name})`
+|===
+
+
+=== Pattern Strategy Settings
+
+[%autowidth,cols="m,a",opts=header]
+|===
+
+| Name | Description
+
+|===
