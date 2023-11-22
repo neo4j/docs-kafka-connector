@@ -53,20 +53,20 @@ An Uber-JAR that contains the source connector and its dependencies, prepared fo
 +
 An Uber-JAR that contains the source connector and its dependencies, prepared for use with Apache Kafka Connect or variants, such as Amazon MSK.
 
-=== Legacy
+// === Legacy
 
-The connector also provides another set of sink and source components which are being provided for backward compatibility.
-You can use these as drop-in replacements of {product-name} 5.0.x versions.
+// The connector also provides another set of sink and source components which are being provided for backward compatibility.
+// You can use these as drop-in replacements of {product-name} 5.0.x versions.
 
-* *neo4j-kafka-connect-neo4j-legacy-{exact-connector-version}.zip*
-+
-Confluent Hub Component Archive that contains the legacy sink and source connectors.
-* *neo4j-kafka-connect-neo4j-legacy-{exact-connector-version}.jar*
-+
-An Uber-JAR that contains the legacy sink and source connectors and their dependencies, prepared for use within Confluent platform.
-* *neo4j-kafka-connect-neo4j-legacy-{exact-connector-version}-kc-oss.jar*
-+
-An Uber-JAR that contains the legacy sink and source connectors and their dependencies, prepared for use with Apache Kafka Connect or variants, such as Amazon MSK.
+// * *neo4j-kafka-connect-neo4j-legacy-{exact-connector-version}.zip*
+// +
+// Confluent Hub Component Archive that contains the legacy sink and source connectors.
+// * *neo4j-kafka-connect-neo4j-legacy-{exact-connector-version}.jar*
+// +
+// An Uber-JAR that contains the legacy sink and source connectors and their dependencies, prepared for use within Confluent platform.
+// * *neo4j-kafka-connect-neo4j-legacy-{exact-connector-version}-kc-oss.jar*
+// +
+// An Uber-JAR that contains the legacy sink and source connectors and their dependencies, prepared for use with Apache Kafka Connect or variants, such as Amazon MSK.
 
 // [[kafka_connect_neo4j_connector_overview]]
 == Deployment and Installation
