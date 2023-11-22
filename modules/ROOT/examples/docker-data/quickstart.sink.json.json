@@ -20,6 +20,6 @@
     "neo4j.authentication.basic.password": "password",
     "neo4j.topic.cypher.creates": "WITH event AS message WITH message.event.state.after AS state MERGE (p:Person {name: state.properties.name, surname: state.properties.surname}) MERGE (f:Family {name: state.properties.surname}) MERGE (p)-[:BELONGS_TO]->(f)",
     "neo4j.topic.cypher.updates": "WITH event AS message WITH message.event.state.before AS before, message.event.state.after AS after MATCH (p:Person {name: before.properties.name, surname: before.properties.surname}) MATCH (fPre:Family {name: before.properties.surname}) OPTIONAL MATCH (p)-[b:BELONGS_TO]->(fPre) DELETE b WITH after, p SET p.name = after.properties.name, p.surname = after.properties.surname MERGE (f:Family {name: after.properties.surname}) MERGE (p)-[:BELONGS_TO]->(f)",
-    "neo4j.topic.cypher.deletes": "WITH event AS message WITH message.event.state.before AS before MATCH (p:Person {name: before.properties.name, surname: before.properties.surname}) DETACH DELETE p",
+    "neo4j.topic.cypher.deletes": "WITH event AS message WITH message.event.state.before AS before MATCH (p:Person {name: before.properties.name, surname: before.properties.surname}) DETACH DELETE p"
   }
 }

@@ -4,6 +4,8 @@ services:
     image: neo4j:5-enterprise
     hostname: neo4j
     container_name: neo4j
+    # this is to ensure you have the latest 5.x version of the database
+    pull_policy: always
     ports:
       - "7474:7474"
       - "7687:7687"
@@ -145,8 +147,6 @@ services:
     environment:
       CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:29092'
       CONTROL_CENTER_CONNECT_CONNECT-DEFAULT_CLUSTER: 'connect:8083'
-      CONTROL_CENTER_KSQL_KSQLDB1_URL: "http://ksqldb-server:8088"
-      CONTROL_CENTER_KSQL_KSQLDB1_ADVERTISED_URL: "http://localhost:8088"
       CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
       CONTROL_CENTER_REPLICATION_FACTOR: 1
       CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
