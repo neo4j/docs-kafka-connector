@@ -20,11 +20,15 @@ Received changes will then be published into `creates`, `updates` and `deletes` 
 Next, we will create a sink instance which will listen for messages in `creates`, `updates` and `deletes` topics, and execute a Cypher statement to apply the corresponding change in Neo4j when the messages are received.
 
 [NOTE]
-The following guide uses the {product-name} for Confluent, the provided Docker Compose file cannot be used as-in for Apache Kafka.
+The following guide uses the {product-name} for Confluent, the provided Docker Compose file cannot be used as-is for Apache Kafka.
 
 === Run with Docker Compose
 
 Copy the following Docker Compose file into a desired directory.
+
+[NOTE]
+The sample docker-compose.yml file below makes use of recent features of docker compose and requires a recent version of docker compose.
+Please make sure you have at least v2.20.3 version of the tool.
 
 .docker-compose.yml
 [source,yaml]
@@ -84,7 +88,7 @@ For more information on Change Data Capture and enabling it, please refer to lin
 
 [source,shell]
 ----
-ALTER DATABASE neo4j SET OPTION txLogEnrichment FULL;
+ALTER DATABASE neo4j SET OPTION txLogEnrichment 'FULL';
 ----
 
 === Source with CDC

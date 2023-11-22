@@ -78,14 +78,14 @@ For installation, copy the files for the components you want to install into you
 
 === Neo4j and Aura
 
-The connector is compatible with 4.4.x and 5.x versions of Neo4j and Aura 4 and 5.
+The connector is compatible with Neo4j 4.4.x and 5.x and Aura 4 and 5.
 
 [IMPORTANT]
-Change Data Capture is a new feature introduced with Neo4j 5.13.0 and Aura 5, and source connector with CDC support requires at least these versions of Neo4j and Aura.
+Change Data Capture is a new feature introduced with Neo4j 5.13.0 and Aura 5, and the source connector with CDC support requires at least these versions of Neo4j and Aura.
 
 === Kafka Connect
 
-The connector is designed to be compatible with Apache Kafka Connect 2.8 and later versions.
+The connector is designed to be compatible with versions of Apache Kafka Connect 2.8 and later.
 
 == Support
 
