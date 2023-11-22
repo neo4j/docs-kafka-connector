@@ -1,5 +1,3 @@
-# tag::update[]
-
-[WARNING]
-{product-name} is provided as part of an Early Access Program, and can introduce breaking changes based on product feedback we receive, until General Availability.
-# end::update[]
+# tag::note[]
+include::partial$experimental.adoc[]
+# end::note[]

@@ -1,4 +1,17 @@
+ifndef::backend-pdf[]
+
 = {product-name} User Guide
+
+endif::[]
+ifdef::backend-pdf[]
+
+= {product-name} Early Access Program
+
+include::partial$experimental.adoc[]
+
+== Introduction
+
+endif::[]
 :env-docs: true
 
 The guide covers the following areas:

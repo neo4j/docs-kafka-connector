@@ -76,25 +76,34 @@ Pick one of the following message serialization formats, save the content of the
 ====
 [.include-with-AVRO-messages]
 =====
+ifdef::backend-pdf[]
+.sink.cypher.avro.json
+endif::[]
 [source,json]
 ----
-include::example$docker-data/sink.cypher.avro.neo4j.json[]
+include::example$docker-data/sink.cypher.avro.json[]
 ----
 =====
 
 [.include-with-JSON-messages-with-schema]
 =====
+ifdef::backend-pdf[]
+.sink.cypher.json.json
+endif::[]
 [source,json]
 ----
-include::example$docker-data/sink.cypher.json.neo4j.json[]
+include::example$docker-data/sink.cypher.json.json[]
 ----
 =====
 
 [.include-with-JSON-messages-as-string]
 =====
+ifdef::backend-pdf[]
+.sink.cypher.json-string.json
+endif::[]
 [source,json]
 ----
-include::example$docker-data/sink.cypher.json-string.neo4j.json[]
+include::example$docker-data/sink.cypher.json-string.json[]
 ----
 =====
 ====
