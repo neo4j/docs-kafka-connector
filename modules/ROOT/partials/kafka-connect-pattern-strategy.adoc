@@ -63,7 +63,7 @@ You can configure the node pattern as follows;
 
 [source,json,subs="verbatim,attributes"]
 ----
-"neo4j.topic.pattern.node.<TOPIC_NAME>": "<NODE_PATTERN>"
+"neo4j.pattern.node.topic.<TOPIC_NAME>": "<NODE_PATTERN>"
 ----
 
 For instance, given the following `json` published via the `user` topic:
@@ -77,7 +77,7 @@ You can transform it into a node by providing the following configuration:
 
 [source,json,subs="verbatim,attributes"]
 ----
-"neo4j.topic.pattern.node.user": "(:User{!userId})"
+"neo4j.pattern.node.topic.user": "(:User{!userId})"
 ----
 
 ==== Relationship Patterns
@@ -142,7 +142,7 @@ You can configure the relationship pattern as follows;
 
 [source,json,subs="verbatim,attributes"]
 ----
-"neo4j.topic.pattern.relationship.<TOPIC_NAME>": "<RELATIONSHIP_PATTERN>"
+"neo4j.pattern.relationship.topic.<TOPIC_NAME>": "<RELATIONSHIP_PATTERN>"
 ----
 
 For instance, given the following `json` published via the `user` topic:
@@ -156,7 +156,7 @@ You can transform it into a path, like `(n)-[r]->(m)`, by providing the followin
 
 [source,json,subs="verbatim,attributes"]
 ----
-"neo4j.topic.pattern.relationship.user": "(:User{!userId})-[:BOUGHT{price, currency}]->(:Product{!productId})"
+"neo4j.pattern.relationship.topic.user": "(:User{!userId})-[:BOUGHT{price, currency}]->(:Product{!productId})"
 ----
 
 ==== Tombstone Records

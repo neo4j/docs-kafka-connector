@@ -82,7 +82,7 @@ Default: `0s`
 |===
 
 | Name | Description
-| neo4j.topic.cypher.\{NAME} | Cypher statement to run for the specified topic. Example: `"neo4j.topic.cypher.my-topic": "MERGE (n:Person {name: event.name})"`
+| neo4j.cypher.topic.\{NAME} | Cypher statement to run for the specified topic. Example: `"neo4j.cypher.topic.my-topic": "MERGE (n:Person {name: event.name})"`
 |===
 
 === Pattern Strategy Settings
@@ -91,9 +91,9 @@ Default: `0s`
 |===
 
 | Name | Description
-| neo4j.topic.pattern.node.\{NAME} | Node pattern to apply on the messages received from the specified topic.
-Example: `"neo4j.topic.pattern.node.user": "(:User\{!userId})"`
-| neo4j.topic.pattern.relationship.\{NAME} | Relationship pattern to apply on the messages received from the specified topic.
-Example: `"neo4j.topic.pattern.node.user": "(:User\{!userId})-[:KNOWS]->(:User\{!otherUserId})"`
+| neo4j.pattern.node.topic.\{NAME} | Node pattern to apply on the messages received from the specified topic.
+Example: `"neo4j.pattern.node.topic.user": "(:User\{!userId})"`
+| neo4j.pattern.relationship.topic.\{NAME} | Relationship pattern to apply on the messages received from the specified topic.
+Example: `"neo4j.pattern.relationship.topic.user": "(:User\{!userId})-[:KNOWS]->(:User\{!otherUserId})"`
 
 |===

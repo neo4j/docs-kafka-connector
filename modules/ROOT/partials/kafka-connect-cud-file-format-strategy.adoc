@@ -7,12 +7,12 @@ You can configure the topic in the following way:
 
 [source,json,subs="verbatim,attributes"]
 ----
-"{environment}.topic.cud": "<LIST_OF_TOPICS_SEPARATED_BY_SEMICOLON>"
+"{environment}.cud.topics": "<COMMA_SEPARATED_LIST_OF_TOPICS>"
 ----
 
 [source,json,subs="attributes"]
 ----
-"{environment}.topic.cud": "my-topic;my-other.topic"
+"{environment}.cud.topics": "my-topic,my-other.topic"
 ----
 
 We have two formats:

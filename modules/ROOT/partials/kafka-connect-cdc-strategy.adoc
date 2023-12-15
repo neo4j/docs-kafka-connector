@@ -23,9 +23,9 @@ Configuration of this strategy requires declaration of list of topics to read ch
 
 [source,json,subs="verbatim,attributes"]
 ----
-"neo4j.topic.cdc.sourceId": "<list of topics separated by semicolon>"
-"neo4j.topic.cdc.sourceId.labelName": "<the label attached to the node, default=SourceEvent>"
-"neo4j.topic.cdc.sourceId.idName": "<the id name given to the CDC id field, default=sourceId>"
+"neo4j.cdc.sourceId.topics": "<comma-separated list of topics>"
+"neo4j.cdc.sourceId.labelName": "<the label attached to the node, default=SourceEvent>"
+"neo4j.cdc.sourceId.idName": "<the id name given to the CDC id field, default=sourceId>"
 ----
 
 ==== Example
@@ -41,7 +41,7 @@ You need to declare that you want to use `cdc.sourceId` strategy by providing th
 
 [source,json,subs="verbatim,attributes"]
 ----
-"neo4j.topic.cdc.sourceId": "topic.1;topic.2"
+"neo4j.cdc.sourceId.topics": "topic.1,topic.2"
 ----
 
 Each streams change event will then be projected into a graph entity, for instance the following event:
@@ -66,7 +66,7 @@ Configuration of this strategy requires declaration of list of topics to read ch
 
 [source,json,subs="verbatim,attributes"]
 ----
-"{environment}.topic.cdc.schema": "<LIST_OF_TOPICS_SEPARATED_BY_SEMICOLON>"
+"{environment}.cdc.schema.topics": "<COMMA_SEPARATED_LIST_OF_TOPICS>"
 ----
 
 ==== Example
@@ -82,7 +82,7 @@ You need to declare that you want to use `cdc.schema` strategy by providing the 
 
 [source,json,subs="verbatim,attributes"]
 ----
-"{environment}.topic.cdc.schema": "topic.1;topic.2"
+"{environment}.cdc.schema.topics": "topic.1,topic.2"
 ----
 
 Each streams change event will then be projected into a graph entity.
