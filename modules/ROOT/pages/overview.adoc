@@ -14,13 +14,8 @@ The {product-name} is designed for customers who want to stream data from Apache
 
 The {product-name} is available in two packaging variants.
 
-=== Confluent
-
-These packages can be deployed to Confluent platforms, including Confluent Cloud using their Custom Connectors.
-
-=== Apache Kafka
-
-These packages can be deployed to Apache Kafka variants, such as Amazon Managed Streaming for Apache Kafka (Amazon MSK).
+Confluent:: These packages can be deployed to Confluent platforms, including Confluent Cloud using their Custom Connectors.
+Apache Kafka:: These packages can be deployed to Apache Kafka variants, such as Amazon Managed Streaming for Apache Kafka (Amazon MSK).
 
 == Components
 
