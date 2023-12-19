@@ -2,7 +2,7 @@
 
 This page lists changes to the {product-name}.
 
-== Version 5.2.0-alpha02
+== Version 5.1.0-alpha02
 
 === Updated features
 
