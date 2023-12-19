@@ -17,6 +17,6 @@ label:changed[]
 Supports new `keys` fields introduced in change events with Neo4j 5.15
 a|
 Neo4j 5.15 introduced a breaking change on change event schema, where the structure of the `keys` field in node and relationship change events is updated to handle multiple key constraints.
-This release supports both the old and the new structure for compatability.
+This release supports both the old and the new structure for compatibility.
 
 |===
