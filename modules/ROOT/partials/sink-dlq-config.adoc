@@ -11,7 +11,7 @@ Log bad messages
 Default: `false`
 | errors.deadletterqueue.topic.name | Dead letter queue topic name.
 
-Default: no dead letter queue | errors.deadletterqueue.context.headers.enable | One of `true, `false`.
+Default: no dead letter queue | errors.deadletterqueue.context.headers.enable | One of `true`, `false`.
 Enrich messages with metadata headers
 
 Default: `false`
