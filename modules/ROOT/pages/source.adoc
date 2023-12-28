@@ -140,14 +140,14 @@ You cannot mix inclusion and exclusion so your pattern must contains all exclusi
 +
 [source]
 ----
-(:User)-[:BOUGHT{price, currency]->(:Product)
+(:User)-[:BOUGHT{price, currency}]->(:Product)
 ----
 
 . Select all changes on `:BOUGHT` relationships with start nodes of label `:User` and end nodes of label `:Product` and exclude `card` property from the change event
 +
 [source]
 ----
-(:User)-[:BOUGHT{-card]->(:Product)
+(:User)-[:BOUGHT{-card}]->(:Product)
 ----
 
 . Select all changes on `:WORKS_FOR` relationship identified by key property `contractId` equals `5910`
