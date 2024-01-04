@@ -346,7 +346,7 @@ curl -X POST http://localhost:8083/connectors \
 ----
 
 This configures the sink instance to consume data in your preferred serialization format.
-The properties `neo4j.topic.cypher.creates`, `neo4j.topic.cypher.updates` and `neo4j.topic.cypher.deletes` define the Cypher queries that will be executed per each message consumed by the sink instance on the Kafka Connect side.
+The properties `neo4j.cypher.topic.creates`, `neo4j.cypher.topic.updates` and `neo4j.cypher.topic.deletes` define the Cypher queries that will be executed per each message consumed by the sink instance on the Kafka Connect side.
 
 === Testing It Out
 
