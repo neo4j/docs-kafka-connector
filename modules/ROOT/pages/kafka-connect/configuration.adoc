@@ -75,7 +75,7 @@ Following a summary of all the configuration parameters you can use for the {pro
 | Note
 
 | topic | <topic> | true | The topic where the Source will publish the data
-| partitions | <parition> | false | The number of partition for the Source (default 1)
+| partitions | <partition> | false | The number of partition for the Source (default 1)
 | neo4j.streaming.from | enum[ALL, NOW, LAST_COMMITTED] | false | When the Source connector starts:
 
 - `ALL` means that the Source will stream all the data inside the graph from the beginning.
