@@ -90,6 +90,7 @@ if not defined we use an internal value given from the last performed check.
 We use this value for injecting it in the provided query defined in `neo4j.source.query` as `$lastChek` parameter
 | neo4j.streaming.poll.interval.msecs | <millis> | Int | The polling interval in ms (Default: 10000)
 | neo4j.enforce.schema | <true/false> | false | Apply a schema to each record (Default: false)
+| neo4j.cdc.topic.<topic>.key-strategy | enum[SKIP, ELEMENT_ID, ENTITY_KEYS, WHOLE_VALUE] | false | The strategy that determines how message keys are serialized, based on the corresponding change event (Default: `WHOLE_VALUE`)
 |===
 
 [NOTE]
