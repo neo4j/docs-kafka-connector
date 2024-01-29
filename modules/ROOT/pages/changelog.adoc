@@ -21,7 +21,7 @@ This release supports both the old and the new structure for compatibility.
 
 |===
 
-== Version 5.1.0-alpha02
+== Version 5.1.0-alpha03
 
 === Updated features
 [cols="2",options="header"]
