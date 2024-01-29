@@ -398,6 +398,9 @@ Default: `1s`
 | neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.changesTo | Comma-separated list of property selectors. Example: `"neo4j.cdc.topic.my-topic.patterns.0.changesTo": "name, age"` (see link:https://neo4j.com/docs/cdc/current/selectors/#combining-selectors[how selectors are combined])
 | neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.metadata.\{KEY} | Key-value metadata selector. If the key starts `txMetadata.`, then the key-value pair is matched against the actual transaction metadata (with the key stripped of the aforementioned prefix). Example: `"neo4j.cdc.topic.my-topic.patterns.0.metadata.txMetadata.app": "neo4j-browser"`
 
+| neo4j.cdc.topic.\{NAME}.key-strategy | One of `SKIP`, `ELEMENT_ID`, `ENTITY_KEYS`, `WHOLE_VALUE`. Serialisation strategy for CDC topic key.
+
+Default: `WHOLE_WALUE`
 |===
 
 === `QUERY` strategy Settings
