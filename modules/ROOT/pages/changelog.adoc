@@ -20,3 +20,46 @@ Neo4j 5.15 introduced a breaking change on change event schema, where the struct
 This release supports both the old and the new structure for compatibility.
 
 |===
+
+== Version 5.1.0-alpha03
+
+=== Updated features
+[cols="2",options="header"]
+|===
+| Feature
+| Details
+a|
+
+Some `sink` properties were renamed.
+a|
+In order to provide consistent and more intuitive naming we have renamed some `sink` properties. This affects the following properties (`old` -> `now`):
+
+- `neo4j.topic.cypher.$topic` -> `neo4j.cypher.topic.$topic`
+- `neo4j.topic.cdc.sourceId` -> `neo4j.topic.cdc.sourceId`
+- `neo4j.topic.cdc.sourceId.labelName` -> `neo4j.cdc.sourceId.labelName`
+- `neo4j.topic.cdc.sourceId.idName` -> `neo4j.cdc.sourceId.labelName`
+- `neo4j.topic.cdc.schema` -> `neo4j.cdc.schema.topics`
+- `neo4j.topic.pattern.node.$topic` -> `neo4j.pattern.node.topic.$topic`
+- `noe4j.topic.pattern.merge-node-properties` -> `neo4j.pattern.merge-node-properties`
+- `neo4j.topic.pattern.relationship.$topic` -> `neo4j.pattern.relationship.topic.$topic`
+- `neo4j.topic.pattern.merge-relationship-properties` -> `neo4j.pattern.merge-relationship-properties`
+- `neo4j.topic.cud` -> `neo4j.cud.topics`
+
+a| Schema for CDC events were updated.
+a| We have updated a schema to be compatible for `CREATE`, `UPDATE`, and `DELETE` operations, so it would be possible to
+publish them to the one Kafka topic with `backward` compatibility mode.
+
+a| Fixed a bug with how CDC index pattern configuration is parsed
+a| Previously it would be possible to receive an error if multiple continuous indexes were specified
+
+|===
+
+=== New features
+[cols="2",options="header"]
+|===
+| Feature
+| Details
+
+|a Added key serialisation strategies for CDC source messages.
+|a We've introduced an optional property `neo4j.cdc.topic.$topic.key-strategy`, which specifies keys of CDC source messages will be serialised. Available options as `SKIP`, `ELEMENT_ID`, `ENTITY_KEYS`, `WHOLE_VALUE`.
+|===
