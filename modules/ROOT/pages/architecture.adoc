@@ -1,0 +1,36 @@
+= Architecture Guidance
+
+In this chapter we'll discuss key considerations and best practices when working with {product-name}.
+
+== Confluent Schema Registry and Source connector
+
+Neo4j is a schema-less database, which poses challenges when messages need to be converted to schema formats like Avro,
+Protobuf, or JSON Schema for transmission via Kafka. Schema conflicts may arise due to the flexible nature of the graph data.
+To mitigate conflicts, it's crucial to establish a structured approach to schema enforcement and validation.
+
+=== Enforcing Structure
+
+When using schema formats like Avro, Protobuf, or JSON Schema with Neo4j, it's recommended to
+invest efforts in enforcing structure within the data. This includes:
+
+* *Type Consistency in Exported Properties*: Ensure that properties exported by the Source connector have the same type across
+all nodes within the label and all relationships within the type.
+* *Default Non-Null Values for Optional Properties*: Set default non-null values for optional properties.
+Neo4j doesn't store null values. Setting property value to null removes property from the node or the relationship and changes the schema.
+* *Type and Existence Constraints*: Utilize type and existence constraints, which are available for Neo4j Enterprise.
+Follow link:{cypher-manual-page-uri}/constraints[Cypher Manual] for more details.
+
+=== Evolving Graph Structure
+
+When evolving the graph data structure, it's essential to plan ahead, considering Schema Registry compatibility modes.
+For instance, in the default compatibility mode (BACKWARD), adding new properties is generally safe.
+However, deletions or type changes should be approached cautiously, as they can introduce conflicts between schema versions.
+
+Depending on specific requirements and data structure, changing the compatibility mode, even up to NONE, may be necessary.
+However, it's important to thoroughly test compatibility changes before implementing.
+
+=== Handling Unstructured Graph Data
+
+In scenarios where graph data is challenging to structure or evolve, employing a schema-less message format is recommended.
+However, to ensure data validity and consistency, validation mechanisms should be implemented on the consumer side.
+This approach allows for flexibility in data representation while maintaining control over data quality and integrity.
