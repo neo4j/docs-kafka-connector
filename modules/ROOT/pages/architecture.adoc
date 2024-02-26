@@ -15,8 +15,6 @@ invest efforts in enforcing structure within the data. This includes:
 
 * *Type Consistency in Exported Properties*: Ensure that properties exported by the Source connector have the same type across
 all nodes within the label and all relationships within the type.
-* *Default Non-Null Values for Optional Properties*: Set default non-null values for optional properties.
-Neo4j doesn't store null values. Setting property value to null removes property from the node or the relationship and changes the schema.
 * *Type and Existence Constraints*: Utilize type and existence constraints, which are available for Neo4j Enterprise.
 Follow link:{cypher-manual-page-uri}/constraints[Cypher Manual] for more details.
 
@@ -31,6 +29,6 @@ However, it's important to thoroughly test compatibility changes before implemen
 
 === Handling Unstructured Graph Data
 
-In scenarios where graph data is challenging to structure or evolve, employing a schema-less message format is recommended.
-However, to ensure data validity and consistency, validation mechanisms should be implemented on the consumer side.
-This approach allows for flexibility in data representation while maintaining control over data quality and integrity.
+In scenarios where graph data is challenging to structure or evolve, it's advisable to explore whether you can relax
+compatibility mode and manage schema changes on consumer side.
+If it's not feasible, employing a schema-less message format is recommended.
