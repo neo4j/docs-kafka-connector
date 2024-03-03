@@ -4,4 +4,5 @@
 * xref::source.adoc[Source Configuration]
 * xref::sink.adoc[Sink Configuration]
 * xref::confluent-cloud.adoc[Confluent Cloud Support]
+* xref::known-issues.adoc[]
 * xref::changelog.adoc[]

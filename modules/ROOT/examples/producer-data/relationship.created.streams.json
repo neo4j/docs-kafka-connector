@@ -7,7 +7,7 @@
     "tx_events_count": 2,
     "operation": "created",
     "source": {
-      "hostname": "neo4j.mycompany.com"
+      "hostname": "neo4j.example.com"
     }
   },
   "payload": {
@@ -15,35 +15,43 @@
     "type": "relationship",
     "label": "KNOWS",
     "start": {
-      "labels": ["Person"],
+      "labels": [
+        "Person"
+      ],
       "id": "123",
       "ids": {
-        "last_name": "Andrea",
-        "first_name": "Santurbano"
+        "last_name": "Doe",
+        "first_name": "John"
       }
     },
     "end": {
-      "labels": ["Person"],
+      "labels": [
+        "Person"
+      ],
       "id": "456",
       "ids": {
-        "last_name": "Michael",
-        "first_name": "Hunger"
+        "last_name": "Doe",
+        "first_name": "Mary"
       }
     },
     "after": {
       "properties": {
-        "since": "2018-04-05T12:34:00[Europe/Berlin]"
+        "since": "2012-01-01"
       }
     }
   },
   "schema": {
     "properties": {
-      "since": "ZonedDateTime"
+      "since": "LocalDateTime"
     },
-    "constraints": [{
-      "label": "KNOWS",
-      "properties": ["since"],
-      "type": "RELATIONSHIP_PROPERTY_EXISTS"
-    }]
+    "constraints": [
+      {
+        "label": "KNOWS",
+        "properties": [
+          "since"
+        ],
+        "type": "RELATIONSHIP_PROPERTY_EXISTS"
+      }
+    ]
   }
 }

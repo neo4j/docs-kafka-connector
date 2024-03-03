@@ -9,6 +9,7 @@ Source connector can be configured with two different strategies;
 * Change Data Capture
 * Query
 
+[#kafka-connect-source-cdc-strategy]
 === Change Data Capture strategy
 
 Change Data Capture strategy makes use of the link:{page-canonical-root}/cdc/current[Change Data Capture] feature provided by Neo4j and Aura Enterprise 5, and is the preferred strategy for source connector instances as it doesn't require any schema changes and can capture deletions reliably.
@@ -216,6 +217,9 @@ Only `pattern` settings are mandatory in the above example, and others are optio
 Based on the above example, we can use one of the following configurations.
 Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as source.cdc.neo4j.json.
 
+[IMPORTANT]
+CDC Strategy uses schemas to capture type information and thus requires a message converter with schema support.
+
 [.tabbed-example]
 ====
 [.include-with-AVRO-messages]
@@ -240,16 +244,6 @@ include::example$docker-data/source.cdc.json.json[]
 ----
 =====
 
-[.include-with-JSON-messages-as-string]
-=====
-ifdef::backend-pdf[]
-.source.cdc.json-string.json
-endif::[]
-[source,json]
-----
-include::example$docker-data/source.cdc.json-string.json[]
-----
-=====
 ====
 
 We will now create the source instance by invoking the following REST call:

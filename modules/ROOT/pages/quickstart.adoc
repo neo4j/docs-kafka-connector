@@ -120,16 +120,6 @@ include::example$docker-data/quickstart.source.cdc.json.json[]
 ----
 =====
 
-[.include-with-JSON-messages-as-string]
-=====
-ifdef::backend-pdf[]
-.quickstart.source.cdc.json-string.json
-endif::[]
-[source,json]
-----
-include::example$docker-data/quickstart.source.cdc.json-string.json[]
-----
-=====
 ====
 
 We will now create the source instance by invoking the following REST call:
@@ -192,6 +182,7 @@ The expected change events, based on the type of operation, will have the follow
 }
 ----
 =====
+
 [.include-with-UPDATE-events]
 =====
 [source,json]
@@ -239,6 +230,7 @@ The expected change events, based on the type of operation, will have the follow
 }
 ----
 =====
+
 [.include-with-DELETE-events]
 =====
 [source,json]
@@ -293,7 +285,7 @@ CREATE (:TestSource {name: 'jack', surname: 'small'});
 
 This will result in new messages being published to the topic named `creates`.
 
-=== Sink
+=== Sink with Cypher
 
 Having set up the source connector, the next step is to configure a sink connector that consumes messages published to the `creates`, `updates` and `deletes` topics.
 
@@ -304,35 +296,25 @@ First, save the following JSON file into a local directory named as `sink.neo4j.
 [.include-with-AVRO-messages]
 =====
 ifdef::backend-pdf[]
-.quickstart.sink.avro.json
+.quickstart.sink.cypher.avro.json
 endif::[]
 [source,json]
 ----
-include::example$docker-data/quickstart.sink.avro.json[]
+include::example$docker-data/quickstart.sink.cypher.avro.json[]
 ----
 =====
 
 [.include-with-JSON-messages-with-schema]
 =====
 ifdef::backend-pdf[]
-.quickstart.sink.json.json
+.quickstart.sink.cypher.json.json
 endif::[]
 [source,json]
 ----
-include::example$docker-data/quickstart.sink.json.json[]
+include::example$docker-data/quickstart.sink.cypher.json.json[]
 ----
 =====
 
-[.include-with-JSON-messages-as-string]
-=====
-ifdef::backend-pdf[]
-.quickstart.sink.json-string.json
-endif::[]
-[source,json]
-----
-include::example$docker-data/quickstart.sink.json-string.json[]
-----
-=====
 ====
 
 We will now create the sink instance by invoking the following REST call:
@@ -346,7 +328,8 @@ curl -X POST http://localhost:8083/connectors \
 ----
 
 This configures the sink instance to consume data in your preferred serialization format.
-The properties `neo4j.cypher.topic.creates`, `neo4j.cypher.topic.updates` and `neo4j.cypher.topic.deletes` define the Cypher queries that will be executed per each message consumed by the sink instance on the Kafka Connect side.
+CDC Schema strategy will automatically build corresponding Cypher queries based on the incoming change event message.
+Cypher strategy will build Cypher queries based on Cypher query templates defined by the properties `neo4j.cypher.topic.creates`, `neo4j.cypher.topic.updates` and `neo4j.cypher.topic.deletes`.
 
 === Testing It Out
 
@@ -388,7 +371,6 @@ MATCH (n:TestSource {name: 'mary', surname: 'doe'}) DELETE n;
 ----
 
 Verify that the existing `Person` node is now deleted.
-
 
 === Summary
 

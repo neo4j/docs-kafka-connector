@@ -1,0 +1,60 @@
+{
+  "id": "A3Qc5ZIZ_Eo5v5xsONVo8KUAAAAAAAAADgAAAAAAAAAA",
+  "txId": 14,
+  "seq": 0,
+  "metadata": {
+    "authenticatedUser": "neo4j",
+    "captureMode": "FULL",
+    "connectionClient": "192.168.65.1:46246",
+    "connectionServer": "172.17.0.2:7687",
+    "connectionType": "bolt",
+    "databaseName": "neo4j",
+    "executingUser": "neo4j",
+    "serverId": "7528cb82",
+    "txCommitTime": "2024-03-03T20:54:03.853Z",
+    "txMetadata": {
+      "app": "cypher-shell_v5.6.0",
+      "type": "user-direct"
+    },
+    "txStartTime": "2024-03-03T20:54:03.804Z"
+  },
+  "event": {
+    "elementId": "4:741ce592-19fc-4a39-bf9c-6c38d568f0a5:0",
+    "eventType": "n",
+    "operation": "u",
+    "keys": {
+      "Person": [
+        {
+          "first_name": "John",
+          "last_name": "Doe"
+        }
+      ]
+    },
+    "labels": [
+      "Person"
+    ],
+    "state": {
+      "before": {
+        "labels": [
+          "Person"
+        ],
+        "properties": {
+          "email": "john.doe@acme.org",
+          "first_name": "John",
+          "last_name": "Doe"
+        }
+      },
+      "after": {
+        "labels": [
+          "Person"
+        ],
+        "properties": {
+          "dob": "2000-01-01",
+          "email": "john.doe@example.com",
+          "first_name": "John",
+          "last_name": "Doe"
+        }
+      }
+    }
+  }
+}

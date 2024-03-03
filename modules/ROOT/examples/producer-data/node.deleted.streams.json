@@ -7,19 +7,21 @@
     "tx_events_count": 2,
     "operation": "deleted",
     "source": {
-      "hostname": "neo4j.mycompany.com"
+      "hostname": "neo4j.example.com"
     }
   },
   "payload": {
     "id": "1004",
     "type": "node",
     "before": {
-      "labels": ["Person"],
+      "labels": [
+        "Person"
+      ],
       "properties": {
-        "last_name": "Kretchmar",
-        "email": "annek@noanswer.org",
-        "first_name": "Anne Marie",
-        "geo": { "crs": "wgs-84-3d", "latitude": 46.2222, "longitude": 32.11111, "height": 0.123 }
+        "last_name": "Doe",
+        "email": "john.doe@example.com",
+        "first_name": "John",
+        "dob": "2000-01-01"
       }
     }
   },
@@ -30,10 +32,15 @@
       "first_name": "String",
       "geo": "point"
     },
-    "constraints": [{
-      "label": "Person",
-      "properties": ["first_name", "last_name"],
-      "type": "UNIQUE"
-    }]
+    "constraints": [
+      {
+        "label": "Person",
+        "properties": [
+          "first_name",
+          "last_name"
+        ],
+        "type": "UNIQUE"
+      }
+    ]
   }
 }
