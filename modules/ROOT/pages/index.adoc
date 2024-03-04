@@ -21,6 +21,7 @@ The guide covers the following areas:
 * xref:quickstart.adoc[Quick start with {product-name}]
 * xref:source.adoc[How to configure the source component of {product-name}]
 * xref:sink.adoc[How to configure the sink component of {product-name}]
+* xref:changelog.adoc[Changelog]
 
 (C) {copyright}
 License: link:{common-license-page-uri}[Creative Commons 4.0]
