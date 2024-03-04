@@ -17,7 +17,7 @@ label:feature[]
 label:new[]
 
 CDC message support for sink connector
-a| Both the new CDC message format available in Neo4j Aura 5 and latest Neo4j 5.x Enterprise Edition, and old streams change message format are now supported in CDC source id and schema sink strategies.
+a| Both the new CDC message format available in Neo4j Aura 5 and latest Neo4j 5.x Enterprise Edition, and old streams change message format are now supported in CDC `Source ID` and `Schema` sink strategies.
 
 a|
 label:configuration[]

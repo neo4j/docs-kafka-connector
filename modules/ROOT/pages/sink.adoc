@@ -18,7 +18,7 @@ Sink connector can be configured with different strategies:
 [NOTE]
 ====
 **Cypher Template strategy is the only sink strategy that guarantees messages to be processed in the same order as they arrive in a topic.**
-**Change Data Capture strategies (both `Source Id` and `Schema`) use transactional boundaries specified in the change event messages to group and apply changes in the expected order.**
+**Change Data Capture strategies (both `Source ID` and `Schema`) use transactional boundaries specified in the change event messages to group and apply changes in the expected order.**
 
 Other sink strategies group messages together by type of operation, which can also be optimised into batches.
 In this case, the execution order is the following:
