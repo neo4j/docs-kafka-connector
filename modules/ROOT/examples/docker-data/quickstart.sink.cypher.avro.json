@@ -1,5 +1,5 @@
 {
-  "name": "Neo4jSinkConnectorAVRO",
+  "name": "Neo4jSinkConnectorCypherAVRO",
   "config": {
     "topics": "creates,updates,deletes",
     "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",

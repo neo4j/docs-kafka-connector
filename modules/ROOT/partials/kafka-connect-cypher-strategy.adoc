@@ -96,16 +96,6 @@ include::example$docker-data/sink.cypher.json.json[]
 ----
 =====
 
-[.include-with-JSON-messages-as-string]
-=====
-ifdef::backend-pdf[]
-.sink.cypher.json-string.json
-endif::[]
-[source,json]
-----
-include::example$docker-data/sink.cypher.json-string.json[]
-----
-=====
 ====
 
 Let's load the configuration into the Kafka Connect with this REST call:

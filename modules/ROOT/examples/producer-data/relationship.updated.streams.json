@@ -15,42 +15,50 @@
     "type": "relationship",
     "label": "KNOWS",
     "start": {
-      "labels": ["Person"],
+      "labels": [
+        "Person"
+      ],
       "id": "123",
       "ids": {
-        "last_name": "Andrea",
-        "first_name": "Santurbano"
+        "last_name": "Doe",
+        "first_name": "John"
       }
     },
     "end": {
-      "labels": ["Person"],
+      "labels": [
+        "Person"
+      ],
       "id": "456",
       "ids": {
-        "last_name": "Michael",
-        "first_name": "Hunger"
+        "last_name": "Doe",
+        "first_name": "Mary"
       }
     },
     "before": {
       "properties": {
-        "since": "2018-04-05T12:34:00[Europe/Berlin]"
+        "since": "2012-01-01"
       }
     },
     "after": {
       "properties": {
-        "since": "2018-04-05T12:34:00[Europe/Berlin]",
-        "to": "2019-04-05T23:00:00[Europe/Berlin]"
+        "since": "2012-01-01",
+        "to": "2020-06-01"
       }
     }
   },
   "schema": {
     "properties": {
-      "since": "ZonedDateTime",
-      "to": "ZonedDateTime"
+      "since": "LocalDateTime",
+      "to": "LocalDateTime"
     },
-    "constraints": [{
-      "label": "KNOWS",
-      "properties": ["since"],
-      "type": "RELATIONSHIP_PROPERTY_EXISTS"
-    }]
+    "constraints": [
+      {
+        "label": "KNOWS",
+        "properties": [
+          "since"
+        ],
+        "type": "RELATIONSHIP_PROPERTY_EXISTS"
+      }
+    ]
   }
 }

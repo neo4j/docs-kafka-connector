@@ -7,18 +7,20 @@
     "tx_events_count": 2,
     "operation": "created",
     "source": {
-      "hostname": "neo4j.mycompany.com"
+      "hostname": "neo4j.example.com"
     }
   },
   "payload": {
     "id": "1004",
     "type": "node",
     "after": {
-      "labels": ["Person"],
+      "labels": [
+        "Person"
+      ],
       "properties": {
-        "email": "annek@noanswer.org",
-        "last_name": "Kretchmar",
-        "first_name": "Anne Marie"
+        "email": "john.doe@example.com",
+        "last_name": "Doe",
+        "first_name": "John"
       }
     }
   },
@@ -28,10 +30,15 @@
       "email": "String",
       "first_name": "String"
     },
-    "constraints": [{
-      "label": "Person",
-      "properties": ["first_name", "last_name"],
-      "type": "UNIQUE"
-    }]
+    "constraints": [
+      {
+        "label": "Person",
+        "properties": [
+          "first_name",
+          "last_name"
+        ],
+        "type": "UNIQUE"
+      }
+    ]
   }
 }

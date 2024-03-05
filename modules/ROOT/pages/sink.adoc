@@ -9,17 +9,18 @@ In this chapter we'll discuss how the Sink instance is configured.
 Sink connector can be configured with different strategies:
 
 * by providing a Cypher template
-// * by ingesting the events emitted from another Neo4j instance via the Change Data Capture module
-* by providing a pattern extraction to a JSON or AVRO file
+* by ingesting change events emitted from another Neo4j instance, either by a source connector instance configured for xref:#kafka-connect-source-cdc-strategy[Change Data Capture strategy] or the deprecated neo4j streams plugin.
+* by providing a pattern extraction for a JSON or AVRO file
 // * by managing a CUD file format
 
 == Sink ingestion strategies
 
 [NOTE]
 ====
-**The Cypher Template strategy is the only Sink strategy that guarantees messages to be processed in the same order as they arrive in a topic.**
+**Cypher Template strategy is the only sink strategy that guarantees messages to be processed in the same order as they arrive in a topic.**
+**Change Data Capture strategies (both `Source ID` and `Schema`) use transactional boundaries specified in the change event messages to group and apply changes in the expected order.**
 
-Other Sink strategies group messages together by type of operation, which can also be optimised into batches.
+Other sink strategies group messages together by type of operation, which can also be optimised into batches.
 In this case, the execution order is the following:
 
 . All `MERGE` operations on nodes
@@ -31,8 +32,8 @@ In this case, the execution order is the following:
 [#kafka-connect-cypher-strategy]
 include::partial$kafka-connect-cypher-strategy.adoc[]
 
-// [#kafka-connect-cdc-strategy]
-// include::partial$kafka-connect-cdc-strategy.adoc[]
+[#kafka-connect-cdc-strategy]
+include::partial$kafka-connect-cdc-strategy.adoc[]
 
 [#kafka-connect-pattern-strategy]
 include::partial$kafka-connect-pattern-strategy.adoc[]
@@ -95,5 +96,9 @@ Default: `0s`
 Example: `"neo4j.pattern.node.topic.user": "(:User\{!userId})"`
 | neo4j.pattern.relationship.topic.\{NAME} | Relationship pattern to apply on the messages received from the specified topic.
 Example: `"neo4j.pattern.relationship.topic.user": "(:User\{!userId})-[:KNOWS]->(:User\{!otherUserId})"`
+| neo4j.pattern.node.merge-properties | Whether to merge node properties with the incoming node properties, applies to both node and relationship pattern strategies.
+Default: `false`
+| neo4j.pattern.relationship.merge-properties | Whether to merge relationship properties with the incoming relationship properties.
+Default: `false`
 
 |===
