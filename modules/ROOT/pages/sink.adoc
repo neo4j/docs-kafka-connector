@@ -77,13 +77,26 @@ Default: `0s`
 
 |===
 
+[#cypher_strategy_settings]
 === Cypher Strategy Settings
 
 [%autowidth,cols="m,a",opts=header]
 |===
 
 | Name | Description
-| neo4j.cypher.topic.\{NAME} | Cypher statement to run for the specified topic. Example: `"neo4j.cypher.topic.my-topic": "MERGE (n:Person {name: event.name})"`
+| neo4j.cypher.topic.\{NAME} | Cypher statement to run for the specified topic.
+Example: `"neo4j.cypher.topic.my-topic": "MERGE (n:Person {name: __value.name})"`
+| neo4j.cypher.bind-header-as | Name of the variable to bind the message headers as.
+Message headers will be bound as a map of header names to corresponding values.
+Set to empty string to disable binding of message headers.
+Default: `__header`
+| neo4j.cypher.bind-key-as | Name of the variable to bind the message key as.
+Set to empty string to disable binding of message key.
+Default: `__key`
+| neo4j.cypher.bind-value-as | Name of the variable to bind the message value as.
+Set to empty string to disable binding of message value.
+Default: `__value`
+| neo4j.cypher.bind-value-as-event | Whether to also bind the message value as `event` for backward compatibility purposes. Default: `true`
 |===
 
 === Pattern Strategy Settings

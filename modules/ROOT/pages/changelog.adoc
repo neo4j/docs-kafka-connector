@@ -2,6 +2,37 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.1.0-beta02
+
+=== New and updated features
+
+[cols="2",options="header"]
+|===
+| Feature
+| Details
+
+
+a|
+label:feature[]
+label:new[]
+
+Added new sink properties:
+
+- `neo4j.cypher.bind-header-as`
+- `neo4j.cypher.bind-header-as`
+- `neo4j.cypher.bind-header-as`
+- `neo4j.cypher.bind-value-as-event`
+a| Cypher strategy now allows binding of message headers, key and value as separate and configurable variables to be used in user provided Cypher queries.
+
+a|
+label:fix[]
+
+Schema conversion of Cypher types.
+a|
+A problem in conversion of Cypher values from Connect values, which are defined as custom Connect types (like `Date`, `Time`, `Point`, etc.), has been fixed.
+
+|===
+
 == Version 5.1.0-beta01
 
 === New and updated features

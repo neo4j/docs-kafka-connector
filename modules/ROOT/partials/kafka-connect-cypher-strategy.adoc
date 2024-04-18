@@ -9,6 +9,14 @@ To configure a cypher strategy for a desired topic, you must follow the followin
 "neo4j.cypher.topic.<YOUR_TOPIC>": "<YOUR_CYPHER_QUERY>"
 ----
 
+[IMPORTANT]
+====
+Starting with 5.1.0 version of the {product-name}, Cypher strategy will bind header, key and value of the messages as `\__header`, `__key` and `__value` respectively, which will be passed to the user provided Cypher query as predefined variables.
+See xref:cypher_strategy_settings[] for more information on how to customize the name of the variables.
+
+For backward compatibility, `event` is still available for use but will only correspond to the value of the message.
+====
+
 ==== Example
 
 Given that you configure the topics your sink connector subscribes to within the sink configuration settings as follows;
@@ -23,9 +31,9 @@ You need to declare that you want to use `cypher` strategy and provide the corre
 [source,json]
 ----
   "topics": "creates,updates,deletes",
-  "neo4j.cypher.topic.creates": "WITH event AS message WITH message.event.state.after AS state MERGE (p:Person {name: state.properties.name, surname: state.properties.surname}) MERGE (f:Family {name: state.properties.surname}) MERGE (p)-[:BELONGS_TO]->(f)",
-  "neo4j.cypher.topic.updates": "WITH event AS message WITH message.event.state.before AS before, message.event.state.after AS after MATCH (p:Person {name: before.properties.name, surname: before.properties.surname}) MATCH (fPre:Family {name: before.properties.surname}) OPTIONAL MATCH (p)-[b:BELONGS_TO]->(fPre) DELETE b WITH after, p SET p.name = after.properties.name, p.surname = after.properties.surname MERGE (f:Family {name: after.properties.surname}) MERGE (p)-[:BELONGS_TO]->(f)",
-  "neo4j.cypher.topic.deletes": "WITH event AS message WITH message.event.state.before AS before MATCH (p:Person {name: before.properties.name, surname: before.properties.surname}) DETACH DELETE p"
+  "neo4j.cypher.topic.creates": "WITH __value.event.state.after AS state MERGE (p:Person {name: state.properties.name, surname: state.properties.surname}) MERGE (f:Family {name: state.properties.surname}) MERGE (p)-[:BELONGS_TO]->(f)",
+  "neo4j.cypher.topic.updates": "WITH __value.event.state.before AS before, __value.event.state.after AS after MATCH (p:Person {name: before.properties.name, surname: before.properties.surname}) MATCH (fPre:Family {name: before.properties.surname}) OPTIONAL MATCH (p)-[b:BELONGS_TO]->(fPre) DELETE b WITH after, p SET p.name = after.properties.name, p.surname = after.properties.surname MERGE (f:Family {name: after.properties.surname}) MERGE (p)-[:BELONGS_TO]->(f)",
+  "neo4j.cypher.topic.deletes": "WITH __value.event.state.before AS before MATCH (p:Person {name: before.properties.name, surname: before.properties.surname}) DETACH DELETE p"
 ----
 
 The above configuration excerpt defines that;
@@ -34,8 +42,7 @@ The above configuration excerpt defines that;
 +
 [source,cypher]
 ----
-WITH event AS message
-WITH message.event.state.after AS state
+WITH __value.event.state.after AS state
 MERGE (p:Person {name: state.properties.name, surname: state.properties.surname})
 MERGE (f:Family {name: state.properties.surname})
 MERGE (p)-[:BELONGS_TO]->(f)
@@ -45,8 +52,7 @@ MERGE (p)-[:BELONGS_TO]->(f)
 +
 [source,cypher]
 ----
-WITH event AS message
-WITH message.event.state.before AS before, message.event.state.after AS after
+WITH __value.event.state.before AS before, __value.event.state.after AS after
 MATCH (p:Person {name: before.properties.name, surname: before.properties.surname})
 MATCH (fPre:Family {name: before.properties.surname})
 OPTIONAL MATCH (p)-[b:BELONGS_TO]->(fPre)
@@ -61,8 +67,7 @@ MERGE (p)-[:BELONGS_TO]->(f)
 +
 [source,cypher]
 ----
-WITH event AS message
-WITH message.event.state.before AS before
+WITH __value.event.state.before AS before
 MATCH (p:Person {name: before.properties.name, surname: before.properties.surname})
 DETACH DELETE p
 ----
@@ -117,9 +122,9 @@ For the above example, the executed query for messages received from `creates` t
 
 [source,cypher]
 ----
-UNWIND $events AS event
-WITH event AS message
-WITH message.event.state.after AS state
+UNWIND $events AS message
+WITH message.value AS event, message.header AS __header, message.key AS __key, message.value AS __value
+WITH __value.event.state.after AS state
 MERGE (p:Person {name: state.properties.name, surname: state.properties.surname})
 MERGE (f:Family {name: state.properties.surname})
 MERGE (p)-[:BELONGS_TO]->(f)
