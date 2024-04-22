@@ -2,10 +2,6 @@
 = Known Issues
 :description: This chapter describes known issues related to {product-name}.
 
-== 5.1.0-beta01
+== 5.1.0-beta02
 
-As of 5.1.0-beta01, {product-name} has the following known issues.
-
-=== Protobuf converters
-
-The generated schema by a source connector configured with CDC strategy will not be protobuf friendly and will cause failures on the sink connector if the events are configured to be consumed by one of the CDC sink strategies.
+As of 5.1.0-beta02, {product-name} does not have any known issues.

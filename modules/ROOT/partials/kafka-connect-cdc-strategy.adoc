@@ -28,7 +28,7 @@ Configuration of this strategy requires declaration of list of topics to read ch
 "neo4j.cdc.source-id.property-name": "<the property name given to the CDC id field, default=sourceId>"
 ----
 
-==== Example
+===== Example
 
 Given that you configure the topics your sink connector subscribes to as follows;
 
@@ -169,7 +169,7 @@ Configuration of this strategy requires declaration of list of topics to read ch
 "neo4j.cdc.schema.topics": "<COMMA_SEPARATED_LIST_OF_TOPICS>"
 ----
 
-==== Example
+===== Example
 
 Given that you configure the topics your sink connector subscribes to as follows;
 

@@ -244,6 +244,17 @@ include::example$docker-data/source.cdc.json.json[]
 ----
 =====
 
+[.include-with-PROTOBUF-messages]
+=====
+ifdef::backend-pdf[]
+.source.cdc.protobuf.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/source.cdc.protobuf.json[]
+----
+=====
+
 ====
 
 We will now create the source instance by invoking the following REST call:
@@ -321,6 +332,18 @@ endif::[]
 include::example$docker-data/source.query.json-string.json[]
 ----
 =====
+
+[.include-with-PROTOBUF-messages]
+=====
+ifdef::backend-pdf[]
+.source.query.protobuf.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/source.query.protobuf.json[]
+----
+=====
+
 ====
 
 We will now create the source instance by invoking the following REST call:
