@@ -367,7 +367,7 @@ Verify that the existing `Person` node is now updated with a surname of `ex-doe`
 .Delete an existing person
 [source,cypher]
 ----
-MATCH (n:TestSource {name: 'mary', surname: 'doe'}) DELETE n;
+MATCH (n:TestSource {name: 'mary', surname: 'ex-doe'}) DELETE n;
 ----
 
 Verify that the existing `Person` node is now deleted.
