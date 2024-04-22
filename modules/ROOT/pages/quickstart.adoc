@@ -120,6 +120,17 @@ include::example$docker-data/quickstart.source.cdc.json.json[]
 ----
 =====
 
+[.include-with-PROTOBUF-messages]
+=====
+ifdef::backend-pdf[]
+.quickstart.source.cdc.protobuf.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.source.cdc.protobuf.json[]
+----
+=====
+
 ====
 
 We will now create the source instance by invoking the following REST call:
@@ -312,6 +323,17 @@ endif::[]
 [source,json]
 ----
 include::example$docker-data/quickstart.sink.cypher.json.json[]
+----
+=====
+
+[.include-with-PROTOBUF-messages]
+=====
+ifdef::backend-pdf[]
+.quickstart.sink.cypher.protobuf.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.sink.cypher.protobuf.json[]
 ----
 =====
 

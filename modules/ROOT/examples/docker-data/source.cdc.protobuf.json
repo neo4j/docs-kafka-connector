@@ -1,0 +1,33 @@
+{
+  "name": "Neo4jSourceConnectorJSONSchema",
+  "config": {
+    "connector.class": "org.neo4j.connectors.kafka.source.Neo4jConnector",
+    "key.converter": "io.confluent.connect.protobuf.ProtobufConverter",
+    "key.converter.schemas.enable": true,
+    "key.converter.schema.registry.url": "http://schema-registry:8081",
+    "key.converter.optional.for.nullables": true,
+    "value.converter": "io.confluent.connect.protobuf.ProtobufConverter",
+    "value.converter.schemas.enable": true,
+    "value.converter.schema.registry.url": "http://schema-registry:8081",
+    "value.converter.optional.for.nullables": true,
+    "neo4j.uri": "neo4j://neo4j:7687",
+    "neo4j.authentication.type": "BASIC",
+    "neo4j.authentication.basic.username": "neo4j",
+    "neo4j.authentication.basic.password": "password",
+    "neo4j.source-strategy": "CDC",
+    "neo4j.start-from": "NOW",
+    "neo4j.cdc.poll-interval": "1s",
+    "neo4j.cdc.topic.my-topic.patterns.0.pattern": "(:Person)",
+    "neo4j.cdc.topic.my-topic.patterns.0.operation": "create",
+    "neo4j.cdc.topic.my-topic.patterns.0.changesTo": "name,surname",
+    "neo4j.cdc.topic.my-topic.patterns.0.metadata.authenticatedUser": "neo4j",
+    "neo4j.cdc.topic.my-topic.patterns.0.metadata.executingUser": "neo4j",
+    "neo4j.cdc.topic.my-topic.patterns.0.metadata.txMetadata.app": "sales",
+    "neo4j.cdc.topic.my-topic.patterns.1.pattern": "(:Person)-[:KNOWS]->(:Person)",
+    "neo4j.cdc.topic.my-topic.patterns.1.operation": "update",
+    "neo4j.cdc.topic.my-topic.patterns.1.changesTo": "since",
+    "neo4j.cdc.topic.my-topic.patterns.1.metadata.authenticatedUser": "neo4j",
+    "neo4j.cdc.topic.my-topic.patterns.1.metadata.executingUser": "neo4j",
+    "neo4j.cdc.topic.my-topic.patterns.1.metadata.txMetadata.app": "sales"
+  }
+}
