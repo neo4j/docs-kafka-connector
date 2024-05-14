@@ -1,6 +1,7 @@
 * xref::index.adoc[]
 * xref::overview.adoc[Project overview]
-* xref::quickstart-connect.adoc[Quick Start]
+* xref::quickstart-connect.adoc[Quickstart]
+* xref::confluent-cloud.adoc[]
 * xref::kafka-connect.adoc[{product-name}]
 ** xref::kafka-connect/installation.adoc[Installation]
 ** xref::kafka-connect/source.adoc[Source Configuration]
@@ -15,4 +16,3 @@
 ** xref::architecture/throughput.adoc[Factors which Affect Throughput]
 ** xref::architecture/transformations.adoc[Streams Transformations]
 ** xref::architecture/optimize.adoc[Optimizing Kafka]
-* xref::confluent-cloud.adoc[Confluent Cloud Support]
