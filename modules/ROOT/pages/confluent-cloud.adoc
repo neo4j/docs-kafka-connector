@@ -6,4 +6,4 @@ Confluent's Custom Connectors provide a way to extend the Confluent Cloud beyond
 Custom Connectors are Kafka Connect plugins created by users, modified open-source connector plugins, or third-party connector plugins like the Neo4j Connector for Confluent. 
 Find out more about Custom Connectors in the link:https://docs.confluent.io/cloud/current/connectors/bring-your-connector/overview.html[Confluent documentation].
 
-You can create a connector from Confluent Cloud to Neo4j AuraDB by following the instructions on the link:https://neo4j.com/developer-blog/confluent-cloud-neo4j-auradb-connector-2/[Neo4j Developer Blog].
+You can create a connector from Confluent Cloud to Neo4j and link:https://neo4j.com/docs/aura/auradb/[Neo4j AuraDB] by following the instructions on the link:https://neo4j.com/developer-blog/confluent-cloud-neo4j-auradb-connector-2/[Neo4j Developer Blog].
