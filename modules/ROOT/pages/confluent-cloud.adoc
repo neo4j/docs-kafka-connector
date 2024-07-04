@@ -1,4 +1,4 @@
-= Confluent Cloud quickstart
+= Quickstart with Confluent Cloud
 
 Neo4j supports the Confluent Cloud with the Neo4j Connector for Confluent running as a Custom Connector.
 Confluent's Custom Connectors provide a way to extend the Confluent Cloud beyond the fully managed connectors available on their platform.

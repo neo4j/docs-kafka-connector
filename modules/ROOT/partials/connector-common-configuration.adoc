@@ -1,44 +1,156 @@
-== Common Connector Settings
+== Connector Settings
 
 [%width="100%",cols="m,a",opts=header]
 |===
 | Name
 | Description
 
-| connector.class | label:mandatory[] `org.neo4j.connectors.kafka.source.Neo4jConnector`
-| key.converter | label:mandatory[] Example: `io.confluent.connect.avro.AvroConverter` (see link:https://docs.confluent.io/platform/current/installation/configuration/connect/source-connect-configs.html#key-converter[converter class for keys])
-| value.converter | label:mandatory[] Example: `io.confluent.connect.avro.AvroConverter` (see link:https://docs.confluent.io/platform/current/installation/configuration/connect/source-connect-configs.html#value-converter[converter class for values])
-| key.converter.schemas.enable | If `true` the key will be treated as a composite JSON object containing schema and the data.
+| connector.class label:mandatory[]
+| `org.neo4j.connectors.kafka.{type}.Neo4jConnector`
 
-Default: `false`
-| value.converter.schemas.enable | If `true` the value will be treated as a composite JSON object containing schema and the data.
+| key.converter label:mandatory[]
+| A compatible Kafka Connect converter.
 
-Default: `false`
-| key.converter.schema.registry.url | Schema Registry URL for key schema, applicable if key converter makes use of schemas
-| value.converter.schema.registry.url | Schema Registry URL for value schema, applicable if value converter makes use of schemas
-| neo4j.uri | label:mandatory[] Neo4j URI. (See link:https://neo4j.com/docs/java-manual/current/client-applications/#_examples[valid URI examples])
-| neo4j.database | Neo4j Database
-| neo4j.authentication.type | label:mandatory[] one of `NONE`, `BASIC`, `KERBEROS`, `BEARER`, `CUSTOM`
+Could be one of;
+
+- `io.confluent.connect.avro.AvroConverter`
+- `io.confluent.connect.json.JsonSchemaConverter`
+- `io.confluent.connect.protobuf.ProtobufConverter`
+
+| key.converter.schema.registry.url
+| Schema Registry URL for message keys.
+Required when a schema registry is required by the configured `key.converter`.
+
+| key.converter.optional.for.nullables
+| Should be set to `true` when `key.converter` is `io.confluent.connect.protobuf.ProtobufConverter`.
+
+| value.converter label:mandatory[]
+| A compatible Kafka Connect converter.
+
+Could be one of;
+
+- `io.confluent.connect.avro.AvroConverter`
+- `io.confluent.connect.json.JsonSchemaConverter`
+- `io.confluent.connect.protobuf.ProtobufConverter`
+
+| value.converter.schema.registry.url
+| Schema Registry URL for message values.
+Required when a schema registry is required by the configured `value.converter`.
+
+| value.converter.optional.for.nullables
+| Should be set to `true` when `key.converter` is `io.confluent.connect.protobuf.ProtobufConverter`.
+
+|===
+
+== Neo4j Connection Settings
+
+[%width="100%",cols="m,a",opts=header]
+|===
+| Name
+| Description
+
+| neo4j.uri label:mandatory[]
+| Neo4j URI to connect to. Multiple URIs can be specified separated by `,`.
+
+| neo4j.database
+| Neo4j database name to connect to. Recommended to be specified explicitly.
+
+| neo4j.authentication.type label:mandatory[]
+| Authentication type to use.
+One of `NONE`, `BASIC`, `KERBEROS`, `BEARER`, `CUSTOM`
 
 Default: `BASIC`
-| neo4j.authentication.basic.username | Neo4j username. Required by `BASIC` authentication type
-| neo4j.authentication.basic.password | Neo4j password. Required by `BASIC` authentication type
-| neo4j.authentication.basic.realm | Basic authentication realm
-| neo4j.authentication.kerberos.ticket | Kerberos ticket. Required by `KERBEROS` authentication type
-| neo4j.authentication.bearer.token | Bearer authentication token. Required by `BEARER` authentication type
-| neo4j.authentication.custom.principal | Custom authentication principal. Required by `CUSTOM` authentication type
-| neo4j.authentication.custom.credentials | Custom authentication credentials. Required by `CUSTOM` authentication type
-| neo4j.authentication.custom.realm | Custom authentication realm
-| neo4j.authentication.custom.scheme | Custom authentication scheme. Required by `CUSTOM` authentication type
-| neo4j.connection-timeout | Connection timeout duration in milliseconds, seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
-| neo4j.max-retry-time | Maximum transaction retry duration in milliseconds, seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
-| neo4j.max-retry-attempts | Maximum transaction retry attempt count
-| neo4j.pool.max-connection-pool-size | Maximum connection pool size
-| neo4j.pool.connection-acquisition-timeout | Maximum connection pool acquisition timeout duration in milliseconds, seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
-| neo4j.pool.idle-time-before-connection-test | Duration of idle time before connection liveness check in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
-| neo4j.pool.max-connection-lifetime | Max connection lifetime duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
-| neo4j.security.encrypted | One of `true`, `false`
-| neo4j.security.trust-strategy | One of `TRUST_ALL_CERTIFICATES`, `TRUST_SYSTEM_CA_SIGNED_CERTIFICATES`, `TRUST_CUSTOM_CA_SIGNED_CERTIFICATES`
-| neo4j.security.cert-files | List of certificate files. Required by `TRUST_CUSTOM_CA_SIGNED_CERTIFICATES`
+
+| neo4j.authentication.basic.username
+| Username to authenticate with.
+Required when `neo4j.authentication.type` is `BASIC`.
+
+| neo4j.authentication.basic.password
+| Password to authenticate with.
+Required when `neo4j.authentication.type` is `BASIC`.
+
+| neo4j.authentication.basic.realm
+| Authentication realm to authenticate with, leave empty for default.
+
+| neo4j.authentication.kerberos.ticket
+| Kerberos ticket to establish connection with.
+Required when `neo4j.authentication.type` is `KERBEROS`.
+
+| neo4j.authentication.bearer.token
+| Bearer token to establish connection with.
+Required when `neo4j.authentication.type` is `BEARER`.
+
+| neo4j.authentication.custom.scheme
+| Custom authentication scheme to establish connection with.
+Required when `neo4j.authentication.type` is `CUSTOM`.
+
+| neo4j.authentication.custom.principal
+| Custom principal to establish connection with.
+Required when `neo4j.authentication.type` is `CUSTOM`.
+
+| neo4j.authentication.custom.credentials
+| Custom credential to establish connection with.
+Required when `neo4j.authentication.type` is `CUSTOM`.
+
+| neo4j.authentication.custom.realm
+| Custom authentication realm to authenticate with, set as required by your custom authentication provider.
+
+| neo4j.connection-timeout
+| TCP connection timeout (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
+
+Default: `30s` (Driver default)
+
+| neo4j.pool.max-connection-pool-size
+| Maximum number of connections to keep in the connection pool.
+
+Default: `100` (Driver default)
+
+| neo4j.pool.connection-acquisition-timeout
+| Maximum duration to wait for acquiring a connection from the connection pool (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
+
+Default: `60s` (Driver default)
+
+| neo4j.pool.idle-time-before-connection-test
+| Duration after which idle connections are tested for liveness (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
+
+Default: `no test` (Driver default)
+
+| neo4j.pool.max-connection-lifetime
+| Duration after which a connection is dropped from the connection pool (valid units are: ``ms`, `s`, `m`, `h` and `d`; default unit is `s`).
+
+Default: `1h` (Driver default)
+
+| neo4j.max-retry-time
+| Maximum duration to retry a transaction.
+
+Default: `30s`
+
+| neo4j.max-retry-attempts
+| Maximum number of attempts during the duration specified by `neo4j.max-retry-time`.
+
+Default: `5`
+
+| neo4j.security.encrypted
+| Whether encryption is enabled. Only applicable when `bolt` or `neo4j` schemes are used inside `neo4j.uri`.
+One of `true`, `false`
+
+Default: `false`.
+
+| neo4j.security.trust-strategy
+| Trust strategy to use for TLS connections.
+One of `TRUST_ALL_CERTIFICATES`, `TRUST_SYSTEM_CA_SIGNED_CERTIFICATES`, `TRUST_CUSTOM_CA_SIGNED_CERTIFICATES`
+Required when `neo4j.security.encrypted` is `true`.
+
+Default: `TRUST_SYSTEM_CA_SIGNED_CERTIFICATES`
+
+| neo4j.security.cert-files
+| List of files that contain X509 certificates of CAs to trust.
+Required when `neo4j.security.trust-strategy` is `TRUST_CUSTOM_CA_SIGNED_CERTIFICATES`.
+
+| neo4j.security.hostname-verification-enabled
+| Whether hostname verification is enabled during TLS handshake.
+One of `true`, `false`.
+
+Default: `true`
 
 |===

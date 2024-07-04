@@ -1,4 +1,4 @@
-= Local quickstart
+= Quickstart with Docker Compose
 
 [[quickstart]]
 ifdef::env-docs[]
