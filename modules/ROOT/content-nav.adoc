@@ -4,7 +4,7 @@
 * xref:whats-new.adoc[What's new]
 * xref::installation.adoc[Installation]
 * xref::quickstart.adoc[Local quickstart]
- * xref::confluent-cloud.adoc[Confluent Cloud quickstart]
+* xref::confluent-cloud.adoc[Confluent Cloud quickstart]
 // * xref::amazon-msk.adoc[Amazon MSK quickstart]
 
 * *Source connector*
