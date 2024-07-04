@@ -1,0 +1,98 @@
+= Query strategy
+
+Query strategy allows users to define their own Cypher query to extract changes.
+This requires proper schema modifications, such as tracking changes through a dedicated change tracking property such as timestamps on nodes or relationships or using soft-deletes to track deletion of entities.
+
+== Configuration
+
+First, you need to select QUERY strategy for the connector instance;
+
+[source,json]
+----
+"neo4j.source-strategy": "QUERY"
+----
+
+Second, you need to define your query to track changes and where to publish them.
+
+[source,json]
+----
+"neo4j.query.topic": "my-topic", //<1>
+"neo4j.query": "MATCH (ts:TestSource) WHERE ts.timestamp > $lastCheck RETURN ts.name AS name, ts.surname AS surname, ts.timestamp AS timestamp", //<2>
+"neo4j.query.streaming-property": "timestamp" //<3>
+----
+<1> Topic name which will receive the message.
+<2> A Cypher query that returns changed entities since the last iteration, sent in by `$lastCheck` parameter.
+<3> The property (field name) that we use as a cursor to track changes. This needs to be part of the returned results.
+
+== Creating Source instance
+
+Based on the above example, we can use one of the following configurations.
+Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as source.query.neo4j.json.
+
+[.tabbed-example]
+====
+[.include-with-AVRO-messages]
+=====
+ifdef::backend-pdf[]
+.source.query.avro.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/source.query.avro.json[]
+----
+=====
+
+[.include-with-JSON-messages-with-schema]
+=====
+ifdef::backend-pdf[]
+.source.query.json.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/source.query.json.json[]
+----
+=====
+
+[.include-with-JSON-messages-as-string]
+=====
+ifdef::backend-pdf[]
+.source.query.json-string.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/source.query.json-string.json[]
+----
+=====
+
+[.include-with-PROTOBUF-messages]
+=====
+ifdef::backend-pdf[]
+.source.query.protobuf.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/source.query.protobuf.json[]
+----
+=====
+
+====
+
+We will now create the source instance by invoking the following REST call:
+
+[source,shell]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H "Content-Type:application/json" \
+  -H "Accept:application/json" \
+  -d @source.query.neo4j.json
+----
+
+This will create a Kafka Connect source instance that will send change event messages derived by the provided query over to the `my-topic` topic, using your preferred serialization format.
+In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.
+
+Generated change event messages in this case will have the following structure:
+
+[source,json]
+----
+{"name": <name>, "surname": <surname>, "timestamp": <timestamp>}
+----

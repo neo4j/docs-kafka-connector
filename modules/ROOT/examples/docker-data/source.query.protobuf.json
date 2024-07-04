@@ -18,6 +18,8 @@
     "neo4j.start-from": "NOW",
     "neo4j.query": "MATCH (ts:TestSource) WHERE ts.timestamp > $lastCheck RETURN ts.name AS name, ts.surname AS surname, ts.timestamp AS timestamp",
     "neo4j.query.streaming-property": "timestamp",
-    "neo4j.enforce-schema": "true"
+    "neo4j.query.topic": "test-source",
+    "neo4j.query.polling-interval": "1s",
+    "neo4j.query.polling-duration": "5s"
   }
 }

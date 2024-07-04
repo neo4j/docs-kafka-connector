@@ -2,116 +2,14 @@
 
 In this chapter we'll discuss how the Sink instance is configured.
 
-== Create the Sink Instance
-:environment: neo4j
-:id: neo4j
+== Strategies
 
 Sink connector can be configured with different strategies:
 
-* by providing a Cypher template
-* by ingesting change events emitted from another Neo4j instance, either by a source connector instance configured for xref:#kafka-connect-source-cdc-strategy[Change Data Capture strategy] or the deprecated neo4j streams plugin.
-* by providing a pattern extraction for a JSON or AVRO file
-// * by managing a CUD file format
+* by providing a Cypher query
+* by ingesting change events emitted from another Neo4j instance, either by a source connector instance configured for xref:source/cdc.adoc#kafka-connect-source-cdc-strategy[Change Data Capture] or the deprecated link:{page-canonical-root}/kafka-streams[Neo4j streams plugin].
+* by providing a pattern which extracts graph entities from incoming message
+* by generating messages in CUD file format which are translated into Cypher queries
 
-== Sink ingestion strategies
 
-[NOTE]
-====
-**Cypher Template strategy is the only sink strategy that guarantees messages to be processed in the same order as they arrive in a topic.**
-**Change Data Capture strategies (both `Source ID` and `Schema`) use transactional boundaries specified in the change event messages to group and apply changes in the expected order.**
 
-Other sink strategies group messages together by type of operation, which can also be optimised into batches.
-In this case, the execution order is the following:
-
-. All `MERGE` operations on nodes
-. All `DELETE` operations on nodes
-. All `MERGE` operations on relationships
-. All `DELETE` operations on relationships
-====
-
-[#kafka-connect-cypher-strategy]
-include::partial$kafka-connect-cypher-strategy.adoc[]
-
-[#kafka-connect-cdc-strategy]
-include::partial$kafka-connect-cdc-strategy.adoc[]
-
-[#kafka-connect-pattern-strategy]
-include::partial$kafka-connect-pattern-strategy.adoc[]
-
-// [#kafka-connect-cud-file-format-strategy]
-// include::partial$kafka-connect-cud-file-format-strategy.adoc[]
-
-[#kafka_connect_error_handling]
-== How to deal with bad data
-
-In {product-name}, in the creation phase of the Sink instance, in addition to the properties described in the xref:#dlq-table[Dead Letter Queue configuration parameters table], you need to define kafka broker connection properties:
-
-[[dlq-table]]
-.Dead Letter Queue configuration parameters
-[%autowidth,cols="m,a",opts=header]
-|===
-| Name | Description
-include::partial$sink-dlq-config.adoc[]
-|===
-
-You can take a look at {url-confluent-blog}/kafka-connect-deep-dive-error-handling-dead-letter-queues/[Kafka Connect Deep Dive – Error Handling and Dead Letter Queues] for more information about error handling.
-
-== Configuration Summary
-
-[#connector-sink-common-configuration]
-include::partial$connector-common-configuration.adoc[]
-
-=== Common Sink Settings
-
-[%autowidth,cols="m,a",opts=header]
-|===
-
-| Name | Description
-include::partial$sink-kafka-config.adoc[]
-include::partial$sink-dlq-config.adoc[]
-| `neo4j.batch-parallelize | One of `true`, `false`
-| `neo4j.batch-size | Default: `1000`
-| `neo4j.batch-timeout | Batch transaction timeout duration in seconds, minutes, hours or days. Examples: `1d`, `2h`, `3m`, `4s`, `5ms`
-
-Default: `0s`
-
-|===
-
-[#cypher_strategy_settings]
-=== Cypher Strategy Settings
-
-[%autowidth,cols="m,a",opts=header]
-|===
-
-| Name | Description
-| neo4j.cypher.topic.\{NAME} | Cypher statement to run for the specified topic.
-Example: `"neo4j.cypher.topic.my-topic": "MERGE (n:Person {name: __value.name})"`
-| neo4j.cypher.bind-header-as | Name of the variable to bind the message headers as.
-Message headers will be bound as a map of header names to corresponding values.
-Set to empty string to disable binding of message headers.
-Default: `__header`
-| neo4j.cypher.bind-key-as | Name of the variable to bind the message key as.
-Set to empty string to disable binding of message key.
-Default: `__key`
-| neo4j.cypher.bind-value-as | Name of the variable to bind the message value as.
-Set to empty string to disable binding of message value.
-Default: `__value`
-| neo4j.cypher.bind-value-as-event | Whether to also bind the message value as `event` for backward compatibility purposes. Default: `true`
-|===
-
-=== Pattern Strategy Settings
-
-[%autowidth,cols="m,a",opts=header]
-|===
-
-| Name | Description
-| neo4j.pattern.node.topic.\{NAME} | Node pattern to apply on the messages received from the specified topic.
-Example: `"neo4j.pattern.node.topic.user": "(:User\{!userId})"`
-| neo4j.pattern.relationship.topic.\{NAME} | Relationship pattern to apply on the messages received from the specified topic.
-Example: `"neo4j.pattern.relationship.topic.user": "(:User\{!userId})-[:KNOWS]->(:User\{!otherUserId})"`
-| neo4j.pattern.node.merge-properties | Whether to merge node properties with the incoming node properties, applies to both node and relationship pattern strategies.
-Default: `false`
-| neo4j.pattern.relationship.merge-properties | Whether to merge relationship properties with the incoming relationship properties.
-Default: `false`
-
-|===

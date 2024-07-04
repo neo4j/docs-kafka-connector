@@ -1,4 +1,4 @@
-=== Common Connector Settings
+== Common Connector Settings
 
 [%width="100%",cols="m,a",opts=header]
 |===

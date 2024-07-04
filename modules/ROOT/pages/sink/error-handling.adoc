@@ -1,3 +1,13 @@
+[#kafka_connect_error_handling]
+= Error handling
+
+In {product-name}, in the creation phase of the Sink instance, in addition to the properties described in the xref:#dlq-table[Dead Letter Queue configuration parameters table], you need to define kafka broker connection properties:
+
+[[dlq-table]]
+.Dead Letter Queue configuration parameters
+[%autowidth,cols="m,a",opts=header]
+|===
+| Name | Description
 | errors.tolerance | One of `none`: fail fast, `all`: ignore bad messages
 
 Default: `none`
@@ -19,3 +29,4 @@ Default: `false`
 Set 1 for single partition
 
 Default: `3`
+|===

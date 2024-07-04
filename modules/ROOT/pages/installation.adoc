@@ -1,0 +1,19 @@
+= Installation
+
+== Distribution
+
+The latest version of {product-name} is {exact-connector-version}.
+It is available in two packaging variants.
+
+Confluent Hub Component Archive:: This package can be deployed to Confluent platforms, including Confluent Cloud using their Custom Connectors.
+While this package is available for download at link:{url-confluent-hub-neo4j}[Confluent Hub], it could also be downloaded from link:{url-github}/releases/download/{exact-connector-version}/neo4j-kafka-connect-{exact-connector-version}.zip[here].
+
+[[uber-jar]]
+Uber JAR:: This package can be deployed to Apache Kafka variants, such as standalone Apache Kafka Connect clusters or Amazon Managed Streaming for Apache Kafka (Amazon MSK).
+This package is available for download from link:{url-github}/releases/download/{exact-connector-version}/neo4j-kafka-connect-{exact-connector-version}.jar[here].
+
+== Installation
+
+{product-name} is a plugin designed to be run in an Apache Kafka Connect environment, which is deployed separately from the Neo4j database.
+
+For standalone Kafka Connect installations, download xref:uber-jar[Uber JAR] and copy it into `plugins` directory for each of your Kafka Connect cluster members.

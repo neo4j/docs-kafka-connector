@@ -15,6 +15,7 @@
     "neo4j.source-strategy": "CDC",
     "neo4j.start-from": "NOW",
     "neo4j.cdc.poll-interval": "1s",
+    "neo4j.cdc.poll-duration": "5s",
     "neo4j.cdc.topic.creates.patterns.0.pattern": "(:TestSource)",
     "neo4j.cdc.topic.creates.patterns.0.operation": "CREATE",
     "neo4j.cdc.topic.updates.patterns.0.pattern": "(:TestSource)",

@@ -1,4 +1,4 @@
-=== Cypher Strategy
+= Cypher Strategy
 
 This strategy executes corresponding Cypher statements for each message received.
 
@@ -12,12 +12,12 @@ To configure a cypher strategy for a desired topic, you must follow the followin
 [IMPORTANT]
 ====
 Starting with version 5.1.0 of the {product-name}, the Cypher strategy binds header, key, and value of the messages as `\__header`, `__key`, and `__value` respectively, which are passed to the user-provided Cypher query as predefined variables.
-See xref:cypher_strategy_settings[] for more information on how to customize the name of the variables.
+See xref:sink/configuration.adoc#cypher_strategy_settings[Cypher strategy settings] for more information on how to customize the name of the variables.
 
 For backward compatibility, `event` is still available for use but will only correspond to the value of the message.
 ====
 
-==== Example
+== Example
 
 Given that you configure the topics your sink connector subscribes to within the sink configuration settings as follows;
 
@@ -72,7 +72,7 @@ MATCH (p:Person {name: before.properties.name, surname: before.properties.surnam
 DETACH DELETE p
 ----
 
-===== Creating Sink Instance
+=== Creating Sink Instance
 
 Based on the above example, we can use one of the following configurations.
 Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as `sink.cypher.neo4j.json`.

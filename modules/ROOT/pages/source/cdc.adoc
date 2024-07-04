@@ -1,0 +1,263 @@
+[#kafka-connect-source-cdc-strategy]
+= Change Data Capture strategy
+
+Change Data Capture strategy makes use of the link:{page-canonical-root}/cdc/current[Change Data Capture] feature provided by Neo4j and Aura Enterprise 5, and is the preferred strategy for source connector instances as it doesn't require any schema changes and can capture deletions reliably.
+Please make sure that you take the necessary steps described at link:{page-canonical-root}/cdc/current/getting-started[Change Data Capture > Getting Started] before configuring your source instance with this strategy.
+
+In order to configure this strategy, you need to define selectors that describe which nodes or relationships you want to track changes and assign them to topics.
+
+== Node Patterns
+
+Node patterns are defined similar to Cypher node patterns.
+
+. start with `(`
+. [optional] define optional list of labels, separated by `:`, such as `:Person` or `:Person:Employee`
+. [optional] open property section with `{`
+.. [optional] define properties to be used as key filters, with their values, in `key: value` format.
+Multiple properties can be defined and must be separated by `,`.
+These properties must correspond to a NODE KEY constraint properties.
+.. either
+... nothing or `*`, meaning that assign all properties from JSON object to the node
+... list of property names, separated by `,`, to be assigned to the node from JSON object
+... list of property names _not_ to be assigned to the node, each prepended with `-` and separated by `,`, all other properties from JSON object will be assigned to the node
+.. close property section with `}`
+. end with `)`
+
+[NOTE]
+You cannot mix inclusion and exclusion properties so your pattern must contain either all exclusion or inclusion properties.
+
+=== Examples
+
+* Select all changes on any node
++
+[source]
+----
+()
+----
+
+* Select all changes on nodes with label `:User`
++
+[source]
+----
+(:User)
+----
+
+* Select all changes on nodes with both labels `:User` and `:Employee`
++
+[source]
+----
+(:User:Employee)
+----
+
+* Select all changes on nodes with label `:User` and only include `name` and `surname` properties in the change event
++
+[source]
+----
+(:User{name, surname})
+----
+
+* Select all changes on nodes with label `:User` and exclude `adress` and `dob` properties in the change event
++
+[source]
+----
+(:User{-address, -dob})
+----
+
+* Select all changes on node with label `:User` and key property `userId` equals `1001` and include `name` and `surname` properties in the change event
++
+[source]
+----
+(:User{userId: 1001, name, surname})
+----
++
+[NOTE]
+This example requires a NODE KEY constraint on `userId` property for `:User` label.
+
+* Select all changes on node with both labels `:User` and `Employee`, and key properties `name` equals `john` and `surname` equals `doe`
++
+[source]
+----
+(:User:Employee{name: 'john', surname: 'doe'})
+----
++
+[NOTE]
+This example requires a NODE KEY constraint on `name` and `surname` properties either for `:User` or `:Employee` label or both.
+
+== Relationship Patterns
+
+Relationship patterns are defined similar to Cypher relationship patterns.
+
+. node pattern for start node, without any property inclusion or exclusion list.
+. `-[`
+. define relationship type, prepended by `:`, such as `:BOUGHT` or `:KNOWS`
+. [optional] open property section with `{`
+.. [optional] define properties to be used as key filters, with their values, in `key: value` format.
+.. either
+... nothing or `*`, meaning that assign all properties from JSON object to the node
+... list of property names, separated by `,`, to be assigned to the node from JSON object
+... list of property names _not_ to be assigned to the node, each prepended with `-` and separated by `,`, all other properties from JSON object will be assigned to the node
+.. close property section with `}`
+. `]\->`
+. node pattern for end node, without any property inclusion or exclusion list.
+
+[NOTE]
+You cannot mix inclusion and exclusion so your pattern must contains all exclusion or inclusion properties.
+
+=== Examples
+
+. Select all changes on `:BOUGHT` relationships
++
+[source]
+----
+()-[:BOUGHT]->()
+----
+
+. Select all changes on `:BOUGHT` relationships with start nodes of label `:User` and end nodes of label `:Product`
++
+[source]
+----
+(:User)-[:BOUGHT]->(:Product)
+----
+
+. Select all changes on `:BOUGHT` relationships with start nodes of labels `:User` and `:Employee` and end nodes of label `:Product`
++
+[source]
+----
+(:User:Employee)-[:BOUGHT]->(:Product)
+----
+
+. Select all changes on `:BOUGHT` relationships with start nodes of label `:User` and end nodes of label `:Product` and only include `price` and `currency` properties in the change event
++
+[source]
+----
+(:User)-[:BOUGHT{price, currency}]->(:Product)
+----
+
+. Select all changes on `:BOUGHT` relationships with start nodes of label `:User` and end nodes of label `:Product` and exclude `card` property from the change event
++
+[source]
+----
+(:User)-[:BOUGHT{-card}]->(:Product)
+----
+
+. Select all changes on `:WORKS_FOR` relationship identified by key property `contractId` equals `5910`
++
+[source]
+----
+()-[:WORKS_FOR{contractId: 5910}]->()
+----
++
+[NOTE]
+This example requires a RELATIONSHIP KEY constraint on `contractId` property for `:WORKS_FOR` relationship type.
+
+. Select all changes on `:WORKS_FOR` relationship identified by key property `contractId` equals `5910` and exclude `salary` property from the change event
++
+[source]
+----
+()-[:WORKS_FOR{contractId: 5910,-salary}]->()
+----
+
+. Select all changes on relationships starting from node of label `:User` identified by key property `userId` equals `1001`
++
+[source]
+----
+(:User{userId: 1001})-[]->()
+----
+
+== Configuration
+
+First, you need to select CDC strategy for the connector instance;
+
+[source,json]
+----
+"neo4j.source-strategy": "CDC"
+----
+
+Second, you need to define your selectors and map them to your topics;
+
+[source,json]
+----
+"neo4j.cdc.topic.my-topic.patterns": "(:Person),(:Person)-[:KNOWS]-(:Person)"
+----
+
+While the above configuration is provided for convenience, if you need to define other filters for change events, such as operation, changed property names or metadata fields, you will need to use the indexed configuration approach as shown below;
+
+[source,json]
+----
+"neo4j.cdc.topic.my-topic.patterns.0.pattern": "(:Person)", //<1>
+"neo4j.cdc.topic.my-topic.patterns.0.operation": "create", //<2>
+"neo4j.cdc.topic.my-topic.patterns.0.changesTo": "name,surname", //<3>
+"neo4j.cdc.topic.my-topic.patterns.0.metadata.authenticatedUser": "neo4j", //<4>
+"neo4j.cdc.topic.my-topic.patterns.0.metadata.executingUser": "neo4j", //<5>
+"neo4j.cdc.topic.my-topic.patterns.0.metadata.txMetadata.app": "sales", //<6>
+"neo4j.cdc.topic.my-topic.patterns.1.pattern": "(:Person)-[:KNOWS]->(:Person)",
+"neo4j.cdc.topic.my-topic.patterns.1.operation": "update",
+"neo4j.cdc.topic.my-topic.patterns.1.changesTo": "since",
+"neo4j.cdc.topic.my-topic.patterns.1.metadata.authenticatedUser": "neo4j",
+"neo4j.cdc.topic.my-topic.patterns.1.metadata.executingUser": "neo4j",
+"neo4j.cdc.topic.my-topic.patterns.1.metadata.txMetadata.app": "sales"
+----
+<1> A single pattern that identifies graph entities to monitor for changes.
+<2> A single operation that we are interested in, can be `create`, `update` or `delete`.
+<3> A list of properties that needs to be updated for a change message to be returned. Addition and deletion of properties also count as updated.
+<4> Authenticated user who performed the change.
+<5> Executing user who performed the change. Usually will be the same as authenticated user, but could be different if impersonation is used.
+<6> A key value pair that needs to be matched against the transaction metadata of the transaction that performed the change.
+
+[NOTE]
+Only `pattern` settings are mandatory in the above example, and others are optional and can be added based on your requirements.
+
+== Creating Source instance
+
+Based on the above example, we can use one of the following configurations.
+Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as source.cdc.neo4j.json.
+
+[.tabbed-example]
+====
+[.include-with-AVRO-messages]
+=====
+ifdef::backend-pdf[]
+.source.cdc.avro.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/source.cdc.avro.json[]
+----
+=====
+
+[.include-with-JSON-messages-with-schema]
+=====
+ifdef::backend-pdf[]
+.source.cdc.json.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/source.cdc.json.json[]
+----
+=====
+
+[.include-with-PROTOBUF-messages]
+=====
+ifdef::backend-pdf[]
+.source.cdc.protobuf.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/source.cdc.protobuf.json[]
+----
+=====
+
+====
+
+We will now create the source instance by invoking the following REST call:
+
+[source,shell]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H "Content-Type:application/json" \
+  -H "Accept:application/json" \
+  -d @source.cdc.neo4j.json
+----
+
+This will create a Kafka Connect source instance that will send change event messages matching the provided selectors over to the `my-topic` topic, using your preferred serialization format.
+In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.

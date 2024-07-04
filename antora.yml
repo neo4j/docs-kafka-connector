@@ -10,7 +10,8 @@ asciidoc:
     theme: docs
     copyright: Neo4j Inc.
     page-product: Neo4j Connector for Kafka
-    exact-connector-version: '5.1.0-beta02'
+    kafka-connect-version: 3.0
+    exact-connector-version: '5.1.0-rc01'
     page-pagination: true
     product-name: Neo4j Connector for Kafka
     url-common-license-page: https://neo4j.com/docs/license/

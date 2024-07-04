@@ -1,4 +1,4 @@
-=== CUD File Format Strategy
+= CUD File Format Strategy
 
 The CUD file format is JSON file that represents Graph Entities (Nodes/Relationships) and how to manage them in terms of **C**reate/**U**pdate/**D**elete operations.
 
@@ -7,12 +7,12 @@ You can configure the topic in the following way:
 
 [source,json,subs="verbatim,attributes"]
 ----
-"{environment}.cud.topics": "<COMMA_SEPARATED_LIST_OF_TOPICS>"
+"neo4j.cud.topics": "<COMMA_SEPARATED_LIST_OF_TOPICS>"
 ----
 
 [source,json,subs="attributes"]
 ----
-"{environment}.cud.topics": "my-topic,my-other.topic"
+"neo4j.cud.topics": "my-topic,my-other.topic"
 ----
 
 We have two formats:
@@ -59,7 +59,7 @@ SET n += event.properties
 
 Let us describe the fields:
 
-[#{id}_table_cud_node_fields]
+[#table_cud_node_fields]
 .CUD file **Node format** fields description
 [cols="3",opts=header]
 |===
@@ -159,7 +159,7 @@ SET r = event.properties
 
 Let's describe the fields:
 
-[#{id}_table_cud_rels_fields]
+[#table_cud_rels_fields]
 .CUD file **Relationship format** fields description
 [cols="3",opts=header]
 |===

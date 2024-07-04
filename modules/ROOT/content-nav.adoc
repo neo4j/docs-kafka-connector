@@ -1,8 +1,30 @@
 * xref::index.adoc[]
-* xref::overview.adoc[Overview]
-* xref::quickstart.adoc[Quick Start]
-* xref::source.adoc[Source Configuration]
-* xref::sink.adoc[Sink Configuration]
-* xref::confluent-cloud.adoc[Confluent Cloud Support]
+
+* *Getting started*
+* xref:whats-new.adoc[What's new]
+* xref::installation.adoc[Installation]
+* xref::quickstart.adoc[Local quickstart]
+ * xref::confluent-cloud.adoc[Confluent Cloud quickstart]
+// * xref::amazon-msk.adoc[Amazon MSK quickstart]
+
+* *Source connector*
+* xref::source.adoc[Overview]
+* Strategies
+** xref:source/cdc.adoc[Change Data Capture]
+** xref:source/query.adoc[Query]
+* xref:source/schema-registry.adoc[Schema Registry]
+* xref:source/configuration.adoc[Configuration]
+
+* *Sink connector*
+* xref::sink.adoc[Overview]
+* Strategies
+** xref:sink/cypher.adoc[Cypher]
+** xref:sink/cdc.adoc[Change Data Capture]
+** xref:sink/pattern.adoc[Pattern]
+** xref:sink/cud.adoc[CUD]
+* xref:sink/error-handling.adoc[Error handling]
+* xref:sink/configuration.adoc[Configuration]
+
+* *Reference*
 * xref::known-issues.adoc[]
 * xref::changelog.adoc[]

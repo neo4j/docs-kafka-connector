@@ -1,3 +1,0 @@
-| kafka.bootstrap.servers | label:mandatory[] Kafka Broker URL
-| kafka.* | You can also specify any other Kafka Producer
-setting by adding the `kafka.` prefix (i.e. the `acks` configuration becomes `kafka.acks`). See the https://kafka.apache.org/documentation/#brokerconfigs[Apache Kafka documentation] for details on these settings.

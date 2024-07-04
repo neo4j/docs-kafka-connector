@@ -1,4 +1,4 @@
-= Quick Start
+= Local quickstart
 
 [[quickstart]]
 ifdef::env-docs[]
@@ -9,9 +9,9 @@ Get started fast for common scenarios using the {product-name}.
 endif::env-docs[]
 
 [[kafka_connect_neo4j_connector_quickstart]]
-== {product-name}
+== Overview
 
-We will use Docker Compose to create an environment with Confluent and Neo4j running inside Docker.
+We will use Docker Compose to create an environment with Confluent Platform components and Neo4j running inside Docker.
 
 The {product-name} will first be configured with a source instance.
 The source will retrieve changes from `CREATE`, `UPDATE` and `DELETE` operations for the node pattern `(:TestSource)`.
@@ -20,7 +20,7 @@ Received changes will then be published into `creates`, `updates` and `deletes` 
 Next, we will create a sink instance which will listen for messages in `creates`, `updates` and `deletes` topics, and execute a Cypher statement to apply the corresponding change in Neo4j when the messages are received.
 
 [NOTE]
-The following guide uses the {product-name} for Confluent, the provided Docker Compose file cannot be used as-is for Apache Kafka.
+The following guide uses the Confluent Platform docker images.
 
 === Run with Docker Compose
 
@@ -43,8 +43,7 @@ The directory structure should look like;
 ----
 quickstart/
 ├─ plugins/
-│  ├─ neo4j-kafka-connect-neo4j-sink-{exact-connector-version}.jar
-│  ├─ neo4j-kafka-connect-neo4j-source-{exact-connector-version}.jar
+│  ├─ neo4j-kafka-connect-{exact-connector-version}.jar
 ├─ docker-compose.yml
 
 ----
@@ -77,14 +76,14 @@ schema-registry     "/etc/confluent/dock…"   schema-registry     running      
 zookeeper           "/etc/confluent/dock…"   zookeeper           running             2888/tcp, 0.0.0.0:2181->2181/tcp, 3888/tcp
 ----
 
-Now you can access your Neo4j instance under: \http://localhost:7474, log in with `neo4j` as username and `password` as password (Refer to the Docker Compose file to change it).
+Now you can access your Neo4j instance under: \http://localhost:7474, log in with `neo4j` as username and `password` as password (Update `NEO4J_AUTH` environment variable in the Docker Compose file to change it).
 Confirm that you can access the Confluent Control Center instance at \http://localhost:9021/clusters and that the Cluster reports as healthy (this may take 90-120s).
 You should have one Broker, several Topics and one Connect cluster in the Control Center.
 
 === Enable CDC
 
 Enable Change Data Capture on the source database by executing the following Cypher command.
-For more information on Change Data Capture and enabling it, please refer to link:{page-canonical-root}/cdc/current/getting-started/enrichment[Change Data Capture > Enrichment mode].
+For more information on Change Data Capture and enabling it, please refer to link:{page-canonical-root}/cdc/current/get-started/self-managed[Change Data Capture > Enable CDC > Neo4j DBMS].
 
 [source,shell]
 ----
@@ -166,7 +165,7 @@ The expected change events, based on the type of operation, will have the follow
     "captureMode": "FULL",
     "connectionClient": "127.0.0.1:51320",
     "serverId": "<server-id>",
-    "databaseId": "<database-id>",
+    "databaseName": "<database-name>",
     "connectionType": "bolt",
     "connectionServer": "127.0.0.1:51316",
     "txStartTime": "2023-11-03T11:58:30.429Z",
@@ -208,7 +207,7 @@ The expected change events, based on the type of operation, will have the follow
     "captureMode": "FULL",
     "connectionClient": "127.0.0.1:51320",
     "serverId": "<server-id>",
-    "databaseId": "<database-id>",
+    "databaseName": "<database-name>",
     "connectionType": "bolt",
     "connectionServer": "127.0.0.1:51316",
     "txStartTime": "2023-11-03T11:58:30.429Z",
@@ -256,7 +255,7 @@ The expected change events, based on the type of operation, will have the follow
     "captureMode": "FULL",
     "connectionClient": "127.0.0.1:51320",
     "serverId": "<server-id>",
-    "databaseId": "<database-id>",
+    "databaseName": "<database-name>",
     "connectionType": "bolt",
     "connectionServer": "127.0.0.1:51316",
     "txStartTime": "2023-11-03T11:58:30.429Z",
@@ -350,7 +349,6 @@ curl -X POST http://localhost:8083/connectors \
 ----
 
 This configures the sink instance to consume data in your preferred serialization format.
-CDC Schema strategy will automatically build corresponding Cypher queries based on the incoming change event message.
 Cypher strategy will build Cypher queries based on Cypher query templates defined by the properties `neo4j.cypher.topic.creates`, `neo4j.cypher.topic.updates` and `neo4j.cypher.topic.deletes`.
 
 === Testing It Out
@@ -381,15 +379,15 @@ Verify that a new `Person` and a new `Family` node is created and linked togethe
 .Update an existing person
 [source,cypher]
 ----
-MATCH (n:TestSource {name: 'mary', surname: 'doe'}) SET n.surname = 'ex-doe';
+MATCH (n:TestSource {name: 'mary', surname: 'doe'}) SET n.surname = 'smith';
 ----
 
-Verify that the existing `Person` node is now updated with a surname of `ex-doe` and linked to a new `Family` node.
+Verify that the existing `Person` node is now updated with a surname of `smith` and linked to a new `Family` node.
 
 .Delete an existing person
 [source,cypher]
 ----
-MATCH (n:TestSource {name: 'mary', surname: 'ex-doe'}) DELETE n;
+MATCH (n:TestSource {name: 'mary', surname: 'smith'}) DELETE n;
 ----
 
 Verify that the existing `Person` node is now deleted.

@@ -2,6 +2,89 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.1.0-rc01
+
+=== New and updated features
+
+[cols="2",options="header"]
+|===
+| Feature
+| Details
+
+a|
+label:feature[]
+label:new[]
+
+Added support for error handling in sink connector.
+
+a|
+The sink connector now has proper error handling in-place so that it can make use of Kafka Connect error handling configuration and direct failing messages into a DLQ.
+
+a|
+label:configuration[] label:removed[]
+
+Removed following source properties:
+
+- `neo4j.enforce-schema`
+
+Removed following sink properties:
+
+- `neo4j.batch-parallelize`
+
+a|
+
+The new version of source connector always generates messages with schema support. To disable schemas, configure your key and value converters accordingly.
+
+The new version of sink connector does not implement any parallelization logic, and processes changes in the order they appear in the topic.
+
+a|
+label:configuration[] label:changed[]
+
+Renamed the following configuration properties:
+
+- `topic` to `neo4j.query.topic`
+
+a|
+The `topic` configuration for `Query` source strategy has been renamed to `neo4j.query.topic` for consistency.
+
+a|
+label:feature[]
+label:configuration[]
+label:new[]
+
+Added new sink properties:
+
+- `neo4j.cypher.bind-timestamp-as`
+- `neo4j.pattern.bind-timestamp-as`
+- `neo4j.pattern.bind-header-as`
+- `neo4j.pattern.bind-key-as`
+- `neo4j.pattern.bind-value-as`
+- `neo4j.pattern.bind-value-as-event`
+
+Added new source properties:
+
+- `neo4j.query.poll-duration`
+
+a|
+Cypher strategy now also allows binding of message timestamp in user provided Cypher queries.
+
+Node and relationship pattern strategies now allow binding of message timestamp, headers, key and value as separate and configurable variables in user provided patterns.
+
+Query source strategy is re-implemented so that a `poll` cycle can be configured to wait for a configured amount of duration in which the configured query is executed multiple times until a change is discovered.
+
+a|
+label:feature[] label:new[]
+
+Revamped pattern strategies in sink connector.
+a|
+Node and relationship pattern sink strategies have been re-implemented with several improvements.
+
+- Message order is now preserved while applying changes into the database.
+- Patterns now allow mapping of properties from source message to a custom property name as defined in the pattern.
+- Patterns can include references to message timestamp, headers, key and value when defining properties.
+
+|===
+
 == Version 5.1.0-beta02
 
 === New and updated features
