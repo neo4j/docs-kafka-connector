@@ -249,12 +249,12 @@ MATCH (n:TestSource {name: 'mary', surname: 'smith'}) DELETE n;
 
 Verify that the existing `Person` node is now deleted.
 
-=== Summary
+== Summary
 
 In this quickstart, we have shown how to configure an AuraDB/Neo4j database to act as both the source of messages for Kafka topics and the sink for those same messages to create, update or delete nodes and relationships in the database.
 Typically, our connector is used as either a sink when pulling data from other data sources via Confluent or as source for Confluent to push data into other databases.
 
-=== Troubleshooting
+== Troubleshooting
 
 - Make sure you have CDC enabled on your database.
 - Make sure you have set the connection endpoints correctly as specified above.
