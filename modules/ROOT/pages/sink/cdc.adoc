@@ -155,6 +155,7 @@ endif::[]
 
 ====
 
+[#schema]
 == Schema sub-strategy
 
 `Schema` strategy merges nodes and relationships by the constraints declared in the change event, thus preserves the source schema structure.
