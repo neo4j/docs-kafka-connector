@@ -1,4 +1,4 @@
-= Sink Configuration
+= Configuring sink connector
 
 In this chapter we'll discuss how the Sink instance is configured.
 

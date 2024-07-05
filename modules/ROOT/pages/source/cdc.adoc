@@ -4,47 +4,7 @@
 Change Data Capture strategy makes use of the link:{page-canonical-root}/cdc/current[Change Data Capture] feature provided by Neo4j and Aura Enterprise 5, and is the preferred strategy for source connector instances as it doesn't require any schema changes and can capture deletions reliably.
 Please make sure that you take the necessary steps described at link:{page-canonical-root}/cdc/current/getting-started[Change Data Capture > Getting Started] before configuring your source instance with this strategy.
 
-In order to configure this strategy, you need to define selectors that describe which nodes or relationships you want to track changes and assign them to topics.
-
-== Node Patterns
-
-Node patterns are defined similar to Cypher node patterns.
-
-. Start with `(`.
-. [Optional] Define optional list of labels, separated by `:`, such as `:Person` or `:Person:Employee`.
-. [Optional] Open property section with `{`.
-.. [Optional] Define properties to be used as key filters, with their values, in `key: value` format.
-Multiple properties can be defined and must be separated by `,`.
-These properties must correspond to a NODE KEY constraint properties.
-.. Either;
-... Nothing or `*`, meaning that assign all properties from JSON object to the node.
-... List of property names, separated by `,`, to be assigned to the node from JSON object.
-... List of property names _not_ to be assigned to the node, each prepended with `-` and separated by `,`, all other properties from JSON object will be assigned to the node.
-.. Close property section with `}`.
-. End with `)`.
-
-[NOTE]
-You cannot mix inclusion and exclusion properties so your pattern must contain either all exclusion or inclusion properties.
-
-== Relationship Patterns
-
-Relationship patterns are defined similar to Cypher relationship patterns.
-
-. Node pattern for start node, without any property inclusion or exclusion list.
-. `-[`.
-. Define relationship type, prepended by `:`, such as `:BOUGHT` or `:KNOWS`.
-. [Optional] Open property section with `{`.
-.. [Optional] Define properties to be used as key filters, with their values, in `key: value` format.
-.. Either;
-... Nothing or `*`, meaning that assign all properties from JSON object to the node.
-... List of property names, separated by `,`, to be assigned to the node from JSON object.
-... List of property names _not_ to be assigned to the node, each prepended with `-` and separated by `,`, all other properties from JSON object will be assigned to the node.
-.. Close property section with `}`.
-. `]\->`.
-. Node pattern for end node, without any property inclusion or exclusion list.
-
-[NOTE]
-You cannot mix inclusion and exclusion so your pattern must contains all exclusion or inclusion properties.
+In order to configure this strategy, you need to define <<patterns, patterns>> and selectors that describe which nodes or relationships you want to track changes and assign them to topics.
 
 == Configuration
 
@@ -55,7 +15,7 @@ First, you need to select CDC strategy for the connector instance;
 "neo4j.source-strategy": "CDC"
 ----
 
-Second, you need to define your selectors and map them to your topics;
+Second, you need to define your <<patterns, patterns>> and map them to your topics;
 
 [source,json]
 ----
@@ -147,9 +107,30 @@ curl -X POST http://localhost:8083/connectors \
 This will create a Kafka Connect source instance that will send change event messages matching the provided selectors over to the `my-topic` topic, using your preferred serialization format.
 In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.
 
-== Pattern Examples
+[#patterns]
+== Patterns
 
 === Node Patterns
+
+Node patterns are defined similar to Cypher node patterns.
+
+. Start with `(`.
+. [Optional] Define optional list of labels, separated by `:`, such as `:Person` or `:Person:Employee`.
+. [Optional] Open property section with `{`.
+.. [Optional] Define properties to be used as key filters, with their values, in `key: value` format.
+Multiple properties can be defined and must be separated by `,`.
+These properties must correspond to a NODE KEY constraint properties.
+.. Either;
+... Nothing or `*`, meaning that assign all properties from JSON object to the node.
+... List of property names, separated by `,`, to be assigned to the node from JSON object.
+... List of property names _not_ to be assigned to the node, each prepended with `-` and separated by `,`, all other properties from JSON object will be assigned to the node.
+.. Close property section with `}`.
+. End with `)`.
+
+[NOTE]
+You cannot mix inclusion and exclusion properties so your pattern must contain either all exclusion or inclusion properties.
+
+==== Examples
 
 * Select all changes on any node.
 +
@@ -206,8 +187,28 @@ This example requires a NODE KEY constraint on `userId` property for `:User` lab
 [NOTE]
 This example requires a NODE KEY constraint on `name` and `surname` properties either for `:User` or `:Employee` label or both.
 
-
 === Relationship Patterns
+
+Relationship patterns are defined similar to Cypher relationship patterns.
+
+. Node pattern for start node, without any property inclusion or exclusion list.
+. `-[`.
+. Define relationship type, prepended by `:`, such as `:BOUGHT` or `:KNOWS`.
+. [Optional] Open property section with `{`.
+.. [Optional] Define properties to be used as key filters, with their values, in `key: value` format.
+.. Either;
+... Nothing or `*`, meaning that assign all properties from JSON object to the node.
+... List of property names, separated by `,`, to be assigned to the node from JSON object.
+... List of property names _not_ to be assigned to the node, each prepended with `-` and separated by `,`, all other properties from JSON object will be assigned to the node.
+.. Close property section with `}`.
+. `]\->`.
+. Node pattern for end node, without any property inclusion or exclusion list.
+
+[NOTE]
+You cannot mix inclusion and exclusion so your pattern must contains all exclusion or inclusion properties.
+
+
+==== Examples
 
 * Select all changes on `:BOUGHT` relationships.
 +
