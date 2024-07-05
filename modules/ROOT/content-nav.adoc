@@ -8,16 +8,14 @@
 // * xref::amazon-msk.adoc[Amazon MSK quickstart]
 
 * *Source connector*
-* xref::source.adoc[Overview]
-* Strategies
+* xref::source.adoc[Strategies]
 ** xref:source/cdc.adoc[Change Data Capture]
 ** xref:source/query.adoc[Query]
 * xref:source/schema-registry.adoc[Schema Registry]
 * xref:source/configuration.adoc[Configuration]
 
 * *Sink connector*
-* xref::sink.adoc[Overview]
-* Strategies
+* xref::sink.adoc[Strategies]
 ** xref:sink/cypher.adoc[Cypher]
 ** xref:sink/cdc.adoc[Change Data Capture]
 ** xref:sink/pattern.adoc[Pattern]

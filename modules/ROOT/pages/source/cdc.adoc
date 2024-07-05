@@ -10,159 +10,41 @@ In order to configure this strategy, you need to define selectors that describe 
 
 Node patterns are defined similar to Cypher node patterns.
 
-. start with `(`
-. [optional] define optional list of labels, separated by `:`, such as `:Person` or `:Person:Employee`
-. [optional] open property section with `{`
-.. [optional] define properties to be used as key filters, with their values, in `key: value` format.
+. Start with `(`.
+. [Optional] Define optional list of labels, separated by `:`, such as `:Person` or `:Person:Employee`.
+. [Optional] Open property section with `{`.
+.. [Optional] Define properties to be used as key filters, with their values, in `key: value` format.
 Multiple properties can be defined and must be separated by `,`.
 These properties must correspond to a NODE KEY constraint properties.
-.. either
-... nothing or `*`, meaning that assign all properties from JSON object to the node
-... list of property names, separated by `,`, to be assigned to the node from JSON object
-... list of property names _not_ to be assigned to the node, each prepended with `-` and separated by `,`, all other properties from JSON object will be assigned to the node
-.. close property section with `}`
-. end with `)`
+.. Either;
+... Nothing or `*`, meaning that assign all properties from JSON object to the node.
+... List of property names, separated by `,`, to be assigned to the node from JSON object.
+... List of property names _not_ to be assigned to the node, each prepended with `-` and separated by `,`, all other properties from JSON object will be assigned to the node.
+.. Close property section with `}`.
+. End with `)`.
 
 [NOTE]
 You cannot mix inclusion and exclusion properties so your pattern must contain either all exclusion or inclusion properties.
-
-=== Examples
-
-* Select all changes on any node
-+
-[source]
-----
-()
-----
-
-* Select all changes on nodes with label `:User`
-+
-[source]
-----
-(:User)
-----
-
-* Select all changes on nodes with both labels `:User` and `:Employee`
-+
-[source]
-----
-(:User:Employee)
-----
-
-* Select all changes on nodes with label `:User` and only include `name` and `surname` properties in the change event
-+
-[source]
-----
-(:User{name, surname})
-----
-
-* Select all changes on nodes with label `:User` and exclude `adress` and `dob` properties in the change event
-+
-[source]
-----
-(:User{-address, -dob})
-----
-
-* Select all changes on node with label `:User` and key property `userId` equals `1001` and include `name` and `surname` properties in the change event
-+
-[source]
-----
-(:User{userId: 1001, name, surname})
-----
-+
-[NOTE]
-This example requires a NODE KEY constraint on `userId` property for `:User` label.
-
-* Select all changes on node with both labels `:User` and `Employee`, and key properties `name` equals `john` and `surname` equals `doe`
-+
-[source]
-----
-(:User:Employee{name: 'john', surname: 'doe'})
-----
-+
-[NOTE]
-This example requires a NODE KEY constraint on `name` and `surname` properties either for `:User` or `:Employee` label or both.
 
 == Relationship Patterns
 
 Relationship patterns are defined similar to Cypher relationship patterns.
 
-. node pattern for start node, without any property inclusion or exclusion list.
-. `-[`
-. define relationship type, prepended by `:`, such as `:BOUGHT` or `:KNOWS`
-. [optional] open property section with `{`
-.. [optional] define properties to be used as key filters, with their values, in `key: value` format.
-.. either
-... nothing or `*`, meaning that assign all properties from JSON object to the node
-... list of property names, separated by `,`, to be assigned to the node from JSON object
-... list of property names _not_ to be assigned to the node, each prepended with `-` and separated by `,`, all other properties from JSON object will be assigned to the node
-.. close property section with `}`
-. `]\->`
-. node pattern for end node, without any property inclusion or exclusion list.
+. Node pattern for start node, without any property inclusion or exclusion list.
+. `-[`.
+. Define relationship type, prepended by `:`, such as `:BOUGHT` or `:KNOWS`.
+. [Optional] Open property section with `{`.
+.. [Optional] Define properties to be used as key filters, with their values, in `key: value` format.
+.. Either;
+... Nothing or `*`, meaning that assign all properties from JSON object to the node.
+... List of property names, separated by `,`, to be assigned to the node from JSON object.
+... List of property names _not_ to be assigned to the node, each prepended with `-` and separated by `,`, all other properties from JSON object will be assigned to the node.
+.. Close property section with `}`.
+. `]\->`.
+. Node pattern for end node, without any property inclusion or exclusion list.
 
 [NOTE]
 You cannot mix inclusion and exclusion so your pattern must contains all exclusion or inclusion properties.
-
-=== Examples
-
-. Select all changes on `:BOUGHT` relationships
-+
-[source]
-----
-()-[:BOUGHT]->()
-----
-
-. Select all changes on `:BOUGHT` relationships with start nodes of label `:User` and end nodes of label `:Product`
-+
-[source]
-----
-(:User)-[:BOUGHT]->(:Product)
-----
-
-. Select all changes on `:BOUGHT` relationships with start nodes of labels `:User` and `:Employee` and end nodes of label `:Product`
-+
-[source]
-----
-(:User:Employee)-[:BOUGHT]->(:Product)
-----
-
-. Select all changes on `:BOUGHT` relationships with start nodes of label `:User` and end nodes of label `:Product` and only include `price` and `currency` properties in the change event
-+
-[source]
-----
-(:User)-[:BOUGHT{price, currency}]->(:Product)
-----
-
-. Select all changes on `:BOUGHT` relationships with start nodes of label `:User` and end nodes of label `:Product` and exclude `card` property from the change event
-+
-[source]
-----
-(:User)-[:BOUGHT{-card}]->(:Product)
-----
-
-. Select all changes on `:WORKS_FOR` relationship identified by key property `contractId` equals `5910`
-+
-[source]
-----
-()-[:WORKS_FOR{contractId: 5910}]->()
-----
-+
-[NOTE]
-This example requires a RELATIONSHIP KEY constraint on `contractId` property for `:WORKS_FOR` relationship type.
-
-. Select all changes on `:WORKS_FOR` relationship identified by key property `contractId` equals `5910` and exclude `salary` property from the change event
-+
-[source]
-----
-()-[:WORKS_FOR{contractId: 5910,-salary}]->()
-----
-
-. Select all changes on relationships starting from node of label `:User` identified by key property `userId` equals `1001`
-+
-[source]
-----
-(:User{userId: 1001})-[]->()
-----
 
 == Configuration
 
@@ -197,11 +79,14 @@ While the above configuration is provided for convenience, if you need to define
 "neo4j.cdc.topic.my-topic.patterns.1.metadata.executingUser": "neo4j",
 "neo4j.cdc.topic.my-topic.patterns.1.metadata.txMetadata.app": "sales"
 ----
+
 <1> A single pattern that identifies graph entities to monitor for changes.
 <2> A single operation that we are interested in, can be `create`, `update` or `delete`.
-<3> A list of properties that needs to be updated for a change message to be returned. Addition and deletion of properties also count as updated.
+<3> A list of properties that needs to be updated for a change message to be returned.
+Addition and deletion of properties also count as updated.
 <4> Authenticated user who performed the change.
-<5> Executing user who performed the change. Usually will be the same as authenticated user, but could be different if impersonation is used.
+<5> Executing user who performed the change.
+Usually will be the same as authenticated user, but could be different if impersonation is used.
 <6> A key value pair that needs to be matched against the transaction metadata of the transaction that performed the change.
 
 [NOTE]
@@ -261,3 +146,124 @@ curl -X POST http://localhost:8083/connectors \
 
 This will create a Kafka Connect source instance that will send change event messages matching the provided selectors over to the `my-topic` topic, using your preferred serialization format.
 In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.
+
+== Pattern Examples
+
+=== Node Patterns
+
+* Select all changes on any node.
++
+[source]
+----
+()
+----
+
+* Select all changes on nodes with label `:User`.
++
+[source]
+----
+(:User)
+----
+
+* Select all changes on nodes with both labels `:User` and `:Employee`.
++
+[source]
+----
+(:User:Employee)
+----
+
+* Select all changes on nodes with label `:User` and only include `name` and `surname` properties in the change event.
++
+[source]
+----
+(:User{name, surname})
+----
+
+* Select all changes on nodes with label `:User` and exclude `adress` and `dob` properties in the change event.
++
+[source]
+----
+(:User{-address, -dob})
+----
+
+* Select all changes on node with label `:User` and key property `userId` equals `1001` and include `name` and `surname` properties in the change event.
++
+[source]
+----
+(:User{userId: 1001, name, surname})
+----
++
+[NOTE]
+This example requires a NODE KEY constraint on `userId` property for `:User` label.
+
+* Select all changes on node with both labels `:User` and `Employee`, and key properties `name` equals `john` and `surname` equals `doe`.
++
+[source]
+----
+(:User:Employee{name: 'john', surname: 'doe'})
+----
++
+[NOTE]
+This example requires a NODE KEY constraint on `name` and `surname` properties either for `:User` or `:Employee` label or both.
+
+
+=== Relationship Patterns
+
+* Select all changes on `:BOUGHT` relationships.
++
+[source]
+----
+()-[:BOUGHT]->()
+----
+
+* Select all changes on `:BOUGHT` relationships with start nodes of label `:User` and end nodes of label `:Product`.
++
+[source]
+----
+(:User)-[:BOUGHT]->(:Product)
+----
+
+* Select all changes on `:BOUGHT` relationships with start nodes of labels `:User` and `:Employee` and end nodes of label `:Product`.
++
+[source]
+----
+(:User:Employee)-[:BOUGHT]->(:Product)
+----
+
+* Select all changes on `:BOUGHT` relationships with start nodes of label `:User` and end nodes of label `:Product` and only include `price` and `currency` properties in the change event.
++
+[source]
+----
+(:User)-[:BOUGHT{price, currency}]->(:Product)
+----
+
+* Select all changes on `:BOUGHT` relationships with start nodes of label `:User` and end nodes of label `:Product` and exclude `card` property from the change event.
++
+[source]
+----
+(:User)-[:BOUGHT{-card}]->(:Product)
+----
+
+* Select all changes on `:WORKS_FOR` relationship identified by key property `contractId` equals `5910`.
++
+[source]
+----
+()-[:WORKS_FOR{contractId: 5910}]->()
+----
++
+[NOTE]
+This example requires a RELATIONSHIP KEY constraint on `contractId` property for `:WORKS_FOR` relationship type.
+
+* Select all changes on `:WORKS_FOR` relationship identified by key property `contractId` equals `5910` and exclude `salary` property from the change event.
++
+[source]
+----
+()-[:WORKS_FOR{contractId: 5910,-salary}]->()
+----
+
+* Select all changes on relationships starting from node of label `:User` identified by key property `userId` equals `1001`.
++
+[source]
+----
+(:User{userId: 1001})-[]->()
+----
