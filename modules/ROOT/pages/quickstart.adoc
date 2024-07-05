@@ -83,7 +83,7 @@ You should have one Broker, several Topics and one Connect cluster in the Contro
 === Enable CDC
 
 Enable Change Data Capture on the source database by executing the following Cypher command.
-For more information on Change Data Capture and enabling it, please refer to link:{page-canonical-root}/cdc/current/get-started/self-managed[Change Data Capture > Enable CDC > Neo4j DBMS].
+For more information on Change Data Capture and enabling it, please refer to link:{page-canonical-root}/cdc/current/get-started/self-managed[Change Data Capture > Enable CDC > Neo4j DBMS] for on-prem installations and link:{page-canonical-root}/cdc/current/get-started/aura[Change Data Capture > Enable CDC > Aura] for Aura.
 
 [source,shell]
 ----
