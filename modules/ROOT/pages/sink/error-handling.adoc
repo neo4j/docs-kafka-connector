@@ -1,7 +1,7 @@
 [#kafka_connect_error_handling]
 = Error handling
 
-In {product-name}, in the creation phase of the Sink instance, in addition to the properties described in the xref:#dlq-table[Dead Letter Queue configuration parameters table], you need to define kafka broker connection properties:
+{product-name} sink instance provides an error handling mechanism to deal with bad incoming data. In order to support this feature, we need to define the properties described in the xref:#dlq-table[Dead Letter Queue configuration parameters table]:
 
 [[dlq-table]]
 .Dead Letter Queue configuration parameters
@@ -11,22 +11,30 @@ In {product-name}, in the creation phase of the Sink instance, in addition to th
 | errors.tolerance | One of `none`: fail fast, `all`: ignore bad messages
 
 Default: `none`
+
 | errors.log.enable | One of `true`, `false`.
 Log errors
 
 Default: `false`
+
 | errors.log.include.messages | One of `true`, `false`.
-Log bad messages
+Include details (the topic, partition, offset, and timestamp) in the error logs
 
 Default: `false`
+
 | errors.deadletterqueue.topic.name | Dead letter queue topic name.
 
-Default: no dead letter queue | errors.deadletterqueue.context.headers.enable | One of `true`, `false`.
-Enrich messages with metadata headers
+Default: no dead letter queue
+
+| errors.deadletterqueue.context.headers.enable | One of `true`, `false`.
+Enrich messages with metadata headers, all error context header keys will start with `__connect.errors`
 
 Default: `false`
-| errors.deadletterqueue.context.headers.prefix | Common prefix for header entries | errors.deadletterqueue.topic.replication.factor | Replication factor.
+
+| errors.deadletterqueue.topic.replication.factor | Replication factor.
 Set 1 for single partition
 
 Default: `3`
 |===
+
+With this version of connector, we cover any errors which can occur during the message processing. For further details about how Kafka Connect Framework handles error management, please look into the following link: https://www.confluent.io/blog/kafka-connect-deep-dive-error-handling-dead-letter-queues/

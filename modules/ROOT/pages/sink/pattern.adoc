@@ -1,6 +1,6 @@
 = Pattern strategy
 
-This strategy allows you to extract nodes and relationships from a Struct object through extraction patterns.
+This strategy allows you to extract nodes and relationships from a kafka message through extraction patterns.
 
 == Node Patterns
 
@@ -10,11 +10,11 @@ Node patterns are defined similar to Cypher node patterns.
 . define optional list of labels, separated by `:`, such as `:Person` or `:Person:Employee`
 . open property section with `{`
 . define properties to be treated as keys, each prepended with `!`, where at least one key property needs to be provided.
-Individual message fields can be explicitly referenced and assigned to a user defined property in the format of `userId: \__value.user.id`.
+Individual message fields can be explicitly referenced and assigned to a user defined property in the format of `userId: \__key.user.id`.
 By default, messages fields can be referenced as `__timestamp`, `\__headers`, `__key` and `__value`.
 . either
 .. nothing or `*`, meaning that assign all properties from message to the node
-.. list of property names to be assigned to the node from message
+.. list of property names to be assigned to the node from message.
 Individual message fields can be explicitly referenced and assigned to a user defined property in the format of `userName: \__value.user.name`.
 By default, messages fields can be referenced as `__timestamp`, `\__headers`, `__key` and `__value`.
 .. list of property names _not_ to be assigned to the node, each prepended with `-`, all other properties from message will be assigned to the node
@@ -26,7 +26,7 @@ You cannot mix inclusion and exclusion inside patterns, i.e. your pattern must c
 
 === Examples
 
-* `MERGE` operation on `User` label with `userId` treated as a key and assigning all properties from JSON object to the node
+* `MERGE` operation on `User` label with `userId` treated as a key and assigning all properties from incoming message to the node
 +
 [source]
 ----
@@ -40,25 +40,39 @@ or
 (:User{!userId, *})
 ----
 
-* `MERGE` operation on `User` label with `userId` treated as a key and assigning *only* `surname` property from JSON object to the node
+* `MERGE` operation on `User` label with `userId` treated as a key and assigning *only* `surname` property from incoming message to the node
 +
 [source]
 ----
 (:User{!userId, surname})
 ----
 
-* `MERGE` operation on `User` label with `userId` treated as a key and assigning *only* `surname` and `address.city` properties from JSON object to the node
+* `MERGE` operation on `User` label with `userId` treated as a key and assigning *only* `surname` and `address.city` properties from incoming message to the node
 +
 [source]
 ----
 (:User{!userId, surname, city: address.city})
 ----
 
-* `MERGE` operation on `User` label with `userId` treated as key and assigning all properties excluding `address` property from JSON object to the node
+* `MERGE` operation on `User` label with `userId` treated as key and assigning all properties excluding `address` property from incoming message to the node
 +
 [source]
 ----
 (:User{!userId, -address})
+----
+
+* `MERGE` operation on `User` label with `userId` treated as key which will be taken from the key part of the message and assigning *only* `surname` property from the value part of incoming message to the node
++
+[source]
+----
+(:User{!userId: __key.id, surname: __value.surname})
+----
+
+* `MERGE` operation on `User` label with `userId` treated as key which will be taken from the header of incoming message and assigning *only* `createdAt` property as current timestamp to the node
++
+[source]
+----
+(:User{!userId: __header.id, createdAt: __timestamp})
 ----
 
 === Configuration
@@ -88,24 +102,29 @@ You can transform it into a node by providing the following configuration:
 
 Relationship patterns are defined similar to Cypher relationship patterns.
 
-. node pattern for start node
+. node pattern for start node (it should contain only one key property)
 . `-[`
 . define relationship type, prepended by `:`, such as `:BOUGHT` or `:KNOWS`
 . open property section with `{`
+. `OPTIONAL` define properties to be treated as keys, each prepended with `!`, where at least one key property needs to be provided.
+Individual message fields can be explicitly referenced and assigned to a user defined property in the format of `relationshipId: \__key.relationship.id`.
+By default, messages fields can be referenced as `__timestamp`, `\__headers`, `__key` and `__value`.
 . either
-.. nothing or `*`, meaning that assign all properties from JSON object to the node
-.. list of property names to be assigned to the node from JSON object
-.. list of property names _not_ to be assigned to the node, each prepended with `-`, all other properties from JSON object will be assigned to the node
+.. nothing or `*`, meaning that assign all properties from message to the relationship
+.. list of property names to be assigned to the relationship from message.
+Individual message fields can be explicitly referenced and assigned to a user defined property in the format of `relationshipType: \__value.relationship.type`.
+By default, messages fields can be referenced as `__timestamp`, `\__headers`, `__key` and `__value`.
+.. list of property names _not_ to be assigned to the relationship, each prepended with `-`, all other properties from message will be assigned to the relationship
 . close property section with `}`
 . `]\->`
-. node pattern for end node
+. node pattern for end node (it should contain only one key property)
 
 [NOTE]
-You cannot mix inclusion and exclusion so your pattern must contains all exclusion or inclusion properties.
+You cannot mix inclusion and exclusion inside patterns, i.e. your pattern must contains all exclusion or inclusion properties.
 
 === Examples
 
-. `MERGE` operation on `User` and `Product` labels with `userId` and `productId` treated as keys respectively and `MERGE` a `BOUGHT` relationship between them assigning all other JSON properties to the relationship
+. `MERGE` operation on `User` and `Product` labels with `userId` and `productId` treated as keys respectively and `MERGE` a `BOUGHT` relationship between them assigning all other message properties to the relationship
 +
 [source]
 ----
@@ -133,11 +152,11 @@ You cannot mix inclusion and exclusion so your pattern must contains all exclusi
 (:User{!userId})-[:BOUGHT{-shippingAddress}]->(:Product{!productId})
 ----
 
-. `MERGE` operation on `User` and `Product` labels with `userId` and `productId` treated as keys respectively, assign `userFirstName` and `userLastName` properties from JSON object to the `User` node and `MERGE` a `BOUGHT` relationship between them assigning *only* `price` and `currency` properties from JSON object to the relationship
+. `MERGE` operation on `User` and `Product` labels with `userId` and `productId` treated as keys respectively and `MERGE` a `BOUGHT` relationship between them assigning *only* `transactionId` property as a key property from key part of the message and `date` from value part of the message to the relationship
 +
 [source]
 ----
-(:User{!userId, userFirstName, userLastName})-[:BOUGHT{price, currency}]->(:Product{!productId})
+(:User{!userId})-[:BOUGHT{!transactionId: __key.transaction.id, date: __value.transaction.date}]->(:Product{!productId})
 ----
 
 === Configuration
