@@ -11,6 +11,7 @@ Two sub-strategies are available:
 
 * The <<schema, Schema>> strategy merges nodes and relationships by the constraints (node key, relationship key and/or property uniqueness + existence) defined in the source database.
 
+[#source-id]
 == Source ID sub-strategy
 
 `Source ID` strategy merges nodes and relationships by the source entity's `elementId` or `id` values, by storing this value as an explicit property on the target nodes and relationships and by marking nodes with an explicit label.
