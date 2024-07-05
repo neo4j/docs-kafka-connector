@@ -1,5 +1,6 @@
 = Installation
 
+[[distribution]]
 == Distribution
 
 The latest version of {product-name} is {exact-connector-version}.

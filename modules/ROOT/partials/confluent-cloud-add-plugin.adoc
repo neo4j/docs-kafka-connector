@@ -1,0 +1,28 @@
+[[upload-connector-{type}]]
+
+=== {type-text}
+
+. Select the cluster you want to install the connector into, open `Connector` section and click `Add plugin`, as shown in <<connectors-add-plugin-{type}>>.
++
+.Connector plugins
+image::confluent-cloud/cc-connectors-initial.png[width=800,id=connectors-add-plugin-{type}]
+
+. Click `Add Plugin` and fill in details for the new custom connector as shown below and <<connectors-upload-{type}>>, accept conditions and click `Submit`.
++
+Connector plugin name:: Neo4j Connector for Confluent {type-text}
+Custom plugin description:: Neo4j Connector for Confluent {type-text} plugin as a custom connector.
+Connector class:: `org.neo4j.connectors.kafka.{type}.Neo4jConnector`
+Connector type:: `{type-text}`
+Connector archive:: Grab latest Confluent Hub Component archive package by following xref:installation.adoc#distribution[distribution instructions] and select the downloaded `neo4j-kafka-connector-{exact-connector-version}.zip` file from your local computer.
+Sensitive properties:: In order for sensitive configuration properties to be protected in your connector instances, you should mark at least the following configuration properties as sensitive.
+
+    neo4j.authentication.basic.password
+    neo4j.authentication.kerberos.ticket
+    neo4j.authentication.bearer.token
+    neo4j.authentication.custom.credentials
+
+.Add Custom Connector for {type-text} plugin
+image::confluent-cloud/cc-connectors-upload-{type}.png[width=800,id=connectors-upload-{type}]
+
+It will upload the archive and create the {type-text} plugin.
+
