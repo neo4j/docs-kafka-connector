@@ -6,20 +6,20 @@ This strategy allows you to extract nodes and relationships from a kafka message
 
 Node patterns are defined similar to Cypher node patterns.
 
-. start with `(`
-. define optional list of labels, separated by `:`, such as `:Person` or `:Person:Employee`
-. open property section with `{`
-. define properties to be treated as keys, each prepended with `!`, where at least one key property needs to be provided.
+. Start with `(`.
+. Define optional list of labels, separated by `:`, such as `:Person` or `:Person:Employee`.
+. Open property section with `{`.
+. Define properties to be treated as keys, each prepended with `!`, where at least one key property needs to be provided.
 Individual message fields can be explicitly referenced and assigned to a user defined property in the format of `userId: \__key.user.id`.
 By default, messages fields can be referenced as `__timestamp`, `\__headers`, `__key` and `__value`.
-. either
-.. nothing or `*`, meaning that assign all properties from message to the node
-.. list of property names to be assigned to the node from message.
+. Either;
+.. Nothing or `*`, meaning that assign all properties from message to the node.
+.. List of property names to be assigned to the node from message.
 Individual message fields can be explicitly referenced and assigned to a user defined property in the format of `userName: \__value.user.name`.
 By default, messages fields can be referenced as `__timestamp`, `\__headers`, `__key` and `__value`.
-.. list of property names _not_ to be assigned to the node, each prepended with `-`, all other properties from message will be assigned to the node
-. close property section with `}`
-. end with `)`
+.. List of property names _not_ to be assigned to the node, each prepended with `-`, all other properties from message will be assigned to the node.
+. Close property section with `}`.
+. End with `)`.
 
 [NOTE]
 You cannot mix inclusion and exclusion inside patterns, i.e. your pattern must contain either all exclusion or inclusion properties.
@@ -102,22 +102,22 @@ You can transform it into a node by providing the following configuration:
 
 Relationship patterns are defined similar to Cypher relationship patterns.
 
-. node pattern for start node
+. Node pattern for start node.
 . `-[`
-. define relationship type, prepended by `:`, such as `:BOUGHT` or `:KNOWS`
-. open property section with `{`
-. `OPTIONAL` define properties to be treated as keys, each prepended with `!`, where at least one key property needs to be provided.
+. Define relationship type, prepended by `:`, such as `:BOUGHT` or `:KNOWS`.
+. Open property section with `{`.
+. [Optional] Define properties to be treated as keys, each prepended with `!`, where at least one key property needs to be provided.
 Individual message fields can be explicitly referenced and assigned to a user defined property in the format of `relationshipId: \__key.relationship.id`.
 By default, messages fields can be referenced as `__timestamp`, `\__headers`, `__key` and `__value`.
-. either
-.. nothing or `*`, meaning that assign all properties from message to the relationship
-.. list of property names to be assigned to the relationship from message.
+. Either;
+.. Nothing or `*`, meaning that assign all properties from message to the relationship.
+.. List of property names to be assigned to the relationship from message.
 Individual message fields can be explicitly referenced and assigned to a user defined property in the format of `relationshipType: \__value.relationship.type`.
 By default, messages fields can be referenced as `__timestamp`, `\__headers`, `__key` and `__value`.
-.. list of property names _not_ to be assigned to the relationship, each prepended with `-`, all other properties from message will be assigned to the relationship
-. close property section with `}`
+.. List of property names _not_ to be assigned to the relationship, each prepended with `-`, all other properties from message will be assigned to the relationship.
+. Close property section with `}`.
 . `]\->`
-. node pattern for end node
+. Node pattern for end node.
 
 [NOTE]
 You cannot mix inclusion and exclusion inside patterns, i.e. your pattern must contains all exclusion or inclusion properties.
@@ -190,7 +190,7 @@ You can transform it into a path, like `(n)-[r]->(m)`, by providing the followin
 ----
 
 [NOTE]
-Relationship key properties can only be used with Neo4j Enterprise Edition and AuraDB.
+Relationship key properties can only be used with Neo4j Enterprise Edition 5.7 and above, and AuraDB 5.
 
 == Tombstone Records
 
@@ -198,5 +198,5 @@ The pattern strategy supports https://en.wikipedia.org/wiki/Tombstone_(data_stor
 In order to use it, message key should contain at least the key properties present in the provided pattern and message value should be set as `null`.
 
 [IMPORTANT]
-**Currently, you cannot define multiple patterns for a single topic, such as extracting more than one node or relationship type from a single message.
-In order to achieve this, you have to use a different topic for each pattern.**
+It is not possible to define multiple patterns for a single topic, such as extracting more than one node or relationship type from a single message.
+In order to achieve this, you have to use a different topic for each pattern.
