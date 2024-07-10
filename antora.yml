@@ -1,5 +1,5 @@
 name: kafka
-version: 5.0
+version: '5.0'
 title: Neo4j Kafka Integration Docs
 start_page: ROOT:index.adoc
 nav:
