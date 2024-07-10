@@ -7,7 +7,7 @@ site:
 content:
   sources:
   - url: ./
-    branches: ['5.0', 'master']
+    branches: ['5.0', 'HEAD']
     exclude:
     - '!**/_includes/*'
     - '!**/readme.adoc'
