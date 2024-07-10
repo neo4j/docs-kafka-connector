@@ -1,6 +1,6 @@
 name: kafka
 version: '5.0'
-title: Neo4j Kafka Integration Docs
+title: Neo4j Connector for Kafka
 start_page: ROOT:index.adoc
 nav:
   - modules/ROOT/content-nav.adoc
