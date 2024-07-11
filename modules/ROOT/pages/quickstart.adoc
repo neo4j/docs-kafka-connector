@@ -1,5 +1,7 @@
 = Quickstart with Docker Compose
 
+:page-aliases: quickstart-connect.adoc
+
 [[quickstart]]
 ifdef::env-docs[]
 [abstract]
