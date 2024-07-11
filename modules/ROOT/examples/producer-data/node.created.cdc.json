@@ -1,0 +1,50 @@
+{
+  "id": "A3Qc5ZIZ_Eo5v5xsONVo8KUAAAAAAAAADAAAAAAAAAAA",
+  "seq": 0,
+  "txId": 12,
+  "metadata": {
+    "authenticatedUser": "neo4j",
+    "captureMode": "FULL",
+    "connectionClient": "192.168.65.1:46246",
+    "connectionServer": "172.17.0.2:7687",
+    "connectionType": "bolt",
+    "databaseName": "neo4j",
+    "executingUser": "neo4j",
+    "serverId": "7528cb82",
+    "txCommitTime": "2024-03-03T20:51:56.769Z",
+    "txMetadata": {
+      "app": "cypher-shell_v5.6.0",
+      "type": "user-direct"
+    },
+    "txStartTime": "2024-03-03T20:51:56.714Z"
+  },
+  "event": {
+    "elementId": "4:741ce592-19fc-4a39-bf9c-6c38d568f0a5:0",
+    "eventType": "n",
+    "operation": "c",
+    "keys": {
+      "Person": [
+        {
+          "first_name": "John",
+          "last_name": "Doe"
+        }
+      ]
+    },
+    "labels": [
+      "Person"
+    ],
+    "state": {
+      "before": null,
+      "after": {
+        "labels": [
+          "Person"
+        ],
+        "properties": {
+          "email": "john.doe@example.com",
+          "first_name": "John",
+          "last_name": "Doe"
+        }
+      }
+    }
+  }
+}

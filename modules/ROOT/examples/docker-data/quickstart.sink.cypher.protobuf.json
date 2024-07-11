@@ -1,0 +1,26 @@
+{
+  "name": "Neo4jSinkConnectorCypherJSONSchema",
+  "config": {
+    "topics": "creates,updates,deletes",
+    "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",
+    "key.converter": "io.confluent.connect.protobuf.ProtobufConverter",
+    "key.converter.schemas.enable": true,
+    "key.converter.schema.registry.url": "http://schema-registry:8081",
+    "key.converter.optional.for.nullables": true,
+    "value.converter": "io.confluent.connect.protobuf.ProtobufConverter",
+    "value.converter.schemas.enable": true,
+    "value.converter.schema.registry.url": "http://schema-registry:8081",
+    "value.converter.optional.for.nullables": true,
+    "neo4j.uri": "neo4j://neo4j:7687",
+    "neo4j.authentication.type": "BASIC",
+    "neo4j.authentication.basic.username": "neo4j",
+    "neo4j.authentication.basic.password": "password",
+    "neo4j.cypher.topic.creates": "WITH __value.event.state.after AS state MERGE (p:Person {name: state.properties.name, surname: state.properties.surname}) MERGE (f:Family {name: state.properties.surname}) MERGE (p)-[:BELONGS_TO]->(f)",
+    "neo4j.cypher.topic.updates": "WITH __value.event.state.before AS before, __value.event.state.after AS after MATCH (p:Person {name: before.properties.name, surname: before.properties.surname}) MATCH (fPre:Family {name: before.properties.surname}) OPTIONAL MATCH (p)-[b:BELONGS_TO]->(fPre) DELETE b WITH after, p SET p.name = after.properties.name, p.surname = after.properties.surname MERGE (f:Family {name: after.properties.surname}) MERGE (p)-[:BELONGS_TO]->(f)",
+    "neo4j.cypher.topic.deletes": "WITH __value.event.state.before AS before MATCH (p:Person {name: before.properties.name, surname: before.properties.surname}) DETACH DELETE p",
+    "neo4j.cypher.bind-header-as": "",
+    "neo4j.cypher.bind-key-as": "",
+    "neo4j.cypher.bind-value-as": "__value",
+    "neo4j.cypher.bind-value-as-event": false
+  }
+}

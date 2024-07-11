@@ -1,0 +1,138 @@
+= Source Configuration Settings
+:type: source
+
+[#connector-source-common-configuration]
+include::partial$connector-common-configuration.adoc[]
+
+== Common Source Settings
+
+[%width="100%",cols="m,a",opts=header]
+|===
+| Name
+| Description
+
+| neo4j.source-strategy label:mandatory[]
+| Source strategy for this connector.
+One of `CDC`, `QUERY`.
+
+| neo4j.start-from label:mandatory[]
+| A time anchor to start streaming from.
+One of `EARLIEST`, `NOW`, `USER_PROVIDED`.
+Only used on initial run of the connector instance, and ignored when there is already a stored offset in Kafka Connect.
+
+Default: `NOW`
+| neo4j.start-from.value
+| Custom value to use as a starting offset.
+Required when `neo4j.start-from` is set to `USER_PROVIDED`.
+
+| neo4j.ignore-stored-offset
+| Whether to ignore any offset value retrieved from the offset storage saved by a previous run.
+One of `true`, `false`.
+
+Default: `false`
+| neo4j.batch-size
+| Maximum number of change events to publish for each poll cycle.
+
+Default: `1000`
+
+|===
+
+== CDC Strategy Settings
+
+[%width="100%",cols="m,a",opts=header]
+|===
+| Name
+| Description
+
+| neo4j.cdc.topic.\{NAME}.key-strategy
+| Serialisation strategy for CDC topic key.
+One of `SKIP`, `ELEMENT_ID`, `ENTITY_KEYS`, `WHOLE_VALUE`.
+
+Default: `WHOLE_WALUE`
+
+| neo4j.cdc.poll-duration
+| Maximum amount of time Kafka Connect poll request will wait for a change to be received from the database (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`)
+
+Default: `5s`
+| neo4j.cdc.poll-interval
+| The interval in which the database will be polled for changes during `neo4j.cdc.poll-duration` (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
+
+Default: `1s`
+
+| neo4j.cdc.topic.\{NAME}.patterns
+| Comma-separated list of graph patterns, with optional event property filters (prefixed with `+` or `-` for inclusion or exclusion respectively).
+
+Example setting: `"neo4j.cdc.topic.my-topic.patterns": "(:Person {+name}),(:Person)-[:WORKS_FOR]->(:Company),(:Company {-id})"`.
+The change event for `Company` nodes will not include the `id` property.
+
+| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.pattern
+| Indexed graph pattern, with optional event property filters (prefixed with `+` or `-` for inclusion or exclusion respectively).
+
+Example: `"neo4j.cdc.topic.my-topic.patterns.0.pattern": "(:Company {+name})"`.
+The change event for `Company` nodes will either always include the `name` property (in CDC `FULL` enrichment mode) or when the `name` property has changed (in CDC `DIFF` enrichment mode).
+
+| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.operation
+| One of `CREATE`, `UPDATE`, `DELETE`.
+Operation for which we want to receive events for the corresponding indexed graph pattern.
+
+Example: `"neo4j.cdc.topic.my-topic.patterns.0.operation": "DELETE"`
+
+| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.changesTo
+| Comma-separated list of property names.
+
+Example: `"neo4j.cdc.topic.my-topic.patterns.0.changesTo": "name, age"` (see link:{page-canonical-root}/cdc/current/procedures/selectors/#combining-selectors[how selectors are combined])
+
+| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.metadata.authenticatedUser
+| User who was authenticated while performing the change.
+
+Example: `"neo4j.cdc.topic.my-topic.patterns.0.metadata.authenticatedUser": "userA"`
+
+| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.metadata.executingUser
+| User who was executing the transaction while performing the change.
+Usually will be same with `authenticatedUser`, but might change if user impersonation is used.
+
+Example: `"neo4j.cdc.topic.my-topic.patterns.0.metadata.executingUser": "userB"`
+
+| neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.metadata.txMetadata.\{KEY}
+| Key-value transaction metadata selector.
+The key-value pair is matched against the actual transaction metadata (with the key stripped of the aforementioned prefix).
+
+Example: `"neo4j.cdc.topic.my-topic.patterns.0.metadata.txMetadata.app": "neo4j-browser"`
+
+
+|===
+
+== `QUERY` strategy Settings
+
+[%width="100%",cols="m,a",opts=header]
+|===
+| Name
+| Description
+
+| neo4j.query.topic label:mandatory[]
+| Kafka topic to publish change events gathered through provided query.
+
+| neo4j.query label:mandatory[]
+| Cypher query to use for gathering changes.
+Requires both `neo4j.query.streaming-property` to be in the result set, and `$lastCheck` query parameter used for tracking changes.
+
+| neo4j.query.streaming-property
+| Property name that is both present in the result set of the specified query and used as a filter to query changes from a previous value.
+
+Default: `timestamp`
+
+| neo4j.query.poll-duration
+| Maximum amount of time Kafka Connect poll request will wait for a change to be received from the database (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
+
+Default: `5s`
+
+| neo4j.query.poll-interval
+| The interval in which the database will be polled for changes during `neo4j.query.poll-duration` (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
+
+Default: `1s`
+
+| neo4j.query.timeout
+| Maximum amount of time query is allowed to run (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
+
+Default: `0s`
+|===

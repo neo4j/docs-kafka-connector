@@ -1,13 +1,61 @@
-= {product-name} User Guide
-:env-docs: true
+[[neo4j-connector-for-kafka]]
+ifndef::backend-pdf[]
 
-The guide covers the following areas:
+= {product-name}
 
-* xref:overview.adoc[Project overview]
-* xref:quickstart-connect.adoc[Quick start with {product-name}]
-* xref:kafka-connect.adoc[How to install and configure {product-name}]
-* xref:neo4j-cluster-connect.adoc[Usage with a Neo4j cluster]
-* xref:architecture.adoc[Architectural Guidance]
+endif::[]
+ifdef::backend-pdf[]
+
+= {product-name} Early Access Program
+
+include::partial$experimental.adoc[]
+
+endif::[]
+
+The {product-name} is designed for customers who want to stream data from Apache Kafka (R) topics into Neo4j or Aura, or publish changes occurring in Neo4j or Aura into Apache Kafka (R) topics.
+
+== Components
+
+=== Sink
+
+The connector provides a sink component, which consumes messages from Apache Kafka topics and applies configured changes into a Neo4j or Aura database.
+
+=== Source
+
+The connector provides a source component, which listens for changes occurring in a Neo4j or Aura database and publishes messages into Apache Kafka topics.
+Source component can be configured to read changes using link:{page-canonical-root}/cdc[Change Data Capture] feature or a provided custom query.
+
+[IMPORTANT]
+Change Data Capture is a new feature introduced with Neo4j 5.13.0 and Aura 5, and the source connector with CDC support requires at least these versions of Neo4j and Aura.
+
+== Compatibility
+
+=== Neo4j compatibility
+
+The connector supports Neo4j 5.x and 4.4, whether run as a managed service in link:{page-canonical-root}/aura/[Neo4j Aura], as a single instance, or as a cluster.
+It supports both the Community and the Enterprise Edition.
+
+[IMPORTANT]
+Some features, such as constraints and CDC, are only available with Neo4j Enterprise Edition or AuraDB Enterprise, and will not be available in Neo4j Community Edition, or Free and Professional Tiers of AuraDB.
+
+=== Kafka Connect compatibility
+
+The connector is designed to be compatible with versions of Apache Kafka Connect {kafka-connect-version} and later, including, AWS Managed Streaming for Kafka, Confluent Cloud and Platform.
+
+=== Java compatibility
+
+The connector is built using Java 11, and is compatible to run with Java 11 and LTS versions of Java, i.e. 17 and 21.
+
+== License
+
+The link:{url-github}[source code] is provided under the terms of the Apache 2.0 license.
+You are free to download, modify, and redistribute the connector; however, Neo4j support applies only to official builds provided by Neo4j.
+
+== Support
+
+For Neo4j Enterprise and Neo4j AuraDB customers, official releases of this connector deployed into Apache Kafka, Amazon MSK and Confluent Cloud are supported under the terms of your existing Neo4j support agreement.
+This support extends only to regular releases and excludes alpha, beta, and pre-releases.
+If you have any questions about the support policy, get in touch with Neo4j.
 
 (C) {copyright}
 License: link:{common-license-page-uri}[Creative Commons 4.0]

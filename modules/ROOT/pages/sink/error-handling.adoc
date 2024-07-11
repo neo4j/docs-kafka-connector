@@ -1,0 +1,91 @@
+[#kafka_connect_error_handling]
+= Error handling
+:xrefstyle: full
+
+{product-name} sink instance supports Kafka Connect error handling mechanism to deal with bad incoming data.
+In order to make use of this feature, the configuration settings described in the <<dlq-table>> can be used.
+
+[[dlq-table]]
+.Dead Letter Queue configuration parameters
+[%width="100%",cols="4m,6a",opts=header]
+|===
+| Name | Description
+
+| errors.tolerance
+|
+Configures error tolerance during the sink process.
+The default value is `none`, causing any error to immediately fail the connector task and stop processing the remaining messages.
+Setting it to `all` changes the behavior to skip problematic messages and continue processing the rest.
+
+One of `all`, `none`.
+Default: `none`
+
+[NOTE]
+If `error.tolerance: all`, problematic messages will still be reported if a dead letter queue is defined.
+
+| errors.log.enable
+|
+If set to true, each error, along with details of the failed operation and problematic message, will be written to the Kafka Connect application log.
+By default, this is set to 'false', so only errors that are not tolerated are reported.
+
+One of `true`, `false`.
+Default: `false`
+
+| errors.log.include.messages
+|
+Specifies whether to include the Kafka message that resulted in a failure in the log.
+If enabled, the topic, partition, offset, and timestamp will be logged.
+By default, this is set to 'false', preventing message keys, values, and headers from being written to log files.
+
+One of `true`, `false`.
+Default: `false`
+
+| errors.deadletterqueue.topic.name
+|
+Specifies the topic name to be used as the dead letter queue (DLQ) for messages that encounter errors during the sink process.
+When a topic name is set, failed messages will be sent to the DLQ.
+By default, the topic name is blank, indicating that no messages will be sent to the DLQ.
+
+Default: ``
+
+| errors.deadletterqueue.context.headers.enable
+|
+If set to true, headers containing error context will be added to the messages sent to the DLQ topic.
+To prevent conflicts with headers from the original record, all error context header keys will start with `__connect.errors`.
+
+The error headers that will be sent;
+
+* `__connect.errors.topic`
+* `__connect.errors.partition`
+* `__connect.errors.offset`
+* `__connect.errors.connector.name`
+* `__connect.errors.task.id`
+* `__connect.errors.stage`
+* `__connect.errors.class.name`
+* `__connect.errors.exception.class.name`
+* `__connect.errors.exception.message`
+* `__connect.errors.exception.stacktrace`
+
+One of `true`, `false`.
+Default: `false`
+
+| errors.deadletterqueue.topic.replication.factor
+|
+Specifies the replication factor used to create the dead letter queue (DLQ) topic if it does not already exist.
+Default value `3`, If you’re running on a single-node Kafka cluster, you will also need to set it to `1`.
+Replication factor.
+
+Default: `3`
+
+|===
+
+[NOTE]
+With this version of the connector, we also handle errors that may occur during message processing and when writing messages to the target Neo4j database.
+For further details about how Kafka Connect Framework handles error management, please look into the blog post at link:https://www.confluent.io/blog/kafka-connect-deep-dive-error-handling-dead-letter-queues[Error Handling and Dead Letter Queues].
+
+// == Example Configuration FLow
+
+// This flowchart shows how to choose which one to use:
+
+// image::sink-error-handling-flow.png[title="Configuration Flowchart",align="center"]
+

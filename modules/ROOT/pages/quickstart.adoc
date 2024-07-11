@@ -1,0 +1,407 @@
+= Quickstart with Docker Compose
+
+[[quickstart]]
+ifdef::env-docs[]
+[abstract]
+--
+Get started fast for common scenarios using the {product-name}.
+--
+endif::env-docs[]
+
+[[kafka_connect_neo4j_connector_quickstart]]
+== Overview
+
+We will use Docker Compose to create an environment with Confluent Platform components and Neo4j running inside Docker.
+
+The {product-name} will first be configured with a source instance.
+The source will retrieve changes from `CREATE`, `UPDATE` and `DELETE` operations for the node pattern `(:TestSource)`.
+Received changes will then be published into `creates`, `updates` and `deletes` topics based on the operation.
+
+Next, we will create a sink instance which will listen for messages in `creates`, `updates` and `deletes` topics, and execute a Cypher statement to apply the corresponding change in Neo4j when the messages are received.
+
+[NOTE]
+The following guide uses the Confluent Platform docker images.
+
+=== Run with Docker Compose
+
+Copy the following Docker Compose file into a desired directory.
+
+[NOTE]
+The sample docker-compose.yml file below makes use of recent features of docker compose and requires a recent version of docker compose.
+Please make sure you have at least v2.20.3 version of the tool.
+
+.docker-compose.yml
+[source,yaml]
+----
+include::example$docker-data/docker-compose.yml[]
+----
+
+Copy the following {product-name} artifacts into a directory named `plugins` in the same directory as your `docker-compose.yml` file.
+The directory structure should look like;
+
+[source,text,subs="attributes+"]
+----
+quickstart/
+├─ plugins/
+│  ├─ neo4j-kafka-connect-{exact-connector-version}.jar
+├─ docker-compose.yml
+
+----
+
+Open a terminal, proceed to the Docker Compose file's directory and run:
+
+[source,bash]
+----
+docker compose up -d
+----
+
+When the process completes you should have all the modules up and running.
+You can check the status of all services as follows:
+
+[source,bash]
+----
+docker compose ps
+----
+
+This should return a table that shows every service is up and running.
+
+[source,text]
+----
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+broker              "/etc/confluent/dock…"   broker              running             0.0.0.0:9092->9092/tcp, 0.0.0.0:9101->9101/tcp
+connect             "bash -c '# confluen…"   connect             running             0.0.0.0:8083->8083/tcp, 9092/tcp
+control-center      "/etc/confluent/dock…"   control-center      running             0.0.0.0:9021->9021/tcp
+neo4j               "tini -g -- /startup…"   neo4j               running             0.0.0.0:7474->7474/tcp, 7473/tcp, 0.0.0.0:7687->7687/tcp
+schema-registry     "/etc/confluent/dock…"   schema-registry     running             0.0.0.0:8081->8081/tcp
+zookeeper           "/etc/confluent/dock…"   zookeeper           running             2888/tcp, 0.0.0.0:2181->2181/tcp, 3888/tcp
+----
+
+Now you can access your Neo4j instance under: \http://localhost:7474, log in with `neo4j` as username and `password` as password (Update `NEO4J_AUTH` environment variable in the Docker Compose file to change it).
+Confirm that you can access the Confluent Control Center instance at \http://localhost:9021/clusters and that the Cluster reports as healthy (this may take 90-120s).
+You should have one Broker, several Topics and one Connect cluster in the Control Center.
+
+=== Enable CDC
+
+Enable Change Data Capture on the source database by executing the following Cypher command.
+For more information on Change Data Capture and enabling it, please refer to link:{page-canonical-root}/cdc/current/get-started/self-managed[Change Data Capture > Enable CDC > Neo4j DBMS] for on-prem installations and link:{page-canonical-root}/cdc/current/get-started/aura[Change Data Capture > Enable CDC > Aura] for Aura.
+
+[source,shell]
+----
+ALTER DATABASE neo4j SET OPTION txLogEnrichment 'FULL';
+----
+
+=== Source with CDC
+
+First up, we need to set up Neo4j as a source database that will provide messages for topics.
+Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as `source.neo4j.json`.
+
+[.tabbed-example]
+====
+[.include-with-AVRO-messages]
+=====
+ifdef::backend-pdf[]
+.quickstart.source.cdc.avro.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.source.cdc.avro.json[]
+----
+=====
+
+[.include-with-JSON-messages-with-schema]
+=====
+ifdef::backend-pdf[]
+.quickstart.source.cdc.json.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.source.cdc.json.json[]
+----
+=====
+
+[.include-with-PROTOBUF-messages]
+=====
+ifdef::backend-pdf[]
+.quickstart.source.cdc.protobuf.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.source.cdc.protobuf.json[]
+----
+=====
+
+====
+
+We will now create the source instance by invoking the following REST call:
+
+[source,shell]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H "Content-Type:application/json" \
+  -H "Accept:application/json" \
+  -d @source.neo4j.json
+----
+
+This will create a Kafka Connect source instance that will send change event messages over to the topics named `creates`, `updates` and `deletes`, using your preferred serialization format.
+In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.
+
+As illustrated, you can configure multiple patterns to read changes for, and have them published to topics of your choice.
+So given the above configuration, the connector will read changes happening on nodes of label `TestSource` and the structure of the message will be based on link:{page-canonical-root}/cdc/current/procedures/output-schema/[Change Data Capture > Change event schema], serialized according to the configured message format.
+The expected change events, based on the type of operation, will have the following structure.
+
+[.tabbed-example]
+====
+[.include-with-CREATE-events]
+=====
+[source,json]
+----
+{
+  "id": "<id>",
+  "txId": 12,
+  "seq": 0,
+  "metadata": {
+    "executingUser": "neo4j",
+    "authenticatedUser": "neo4j",
+    "captureMode": "FULL",
+    "connectionClient": "127.0.0.1:51320",
+    "serverId": "<server-id>",
+    "databaseName": "<database-name>",
+    "connectionType": "bolt",
+    "connectionServer": "127.0.0.1:51316",
+    "txStartTime": "2023-11-03T11:58:30.429Z",
+    "txCommitTime": "2023-11-03T11:58:30.526Z",
+    "txMetadata": {}
+  },
+  "event": {
+    "elementId": "4:b7e35973-0aff-42fa-873b-5de31868cb4a:1",
+    "keys": {},
+    "eventType": "n",
+    "state": {
+      "before": null,
+      "after": {
+        "properties": {
+          "name": "<name>",
+          "surname": "<surname>"
+        },
+        "labels": ["TestSource"]
+      }
+    },
+    "operation": "c",
+    "labels": ["TestSource"]
+  }
+}
+----
+=====
+
+[.include-with-UPDATE-events]
+=====
+[source,json]
+----
+{
+  "id": "<id>",
+  "txId": 12,
+  "seq": 0,
+  "metadata": {
+    "executingUser": "neo4j",
+    "authenticatedUser": "neo4j",
+    "captureMode": "FULL",
+    "connectionClient": "127.0.0.1:51320",
+    "serverId": "<server-id>",
+    "databaseName": "<database-name>",
+    "connectionType": "bolt",
+    "connectionServer": "127.0.0.1:51316",
+    "txStartTime": "2023-11-03T11:58:30.429Z",
+    "txCommitTime": "2023-11-03T11:58:30.526Z",
+    "txMetadata": {}
+  },
+  "event": {
+    "elementId": "4:b7e35973-0aff-42fa-873b-5de31868cb4a:1",
+    "keys": {},
+    "eventType": "n",
+    "state": {
+      "before": {
+        "properties": {
+          "name": "<old-name>",
+          "surname": "<old-surname>"
+        },
+        "labels": ["TestSource"]
+      },
+      "after": {
+        "properties": {
+          "name": "<new-name>",
+          "surname": "<new-surname>"
+        },
+        "labels": ["TestSource"]
+      }
+    },
+    "operation": "u",
+    "labels": ["TestSource"]
+  }
+}
+----
+=====
+
+[.include-with-DELETE-events]
+=====
+[source,json]
+----
+{
+  "id": "<id>",
+  "txId": 12,
+  "seq": 0,
+  "metadata": {
+    "executingUser": "neo4j",
+    "authenticatedUser": "neo4j",
+    "captureMode": "FULL",
+    "connectionClient": "127.0.0.1:51320",
+    "serverId": "<server-id>",
+    "databaseName": "<database-name>",
+    "connectionType": "bolt",
+    "connectionServer": "127.0.0.1:51316",
+    "txStartTime": "2023-11-03T11:58:30.429Z",
+    "txCommitTime": "2023-11-03T11:58:30.526Z",
+    "txMetadata": {}
+  },
+  "event": {
+    "elementId": "4:b7e35973-0aff-42fa-873b-5de31868cb4a:1",
+    "keys": {},
+    "eventType": "n",
+    "state": {
+      "before": {
+        "properties": {
+          "name": "<name>",
+          "surname": "<surname>"
+        },
+        "labels": ["TestSource"]
+      },
+      "after": null
+    },
+    "operation": "d",
+    "labels": ["TestSource"]
+  }
+}
+----
+=====
+====
+
+Now that you have a running source instance, you can create the following nodes in Neo4j:
+
+[source,cypher]
+----
+CREATE (:TestSource {name: 'john', surname: 'doe'});
+CREATE (:TestSource {name: 'mary', surname: 'doe'});
+CREATE (:TestSource {name: 'jack', surname: 'small'});
+----
+
+This will result in new messages being published to the topic named `creates`.
+
+=== Sink with Cypher
+
+Having set up the source connector, the next step is to configure a sink connector that consumes messages published to the `creates`, `updates` and `deletes` topics.
+
+First, save the following JSON file into a local directory named as `sink.neo4j.json`.
+
+[.tabbed-example]
+====
+[.include-with-AVRO-messages]
+=====
+ifdef::backend-pdf[]
+.quickstart.sink.cypher.avro.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.sink.cypher.avro.json[]
+----
+=====
+
+[.include-with-JSON-messages-with-schema]
+=====
+ifdef::backend-pdf[]
+.quickstart.sink.cypher.json.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.sink.cypher.json.json[]
+----
+=====
+
+[.include-with-PROTOBUF-messages]
+=====
+ifdef::backend-pdf[]
+.quickstart.sink.cypher.protobuf.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.sink.cypher.protobuf.json[]
+----
+=====
+
+====
+
+We will now create the sink instance by invoking the following REST call:
+
+[source,shell]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H "Content-Type:application/json" \
+  -H "Accept:application/json" \
+  -d @sink.neo4j.json
+----
+
+This configures the sink instance to consume data in your preferred serialization format.
+Cypher strategy will build Cypher queries based on Cypher query templates defined by the properties `neo4j.cypher.topic.creates`, `neo4j.cypher.topic.updates` and `neo4j.cypher.topic.deletes`.
+
+=== Testing It Out
+
+Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters, and verify at least the `creates` topic is created as specified in the connector configuration, as well as the source and sink connector instances are running under Connect, connect-default.
+
+With both source and sink connectors running, the previously created `:TestSource` nodes will result in messages being published into the `creates` topic by the source instance.
+These messages will then be consumed by the sink instance, and corresponding `:Person` and `:Family` nodes to be created inside Neo4j.
+As you create, update and delete the `TestSource` labelled nodes, `updates` and `deletes` topics will also be created.
+
+Check that this is the case, by executing the following query in the Neo4j Browser at \http://localhost:7474/browser/:
+
+[source,cypher]
+----
+MATCH (n:(Person | Family)) RETURN n
+----
+
+You can now create, update or delete Person and Family nodes by executing more statements like:
+
+.Create a new person
+[source,cypher]
+----
+CREATE (:TestSource {name: 'Ann', surname: 'Bolin'});
+----
+
+Verify that a new `Person` and a new `Family` node is created and linked together.
+
+.Update an existing person
+[source,cypher]
+----
+MATCH (n:TestSource {name: 'mary', surname: 'doe'}) SET n.surname = 'smith';
+----
+
+Verify that the existing `Person` node is now updated with a surname of `smith` and linked to a new `Family` node.
+
+.Delete an existing person
+[source,cypher]
+----
+MATCH (n:TestSource {name: 'mary', surname: 'smith'}) DELETE n;
+----
+
+Verify that the existing `Person` node is now deleted.
+
+=== Summary
+
+In this Quick Start, we have shown how to configure a Neo4j database to act as both the source of messages for Kafka topics and the sink for those same messages to create, update or delete nodes and relationships in the database.
+Typically, our connector is used as either a sink when pulling data from other data sources via Apache Kafka or Confluent or as source for Apache Kafka or Confluent to push data into other databases.
+
+=== Troubleshooting
+
+If you don't see any messages being published into the `creates`, `updates` and `deletes` topics, or any `:Family` and `:Person` nodes created, please check Kafka Connect logs by executing the following command and resolve any issues being reported.
+
+[source,bash]
+----
+docker compose logs connect
+----

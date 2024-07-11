@@ -1,0 +1,15 @@
+= Configuring sink connector
+
+In this chapter we'll discuss how the Sink instance is configured.
+
+== Strategies
+
+Sink connector can be configured with different strategies:
+
+* by providing a Cypher query
+* by ingesting change events emitted from another Neo4j instance, either by a source connector instance configured for xref:source/cdc.adoc#kafka-connect-source-cdc-strategy[Change Data Capture] or the deprecated link:{page-canonical-root}/kafka-streams[Neo4j streams plugin].
+* by providing a pattern which extracts graph entities from incoming message
+* by generating messages in CUD file format which are translated into Cypher queries
+
+
+

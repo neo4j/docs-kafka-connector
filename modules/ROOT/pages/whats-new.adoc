@@ -1,0 +1,40 @@
+= What's New?
+
+{product-name} {connector-version} introduces several improvements and some breaking changes over the previous minor version.
+
+== Configuration
+
+* Settings for both Source and Sink connectors have been reviewed and most of the settings have been renamed to follow a consistent naming structure.
+Refer to xref:source/configuration.adoc[] and xref:sink/configuration.adoc[] for an exhaustive list of supported configuration settings and their naming scheme.
+
+* Settings which represents duration values, such as connection timeouts, retry timeouts, polling intervals, etc. now accepts more human friendly values, such as `5s`, `1m`, etc.
+Refer to xref:source/configuration.adoc[] and xref:sink/configuration.adoc[] for detailed formatting rules for these settings.
+
+* Settings which accepts multiple values now use `,` as the common delimiter.
+
+* Settings are re-implemented to adhere to Kafka configuration practices, and performs more user-friendly in UI supported environments, such as Confluent Control Center.
+
+== Source
+
+* Source connector generates messages using Kafka Connect data model and supports schema based converters such as `Avro`, `JSON Schema` and `Protobuf` out of the box.
+It is no longer possible to turn off this behavior in the connector itself, and if schema is not desired it should be handled through converters.
+
+* link:{page-canonical-root}/cdc[Change Data Capture] is now fully supported in Source connector and should be the preferred Source connector strategy where possible.
+
+* User provided cursors for change tracking is now possible by setting `neo4j.start-from` to `USER_PROVIDED` and `neo4j.start-from.value` to a desired cursor, such as a custom change identifier from CDC.
+
+* It is now possible to ignore stored offsets by setting `neo4j.ignore-stored-offset` to `true` if required.
+
+== Sink
+
+* Changes are now applied in the order they are received from Kafka Connect, grouped by their topics.
+
+* Error handling is re-implemented to provide full integration with Kafka Connect infrastructure, and failing messages can be identified and forwarded to Dead Letter Queues (if configured) independently.
+
+* Both link:{page-canonical-root}/cdc[Change Data Capture] and previous streams plugin generated change event messages are supported in CDC strategies.
+
+* All message fields, including message timestamp as stored in Kafka, message headers, key and value can be referenced in Cypher strategy.
+
+* All message fields, including message timestamp as stored in Kafka, message headers, key and value can be referenced in Pattern strategies.
+
+* It is now possible to name properties on nodes or relationships while defining patterns in Pattern strategies.

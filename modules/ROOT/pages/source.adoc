@@ -1,0 +1,13 @@
+= Configuring source connector
+
+In this chapter we'll discuss how the Source instance is configured.
+
+== Strategies
+
+Source connector can be configured with two different strategies;
+
+* Change Data Capture
+* Query
+
+[IMPORTANT]
+Source connector always generates messages with schema support, and you will need to pick your key and value converters accordingly.

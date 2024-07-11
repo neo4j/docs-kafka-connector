@@ -1,0 +1,64 @@
+{
+  "meta": {
+    "timestamp": 1532597182604,
+    "username": "neo4j",
+    "tx_id": 3,
+    "tx_event_id": 0,
+    "tx_events_count": 2,
+    "operation": "updated",
+    "source": {
+      "hostname": "neo4j.mycompany.com"
+    }
+  },
+  "payload": {
+    "id": "123",
+    "type": "relationship",
+    "label": "KNOWS",
+    "start": {
+      "labels": [
+        "Person"
+      ],
+      "id": "123",
+      "ids": {
+        "last_name": "Doe",
+        "first_name": "John"
+      }
+    },
+    "end": {
+      "labels": [
+        "Person"
+      ],
+      "id": "456",
+      "ids": {
+        "last_name": "Doe",
+        "first_name": "Mary"
+      }
+    },
+    "before": {
+      "properties": {
+        "since": "2012-01-01"
+      }
+    },
+    "after": {
+      "properties": {
+        "since": "2012-01-01",
+        "to": "2020-06-01"
+      }
+    }
+  },
+  "schema": {
+    "properties": {
+      "since": "LocalDateTime",
+      "to": "LocalDateTime"
+    },
+    "constraints": [
+      {
+        "label": "KNOWS",
+        "properties": [
+          "since"
+        ],
+        "type": "RELATIONSHIP_PROPERTY_EXISTS"
+      }
+    ]
+  }
+}

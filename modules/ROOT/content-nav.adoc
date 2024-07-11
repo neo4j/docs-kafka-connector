@@ -1,18 +1,31 @@
 * xref::index.adoc[]
-* xref::overview.adoc[Project overview]
-* xref::quickstart-connect.adoc[Quickstart]
-* xref::confluent-cloud.adoc[]
-* xref::kafka-connect.adoc[{product-name}]
-** xref::kafka-connect/installation.adoc[Installation]
-** xref::kafka-connect/source.adoc[Source Configuration]
-** xref::kafka-connect/sink.adoc[Sink Configuration]
-** xref::kafka-connect/monitor-confluent.adoc[Monitor via Confluent Platform UI]
-** xref::kafka-connect/configuration.adoc[Configuration Summary]
-* xref::neo4j-cluster-connect.adoc[]
-* xref::architecture.adoc[Architectural Guidance]
-** xref::architecture/kafkatopics.adoc[Kafka Topics Overview]
-** xref::architecture/sinkconsume.adoc[Sink: Consume Records]
-** xref::architecture/retries.adoc[Retries & Error Handling]
-** xref::architecture/throughput.adoc[Factors which Affect Throughput]
-** xref::architecture/transformations.adoc[Streams Transformations]
-** xref::architecture/optimize.adoc[Optimizing Kafka]
+
+
+* xref:whats-new.adoc[*What's new*]
+
+* *Getting started*
+* xref::installation.adoc[Installation]
+* Quickstart
+** xref::quickstart.adoc[Docker Compose]
+** xref::confluent-cloud.adoc[Confluent Cloud]
+// * xref::amazon-msk.adoc[Amazon MSK quickstart]
+
+* *Source connector*
+* xref::source.adoc[Configuration]
+** xref:source/cdc.adoc[Change Data Capture]
+** xref:source/query.adoc[Query]
+* xref:source/schema-registry.adoc[Schema Registry]
+* xref:source/configuration.adoc[Settings]
+
+* *Sink connector*
+* xref::sink.adoc[Configuration]
+** xref:sink/cypher.adoc[Cypher]
+** xref:sink/cdc.adoc[Change Data Capture]
+** xref:sink/pattern.adoc[Pattern]
+** xref:sink/cud.adoc[CUD]
+* xref:sink/error-handling.adoc[Error handling]
+* xref:sink/configuration.adoc[Settings]
+
+* *Reference*
+* xref::known-issues.adoc[]
+* xref::changelog.adoc[]

@@ -1,0 +1,69 @@
+{
+  "id": "A3Qc5ZIZ_Eo5v5xsONVo8KUAAAAAAAAAFgAAAAAAAAAA",
+  "txId": 22,
+  "seq": 0,
+  "metadata": {
+    "authenticatedUser": "neo4j",
+    "captureMode": "FULL",
+    "connectionClient": "192.168.65.1:46246",
+    "connectionServer": "172.17.0.2:7687",
+    "connectionType": "bolt",
+    "databaseName": "neo4j",
+    "executingUser": "neo4j",
+    "serverId": "7528cb82",
+    "txCommitTime": "2024-03-03T21:36:34.961Z",
+    "txMetadata": {
+      "app": "cypher-shell_v5.6.0",
+      "type": "user-direct"
+    },
+    "txStartTime": "2024-03-03T21:36:34.927Z"
+  },
+  "event": {
+    "elementId": "5:741ce592-19fc-4a39-bf9c-6c38d568f0a5:0",
+    "type": "KNOWS",
+    "eventType": "r",
+    "operation": "u",
+    "start": {
+      "elementId": "4:741ce592-19fc-4a39-bf9c-6c38d568f0a5:0",
+      "keys": {
+        "Person": [
+          {
+            "first_name": "John",
+            "last_name": "Doe"
+          }
+        ]
+      },
+      "labels": [
+        "Person"
+      ]
+    },
+    "end": {
+      "elementId": "4:741ce592-19fc-4a39-bf9c-6c38d568f0a5:1",
+      "keys": {
+        "Person": [
+          {
+            "first_name": "Mary",
+            "last_name": "Doe"
+          }
+        ]
+      },
+      "labels": [
+        "Person"
+      ]
+    },
+    "keys": [],
+    "state": {
+      "before": {
+        "properties": {
+          "since": "2012-01-01"
+        }
+      },
+      "after": {
+        "properties": {
+          "since": "2012-01-01",
+          "to": "2020-06-01"
+        }
+      }
+    }
+  }
+}

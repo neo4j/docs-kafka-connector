@@ -9,14 +9,18 @@ asciidoc:
   attributes:
     theme: docs
     copyright: Neo4j Inc.
-    page-product: Neo4j Kafka Integration
+    page-product: Neo4j Connector for Kafka
+    kafka-connect-version: 3.0
+    connector-version: '5.1'
+    exact-connector-version: '5.1.0-rc01'
     page-pagination: true
-    product-name: Kafka Connect Neo4j Connector
+    product-name: Neo4j Connector for Kafka
     url-common-license-page: https://neo4j.com/docs/license/
     url-confluent-blog: https://www.confluent.io/blog
     url-confluent-download: https://www.confluent.io/get-started/
     url-confluent-kafka: https://docs.confluent.io/current/kafka
-    url-confluent-cloud: https://docs.confluent.io/current/cloud
+    url-confluent-cloud: https://confluent.cloud
+    url-confluent-cloud-docs: https://docs.confluent.io/current/cloud
     url-confluent-install: https://docs.confluent.io/current/installation
     url-confluent-quickstart: https://docs.confluent.io/platform/current/quickstart
     url-confluent-clients: https://docs.confluent.io/platform/current/clients
@@ -24,5 +28,5 @@ asciidoc:
     url-confluent-java-client: https://docs.confluent.io/clients-kafka-java/current/overview.html
     url-confluent-hub-neo4j: https://www.confluent.io/hub/neo4j/kafka-connect-neo4j
     url-confluent-hub-datagen: https://www.confluent.io/hub/confluentinc/kafka-connect-datagen
-    url-github-releases: https://github.com/neo4j-contrib/neo4j-streams/releases
+    url-github: https://github.com/neo4j/neo4j-kafka-connector
     page-canonical-root: /docs

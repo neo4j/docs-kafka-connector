@@ -1,6 +1,5 @@
-# tag::update[]
-[TIP]
-====
-The documentation on the deprecated Neo4j Streams plugin can be found link:/docs/kafka-streams[here].
-====
-# end::update[]
+#tag::note[]
+
+include::partial$experimental.adoc[]
+
+#end::note[]

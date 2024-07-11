@@ -1,0 +1,20 @@
+{
+  "name": "Neo4jSinkConnectorCdcSchemaJSONSchema",
+  "config": {
+    "topics": "creates,updates,deletes",
+    "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",
+    "key.converter": "io.confluent.connect.protobuf.ProtobufConverter",
+    "key.converter.schemas.enable": true,
+    "key.converter.schema.registry.url": "http://schema-registry:8081",
+    "key.converter.optional.for.nullables": true,
+    "value.converter": "io.confluent.connect.protobuf.ProtobufConverter",
+    "value.converter.schemas.enable": true,
+    "value.converter.schema.registry.url": "http://schema-registry:8081",
+    "value.converter.optional.for.nullables": true,
+    "neo4j.uri": "neo4j://neo4j:7687",
+    "neo4j.authentication.type": "BASIC",
+    "neo4j.authentication.basic.username": "neo4j",
+    "neo4j.authentication.basic.password": "password",
+    "neo4j.cdc.schema.topics": "creates,updates.deletes"
+  }
+}
