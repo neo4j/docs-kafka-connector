@@ -1,3 +1,5 @@
+:page-aliases: overview.adoc
+
 [[neo4j-connector-for-kafka]]
 ifndef::backend-pdf[]
 

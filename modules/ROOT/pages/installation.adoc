@@ -1,4 +1,5 @@
 = Installation
+:page-aliases: kafka-connect/installation.adoc
 
 [[distribution]]
 == Distribution
