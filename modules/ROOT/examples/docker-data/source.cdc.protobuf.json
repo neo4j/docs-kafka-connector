@@ -1,5 +1,5 @@
 {
-  "name": "Neo4jSourceConnectorJSONSchema",
+  "name": "Neo4jSourceConnectorProtobuf",
   "config": {
     "connector.class": "org.neo4j.connectors.kafka.source.Neo4jConnector",
     "key.converter": "io.confluent.connect.protobuf.ProtobufConverter",

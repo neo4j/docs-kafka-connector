@@ -6,6 +6,10 @@ Please make sure that you take the necessary steps described at link:{page-canon
 
 In order to configure this strategy, you need to define <<patterns, patterns>> and selectors that describe which nodes or relationships you want to track changes and assign them to topics.
 
+[IMPORTANT]
+When a database is restored from a backup in on-prem installations or restored from a snapshot, or paused and resumed in Neo4j Aura, existing change identifiers will no longer work, and you need to re-configure your Source instances from scratch.
+Refer to link:{page-canonical-root}/cdc/current/backup-restore/[Change Data Capture > Restore backups and snapshots] for more information.
+
 == Configuration
 
 First, you need to select CDC strategy for the connector instance;
@@ -55,7 +59,7 @@ Only `pattern` settings are mandatory in the above example, and others are optio
 == Creating Source instance
 
 Based on the above example, we can use one of the following configurations.
-Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as source.cdc.neo4j.json.
+Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as `source.cdc.neo4j.json`.
 
 [.tabbed-example]
 ====

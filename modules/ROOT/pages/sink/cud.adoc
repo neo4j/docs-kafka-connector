@@ -1,6 +1,8 @@
 = CUD File Format Strategy
 
-The CUD file format is JSON file that represents Graph Entities (Nodes/Relationships) and how to manage them in terms of **C**reate/**U**pdate/**D**elete operations.
+The CUD file format is a JSON file that represents operations (**C**reate, **U**pdate, **D**elete) performed on nodes or relationships.
+
+== Configuration
 
 You can configure the topic in the following way:
 
@@ -9,72 +11,83 @@ You can configure the topic in the following way:
 "neo4j.cud.topics": "<COMMA_SEPARATED_LIST_OF_TOPICS>"
 ----
 
-[source,json,subs="attributes"]
+For instance, if you have two topics, `topic.1` and `topic.2` that you publish CUD formatted messages, you can configure the sink instance as follows.
+
+[source,json]
 ----
-"neo4j.cud.topics": "my-topic,my-other.topic"
+"neo4j.cud.topics": "topic.1,topic.2"
 ----
+
+== Creating Sink instance
+
+:strategy: cud
+include::partial$create-sink-instance.adoc[]
+
+== CUD Format Specification
 
 We have two formats:
 
 * `Node`
 * `Relationship`
 
-== Node
+=== Node
 
-Node JSON format has a set of fields which contain the operation (`create`, `update`, `merge` and `delete`), label information and node properties.
-
-Let us describe the fields:
+Node format defines a set of fields which describes the operation (`create`, `update`, `merge` and `delete`), label and properties of a node entity.
 
 [#table_cud_node_fields]
-.CUD file **Node format** fields description
-[cols="3",opts=header]
+.**Node format** fields
+[cols="1,2,3",opts=header]
 |===
 
-| field
-| mandatory
+| Field
+| Mandatory
 | Description
 
 | op
-| yes
-| The operation type: create/merge/update/delete
+| label:Mandatory[]
+a| The operation type.
+One of `create`, `merge`, `update` or `delete`.
 
-*N.B.* delete messages are for **individual nodes** it’s not intended to be a generic way of doing cypher query building from JSON
+[NOTE]
+Delete messages are for **individual nodes** it’s not intended to be a generic way of doing cypher query building from JSON
 
 | properties
-| no, in case the operation is `delete`, otherwise yes
-| The properties attached to the node
+| label:Optional[] when operation is `delete`.
+| The properties attached to the node.
 
 | ids
-| no, in case the operation is `create`, otherwise yes
-| In case the operation is merge/update/delete this field is **mandatory** and contains
-the primary/unique keys of the node that will be used to do the lookup to the entity.
-In case you use as key the `_id` name the cud format will refer to Neo4j's node internal for the node lookup.
+| label:Optional[] when operation is `create`.
+a|
+Contains the primary/unique key properties that will be used to look up the entity.
+In case you use `_elementId` (or `_id`) as a property name, it will use Neo4j's internal element id for the node lookup.
 
-*N.B.* If you'll use the `_id` reference with the op `merge` it will work as simple update, this means that if the node
-with the passed internal id does not exist, it will not be created.
+[WARNING]
+If you use `_elementId` (or `_id`) with `merge` operations, it will behave as a simple update, i.e. if the node with the given element id does not exist, it will not be created.
 
 | labels
-| no
-| The labels attached to the node.
+| label:Optional[]
+a| The labels attached to the node.
 
-*N.B.* Neo4j allows to create nodes without labels, but from a performance perspective, it's a bad idea don't provide them.
+[NOTE]
+Although Neo4j allows to create nodes without labels, it's not advised to do so from a performance perspective.
 
 | type
-| yes
-| The entity type: node/relationship => node in this case
+| label:Mandatory[]
+| The entity type: `node`.
 
 | detach
-| no
-| In case the operation is "delete", you can specify if perform a https://neo4j.com/docs/cypher-manual/current/clauses/delete/["detach" delete] that means delete any incident relationships when you delete a node
+| label:Optional[]
+a| When operation is `delete`, you can specify whether to perform a link:{page-canonical-root}/cypher-manual/delete/["detach" delete].
 
-*N.B.* if no value is provided, the default is `false`
+[NOTE]
+If no value is provided, the default is `false`.
 
 |===
 
-=== Examples
+==== Examples
 
 * An example of a `CREATE` operation;
-
++
 [source,json]
 ----
 {
@@ -87,16 +100,16 @@ with the passed internal id does not exist, it will not be created.
   }
 }
 ----
-
++
 which would be transformed into the following Cypher query:
-
++
 [source,cypher]
 ----
 CREATE (n:Foo:Bar) SET n = $properties
 ----
-
++
 * An example of a `UPDATE` operation;
-
++
 [source,json]
 ----
 {
@@ -112,16 +125,16 @@ CREATE (n:Foo:Bar) SET n = $properties
   }
 }
 ----
-
++
 which would be transformed into the following Cypher query:
-
++
 [source,cypher]
 ----
 MATCH (n:Foo:Bar {id: $ids.id}) SET n += $properties
 ----
-
++
 * An example of a `MERGE` operation;
-
++
 [source,json]
 ----
 {
@@ -137,16 +150,16 @@ MATCH (n:Foo:Bar {id: $ids.id}) SET n += $properties
   }
 }
 ----
-
++
 which would be transformed into the following Cypher query:
-
++
 [source,cypher]
 ----
 MERGE (n:Foo:Bar {id: $ids.id}) SET n += $properties
 ----
-
++
 * An example of a `DELETE` operation;
-
++
 [source,json]
 ----
 {
@@ -158,16 +171,16 @@ MERGE (n:Foo:Bar {id: $ids.id}) SET n += $properties
   }
 }
 ----
-
++
 which would be transformed into the following Cypher query:
-
++
 [source,cypher]
 ----
 MATCH (n:Foo:Bar {id: $ids.id}) DELETE n
 ----
-
++
 * An example of a `DELETE` operation with detach `true`;
-
++
 [source,json]
 ----
 {
@@ -180,65 +193,70 @@ MATCH (n:Foo:Bar {id: $ids.id}) DELETE n
   "detach": true
 }
 ----
-
++
 which would be transformed into the following Cypher query:
-
++
 [source,cypher]
 ----
 MATCH (n:Foo:Bar {id: $ids.id}) DETACH DELETE n
 ----
 
-== Relationship
+=== Relationship
 
-Relationship JSON format has a set of fields which contain the operation (`create`, `update`, `merge` and `delete`), relationship type information, source and target node objects and relationship properties.
-
-Let us describe the fields:
+Relationship format defines a set of fields which describes the operation (`create`, `update`, `merge` and `delete`), relationship type, source and target node references and properties.
 
 [#table_cud_rels_fields]
-.CUD file **Relationship format** fields description
-[cols="3",opts=header]
+.**Relationship format** fields
+[cols="1,2,3",opts=header]
 |===
-| field
-| mandatory
+| Field
+| Mandatory
 | Description
 
 | op
-| yes
-| The operation type: create/merge/update/delete
+| label:Mandatory[]
+| The operation type. One of `create`, `merge`, `update` or `delete`.
 
 | properties
-| no, in case the operation is `delete`, otherwise yes
-| The properties attached to the relationship
+| label:Optional[] when operation is `delete`.
+| The properties attached to the relationship.
 
 | rel_type
-| yes
-| The relationship type
+| label:Mandatory[]
+| The relationship type.
 
 |ids
-|no
-|Contains the primary/unique keys of the relationship that will be used to look up to the entity
+| label:Optional[]
+|Contains the primary/unique key properties that will be used to look up the relationship.
 
 | from
-| yes, if you use the `_id` field reference into `ids` you can leave labels blank
-| Contains the info about the source node of the relationship.`op` field can only be `merge` and `match` and by default it's `match`.
-For the description of the `ids` and `labels` fields, please look at the node fields description above.
+| label:Mandatory[]
+a| Contains information about the source node of the relationship.
+`op` field can only be `merge` or `match` and by default it's `match`.
+For the description of the `ids` and `labels` fields, please look at the node fields described <<table_cud_node_fields, above>>.
 
+[NOTE]
+If you use `_elementId` (or `_id`) field reference in `ids`, you can omit `labels` field.
 
 | to
-| yes, if you use the `_id` field reference into `ids` you can leave labels blank
-| Contains the info about the target node of the relationship.`op` field can only be `merge` and `match` and by default it's `match`.
-For the description of the `ids` and `labels` fields, please look at the node fields description above
+| label:Mandatory[]
+a| Contains information about the target node of the relationship.
+`op` field can only be `merge` or `match` and by default it's `match`.
+For the description of the `ids` and `labels` fields, please look at the node fields described <<table_cud_node_fields, above>>.
+
+[NOTE]
+If you use `_elementId` (or `_id`) field reference in `ids`, you can omit `labels` field.
 
 | type
-| yes
-| The entity type: `node`/`relationship` => `relationship` in this case
+| label:Mandatory[]
+| The entity type: `relationship`.
 
 |===
 
-=== Examples
+==== Examples
 
 * An example of a `CREATE` operation;
-
++
 [source,json]
 ----
 {
@@ -262,9 +280,9 @@ For the description of the `ids` and `labels` fields, please look at the node fi
   }
 }
 ----
-
++
 which would be transformed into the following Cypher query:
-
++
 [source,cypher]
 ----
 MATCH (start:Foo {id: $from.ids.id}) WITH start
@@ -272,9 +290,9 @@ MATCH (end:Bar {id: $to.ids.id}) WITH start, end
 CREATE (start)-[r:RELATED_TO]->(end)
 SET r = $properties
 ----
-
++
 * An example of a `CREATE` operation with `merging` the source node;
-
++
 [source,json]
 ----
 {
@@ -300,9 +318,9 @@ SET r = $properties
   }
 }
 ----
-
++
 which would be transformed into the following Cypher query:
-
++
 [source,cypher]
 ----
 MERGE (start:Foo {id: $from.ids.id}) WITH start
@@ -310,9 +328,9 @@ MATCH (end:Bar {id: $to.ids.id}) WITH start, end
 CREATE (start)-[r:RELATED_TO]->(end)
 SET r = $properties
 ----
-
++
 * An example of a `UPDATE` operation;
-
++
 [source,json]
 ----
 {
@@ -337,9 +355,9 @@ SET r = $properties
   }
 }
 ----
-
++
 which would be transformed into the following Cypher query:
-
++
 [source,cypher]
 ----
 MATCH (start:Foo {id: $from.ids.id}) WITH start
@@ -347,9 +365,9 @@ MERGE (end:Bar {id: $to.ids.id}) WITH start, end
 MATCH (start)-[r:RELATED_TO]->(end)
 SET r += $properties
 ----
-
++
 * An example of a `UPDATE` operation with `relationship ids`;
-
++
 [source,json]
 ----
 {
@@ -377,9 +395,9 @@ SET r += $properties
   }
 }
 ----
-
++
 which would be transformed into the following Cypher query:
-
++
 [source,cypher]
 ----
 MATCH (start:Foo {id: $from.ids.id}) WITH start
@@ -387,9 +405,9 @@ MERGE (end:Bar {id: $to.ids.id}) WITH start, end
 MATCH (start)-[r:RELATED_TO {id: $ids.id}]->(end)
 SET r += $properties
 ----
-
++
 * An example of a `MERGE` operation;
-
++
 [source,json]
 ----
 {
@@ -414,9 +432,9 @@ SET r += $properties
   }
 }
 ----
-
++
 which would be transformed into the following Cypher query:
-
++
 [source,cypher]
 ----
 MATCH (start:Foo {id: $from.ids.id}) WITH start
@@ -424,9 +442,9 @@ MERGE (end:Bar {id: $to.ids.id}) WITH start, end
 MERGE (start)-[r:RELATED_TO]->(end)
 SET r += $properties
 ----
-
++
 * An example of a `MERGE` operation with `relationship ids`;
-
++
 [source,json]
 ----
 {
@@ -454,9 +472,9 @@ SET r += $properties
   }
 }
 ----
-
++
 which would be transformed into the following Cypher query:
-
++
 [source,cypher]
 ----
 MATCH (start:Foo {id: $from.ids.id}) WITH start
@@ -464,9 +482,9 @@ MERGE (end:Bar {id: to.ids.id}) WITH start, end
 MERGE (start)-[r:RELATED_TO {id: $ids.id}]->(end)
 SET r += $properties
 ----
-
++
 * An example of a `DELETE` operation;
-
++
 [source,json]
 ----
 {
@@ -487,9 +505,9 @@ SET r += $properties
   }
 }
 ----
-
++
 which would be transformed into the following Cypher query:
-
++
 [source,cypher]
 ----
 MATCH (start:Foo {id: $from.ids.id}) WITH start
@@ -497,9 +515,9 @@ MATCH (end:Bar {id: $to.ids.id}) WITH start, end
 MATCH (start)-[r:RELATED_TO]->(end)
 DELETE r
 ----
-
++
 * An example of a `DELETE` operation with `relationship ids`;
-
++
 [source,json]
 ----
 {
@@ -523,9 +541,9 @@ DELETE r
   }
 }
 ----
-
++
 which would be transformed into the following Cypher query:
-
++
 [source,cypher]
 ----
 MATCH (start:Foo {id: $from.ids.id}) WITH start
