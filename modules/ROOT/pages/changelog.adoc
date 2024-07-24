@@ -2,6 +2,32 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.1.0
+
+=== New and updated features
+
+[cols="2",options="header"]
+|===
+| Feature
+| Details
+
+a|
+label:configuration[]
+label:changed[]
+
+Renamed following sink configuration properties:
+
+- `neo4j.pattern.node.topic.\{TOPIC_NAME}` to `neo4j.pattern.topic.\{TOPIC_NAME}`
+- `neo4j.pattern.relationship.topic.\{TOPIC_NAME}` to `neo4j.pattern.topic.\{TOPIC_NAME}`
+- `neo4j.pattern.node.merge-properties` to `neo4j.pattern.merge-node-properties`
+- `neo4j.pattern.relationship.merge-properties` to `neo4j.pattern.merge-relationship.properties`
+
+
+a|
+Improved Pattern sink configuration so that there is no need to specify pattern type as part of the configuration property name.
+
+|===
+
 == Version 5.1.0-rc01
 
 === New and updated features

@@ -77,21 +77,18 @@ Default: `true`
 | Name
 | Description
 
-| neo4j.pattern.node.topic.\{NAME}
-| Node pattern to apply on the messages received from the specified topic.
-Example: `"neo4j.pattern.node.topic.user": "(:User\{!userId})"`
+| neo4j.pattern.topic.\{NAME}
+| Node or relationship pattern to apply on the messages received from the specified topic.
+Example: `"neo4j.pattern.topic.user": "(:User\{!userId})"`
+Example: `"neo4j.pattern.topic.user": "(:User\{!userId})-[:KNOWS]->(:User\{!otherUserId})"`
 
-| neo4j.pattern.relationship.topic.\{NAME}
-| Relationship pattern to apply on the messages received from the specified topic.
-Example: `"neo4j.pattern.relationship.topic.user": "(:User\{!userId})-[:KNOWS]->(:User\{!otherUserId})"`
-
-| neo4j.pattern.node.merge-properties
-| Whether to merge incoming properties with existing properties of nodes (when using `Node Pattern` strategy) or relationship start and end nodes (when using `Relationship Pattern` strategy).
+| neo4j.pattern.merge-node-properties
+| Whether to merge incoming properties with existing properties of nodes.
 
 Default: `false`
 
-| neo4j.pattern.relationship.merge-properties
-| Whether to merge incoming properties with existing properties of relationships (when using `Relationship Pattern` strategy).
+| neo4j.pattern.merge-relationship-properties
+| Whether to merge incoming properties with existing properties of relationships.
 
 Default: `false`
 
