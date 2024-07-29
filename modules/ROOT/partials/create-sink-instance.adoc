@@ -1,0 +1,52 @@
+Based on the above example, you can use one of the following configurations.
+Pick one of the message serialization format examples and save it as a file named `sink.{strategy}.neo4j.json` into a local directory.
+
+[.tabbed-example]
+====
+[.include-with-AVRO-messages]
+=====
+ifdef::backend-pdf[]
+.sink.{strategy}.avro.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/sink.{strategy}.avro.json[]
+----
+=====
+
+[.include-with-JSON-messages-with-schema]
+=====
+ifdef::backend-pdf[]
+.sink.{strategy}.json.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/sink.{strategy}.json.json[]
+----
+=====
+
+[.include-with-PROTOBUF-messages]
+=====
+ifdef::backend-pdf[]
+.sink.{strategy}.protobuf.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/sink.{strategy}.protobuf.json[]
+----
+=====
+
+====
+
+Load the configuration into the Kafka Connect with this REST call:
+
+[source,shell,subs="attributes+"]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H 'Content-Type:application/json' \
+  -H 'Accept:application/json' \
+  -d @sink.{strategy}.neo4j.json
+----
+
+Now you can access your Confluent Control Center instance under `http://localhost:9021/clusters`.
+Verify that the configured connector instance is running in the `Connect` tab under `connect-default`.

@@ -1,0 +1,18 @@
+{
+  "confluent.custom.schema.registry.auto": "true",
+  "key.converter": "io.confluent.connect.avro.AvroConverter",
+  "value.converter": "io.confluent.connect.avro.AvroConverter",
+  "neo4j.uri": "neo4j+s://<redacted>.databases.neo4j.io",
+  "neo4j.authentication.type": "BASIC",
+  "neo4j.authentication.basic.username": "neo4j",
+  "neo4j.authentication.basic.password": "<redacted>",
+  "neo4j.source-strategy": "CDC",
+  "neo4j.start-from": "NOW",
+  "neo4j.cdc.poll-interval": "1s",
+  "neo4j.cdc.topic.creates.patterns.0.pattern": "(:TestSource)",
+  "neo4j.cdc.topic.creates.patterns.0.operation": "CREATE",
+  "neo4j.cdc.topic.updates.patterns.0.pattern": "(:TestSource)",
+  "neo4j.cdc.topic.updates.patterns.0.operation": "UPDATE",
+  "neo4j.cdc.topic.deletes.patterns.0.pattern": "(:TestSource)",
+  "neo4j.cdc.topic.deletes.patterns.0.operation": "DELETE"
+}

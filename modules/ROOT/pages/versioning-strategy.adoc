@@ -1,0 +1,48 @@
+[[versioning-policy]]
+= Versioning Policy
+:description: This chapter describes versioning policy that {product-name} releases follow.
+
+{product-name} follows a **customized** SemVer policy, where breaking changes are allowed in both MAJOR and MINOR version increments.
+
+. Version Number Format
++
+[source]
+----
+MAJOR.MINOR.PATCH
+----
+
+. Increments and changes
++
+* MAJOR version (X.y.z)
++
+Incremented when significant, large-scale changes or refactorings are introduced that break backward compatibility.
+Represents a milestone or major overhaul of the software.
++
+* MINOR version (x.Y.z)
++
+Incremented when new features are introduced, some of which may break backward compatibility.
+Can include significant changes that add functionality or modify existing behavior in ways that might require consumers to make changes.
++
+* PATCH version (x.y.Z)
++
+Incremented for backwards-compatible bug fixes and small changes that do not alter the existing functionality in a breaking manner.
+
+. Change Types and Corresponding Version Increments
++
+* Backwards-Compatible Bug Fixes: Increment PATCH version.
++
+Example: `1.2.3` -> `1.2.4`
++
+* Backwards-Compatible New Features: Increment MINOR version.
++
+Example: `1.2.3` -> `1.3.0`
++
+* Breaking Changes or New Features with Breaking Changes: Increment MINOR version.
++
+Example: `1.2.3` -> `1.3.0`
++
+If multiple breaking changes are introduced, the MINOR version continues to increment: `1.3.0` -> `1.4.0`.
++
+* Major Overhaul or Multiple Significant Breaking Changes: Increment MAJOR version.
++
+Example: `1.2.3` -> `2.0.0`

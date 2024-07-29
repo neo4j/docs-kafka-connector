@@ -1,13 +1,12 @@
 * xref::index.adoc[]
 
-
-* xref:whats-new.adoc[*What's new*]
+* xref:whats-new.adoc[]
 
 * *Getting started*
 * xref::installation.adoc[Installation]
 * Quickstart
-** xref::quickstart.adoc[Docker Compose]
-** xref::confluent-cloud.adoc[Confluent Cloud]
+** xref::quickstart-docker.adoc[Docker Compose]
+** xref::quickstart-confluent-cloud.adoc[Confluent Cloud]
 // * xref::amazon-msk.adoc[Amazon MSK quickstart]
 
 * *Source connector*
@@ -29,3 +28,4 @@
 * *Reference*
 * xref::known-issues.adoc[]
 * xref::changelog.adoc[]
+* xref::versioning-strategy.adoc[]

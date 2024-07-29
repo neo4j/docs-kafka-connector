@@ -1,5 +1,5 @@
 {
-  "name": "Neo4jSinkConnectorJSONSchema",
+  "name": "Neo4jSinkConnectorProtobuf",
   "config": {
     "topics": "creates,updates,deletes",
     "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",

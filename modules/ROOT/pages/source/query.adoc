@@ -26,8 +26,8 @@ Second, you need to define your query to track changes and where to publish them
 
 == Creating Source instance
 
-Based on the above example, we can use one of the following configurations.
-Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as source.query.neo4j.json.
+Based on the above example, you can use one of the following configurations.
+Pick one of the message serialization format examples and save it as a file named `source.query.neo4j.json` into a local directory.
 
 [.tabbed-example]
 ====
@@ -88,7 +88,7 @@ curl -X POST http://localhost:8083/connectors \
 ----
 
 This will create a Kafka Connect source instance that will send change event messages derived by the provided query over to the `my-topic` topic, using your preferred serialization format.
-In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.
+In Control Center, confirm that the Source connector has been created in the Connect tab, under connect-default.
 
 Generated change event messages in this case will have the following structure:
 

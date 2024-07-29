@@ -38,7 +38,7 @@ You need to declare that you want to use `cypher` strategy and provide the corre
 
 The above configuration excerpt defines that;
 
-* messages received from `creates` topic will be unpacked by the sink connector into Neo4j with the following Cypher query:
+* messages received from `creates` topic will be unpacked by the Sink connector into Neo4j with the following Cypher query:
 +
 [source,cypher]
 ----
@@ -48,7 +48,7 @@ MERGE (f:Family {name: state.properties.surname})
 MERGE (p)-[:BELONGS_TO]->(f)
 ----
 
-* messages received from `updates` topic will be unpacked by the sink connector into Neo4j with the following Cypher query:
+* messages received from `updates` topic will be unpacked by the Sink connector into Neo4j with the following Cypher query:
 +
 [source,cypher]
 ----
@@ -63,7 +63,7 @@ MERGE (f:Family {name: after.properties.surname})
 MERGE (p)-[:BELONGS_TO]->(f)
 ----
 
-* messages received from `deletes` topic will be unpacked by the sink connector into Neo4j with the following Cypher query:
+* messages received from `deletes` topic will be unpacked by the Sink connector into Neo4j with the following Cypher query:
 +
 [source,cypher]
 ----
@@ -72,59 +72,10 @@ MATCH (p:Person {name: before.properties.name, surname: before.properties.surnam
 DETACH DELETE p
 ----
 
-=== Creating Sink Instance
+== Creating the Sink instance
 
-Based on the above example, we can use one of the following configurations.
-Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as `sink.cypher.neo4j.json`.
-
-[.tabbed-example]
-====
-[.include-with-AVRO-messages]
-=====
-ifdef::backend-pdf[]
-.sink.cypher.avro.json
-endif::[]
-[source,json]
-----
-include::example$docker-data/sink.cypher.avro.json[]
-----
-=====
-
-[.include-with-JSON-messages-with-schema]
-=====
-ifdef::backend-pdf[]
-.sink.cypher.json.json
-endif::[]
-[source,json]
-----
-include::example$docker-data/sink.cypher.json.json[]
-----
-=====
-
-[.include-with-PROTOBUF-messages]
-=====
-ifdef::backend-pdf[]
-.sink.cypher.protobuf.json
-endif::[]
-[source,json]
-----
-include::example$docker-data/sink.cypher.protobuf.json[]
-----
-=====
-
-====
-
-Let's load the configuration into the Kafka Connect with this REST call:
-
-[source,shell]
-----
-curl -X POST http://localhost:8083/connectors \
-  -H 'Content-Type:application/json' \
-  -H 'Accept:application/json' \
-  -d @sink.cypher.neo4j.json
-----
-
-Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters, and verify that the configured connector instance is running under Connect, connect-default.
+:strategy: cypher
+include::partial$create-sink-instance.adoc[]
 
 [NOTE]
 ====

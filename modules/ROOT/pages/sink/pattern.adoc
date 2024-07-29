@@ -2,7 +2,47 @@
 
 This strategy allows you to extract nodes and relationships from a kafka message through extraction patterns.
 
-== Node Patterns
+== Configuration
+
+To configure a pattern strategy for a desired topic, you must follow the following convention:
+
+[source,json,subs="verbatim"]
+----
+"neo4j.pattern.topic.<YOUR_TOPIC>": "<PATTERN>"
+----
+
+For instance, given the following message published to the `user` and `lives_in` topics:
+
+[source,json]
+----
+{"userId": 1, "name": "John", "surname": "Doe", "address": {"since": "2012-05", "city": "London", "country": "UK"}}
+----
+
+You can transform it into a node by providing the following configuration:
+
+[source,json,subs="verbatim"]
+----
+"neo4j.pattern.topic.user": "(:User{!id: userId})"
+----
+
+You can also provide relationship patterns to transform it into a path, like `(n)-[r]->(m)`, by providing the following configuration:
+
+[source,json,subs="verbatim"]
+----
+"neo4j.pattern.topic.lives_in": "(:User{!id: userId})-[:LIVES_IN{since}]->(:City{!name: address.city, !country: address.country})"
+----
+
+[NOTE]
+Relationship key properties can only be used with Neo4j Enterprise Edition 5.7 and above, and AuraDB 5.
+
+== Creating Sink instance
+
+:strategy: pattern
+include::partial$create-sink-instance.adoc[]
+
+== Patterns
+
+=== Node Patterns
 
 Node patterns are defined similar to Cypher node patterns.
 
@@ -24,7 +64,7 @@ By default, messages fields can be referenced as `__timestamp`, `\__headers`, `_
 [NOTE]
 You cannot mix inclusion and exclusion inside patterns, i.e. your pattern must contain either all exclusion or inclusion properties.
 
-=== Examples
+==== Examples
 
 * `MERGE` operation on `User` label with `userId` treated as a key and assigning all properties from incoming message value to the node
 +
@@ -75,30 +115,8 @@ or
 (:User{!userId: __key.id, name: __value.firstName, surname: __value.lastName, createdBy: __header.username, createdAt: __timestamp})
 ----
 
-=== Configuration
 
-You can configure the node pattern as follows;
-
-[source,json,subs="verbatim,attributes"]
-----
-"neo4j.pattern.node.topic.<TOPIC_NAME>": "<NODE_PATTERN>"
-----
-
-For instance, given the following `json` published via the `user` topic:
-
-[source,json]
-----
-{"userId": 1, "name": "Andrea", "surname": "Santurbano", "address": {"city": "Venice", "cap": "30100"}}
-----
-
-You can transform it into a node by providing the following configuration:
-
-[source,json,subs="verbatim,attributes"]
-----
-"neo4j.pattern.node.topic.user": "(:User{!userId})"
-----
-
-== Relationship Patterns
+=== Relationship Patterns
 
 Relationship patterns are defined similar to Cypher relationship patterns.
 
@@ -122,7 +140,7 @@ By default, messages fields can be referenced as `__timestamp`, `\__headers`, `_
 [NOTE]
 You cannot mix inclusion and exclusion inside patterns, i.e. your pattern must contains all exclusion or inclusion properties.
 
-=== Examples
+==== Examples
 
 . `MERGE` operation on `User` and `Product` labels with `userId` and `productId` treated as keys respectively and `MERGE` a `BOUGHT` relationship between them assigning all other message properties to the relationship
 +
@@ -166,33 +184,8 @@ You cannot mix inclusion and exclusion inside patterns, i.e. your pattern must c
 (:User{!userId})-[:BOUGHT{!transactionId: __key.transaction.id, date: __value.transaction.date}]->(:Product{!productId})
 ----
 
-=== Configuration
 
-You can configure the relationship pattern as follows;
-
-[source,json,subs="verbatim,attributes"]
-----
-"neo4j.pattern.relationship.topic.<TOPIC_NAME>": "<RELATIONSHIP_PATTERN>"
-----
-
-For instance, given the following `json` published via the `user` topic:
-
-[source,json]
-----
-{"userId": 1, "productId": 100, "price": 10, "currency": "€", "shippingAddress": {"city": "Venice", "cap": "30100"}}
-----
-
-You can transform it into a path, like `(n)-[r]->(m)`, by providing the following configuration:
-
-[source,json,subs="verbatim,attributes"]
-----
-"neo4j.pattern.relationship.topic.user": "(:User{!userId})-[:BOUGHT{price, currency}]->(:Product{!productId})"
-----
-
-[NOTE]
-Relationship key properties can only be used with Neo4j Enterprise Edition 5.7 and above, and AuraDB 5.
-
-== Tombstone Records
+== Tombstone records
 
 The pattern strategy supports https://en.wikipedia.org/wiki/Tombstone_(data_store)[tombstone records].
 In order to use it, message key should contain at least the key properties present in the provided pattern and message value should be set as `null`.

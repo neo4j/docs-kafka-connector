@@ -144,7 +144,7 @@ curl -X POST http://localhost:8083/connectors \
 ----
 
 This will create a Kafka Connect source instance that will send change event messages over to the topics named `creates`, `updates` and `deletes`, using your preferred serialization format.
-In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.
+In Control Center, confirm that the Source connector has been created in the Connect tab, under connect-default.
 
 As illustrated, you can configure multiple patterns to read changes for, and have them published to topics of your choice.
 So given the above configuration, the connector will read changes happening on nodes of label `TestSource` and the structure of the message will be based on link:{page-canonical-root}/cdc/current/procedures/output-schema/[Change Data Capture > Change event schema], serialized according to the configured message format.
@@ -298,7 +298,7 @@ This will result in new messages being published to the topic named `creates`.
 
 === Sink with Cypher
 
-Having set up the source connector, the next step is to configure a sink connector that consumes messages published to the `creates`, `updates` and `deletes` topics.
+Having set up the Source connector, the next step is to configure a sink connector that consumes messages published to the `creates`, `updates` and `deletes` topics.
 
 First, save the following JSON file into a local directory named as `sink.neo4j.json`.
 
