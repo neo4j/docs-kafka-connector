@@ -11,4 +11,4 @@ xref:source/cdc.adoc[Change Data Capture]:: Uses the database's link:{page-canon
 xref:source/query.adoc[Query]:: Runs a user-defined Cypher query to track specific changes.
 
 [IMPORTANT]
-Source connector always generates messages with schema support, and you will need to pick your key and value converters accordingly.
+The Source connector always generates messages with schema support, so you need to use key and value converters accordingly.
