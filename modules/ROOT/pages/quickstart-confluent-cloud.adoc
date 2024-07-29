@@ -1,4 +1,5 @@
 = Quickstart with Confluent Cloud
+:page-aliases: confluent-cloud.adoc
 :xrefstyle: full
 
 include::partial$third-party.adoc[]
