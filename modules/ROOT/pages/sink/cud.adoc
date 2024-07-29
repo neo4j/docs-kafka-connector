@@ -32,7 +32,7 @@ We have two formats:
 
 === Node
 
-Node format defines a set of fields which describes the operation (`create`, `update`, `merge` and `delete`), label and properties of a node entity.
+The Node format defines a set of fields which describes the operation (`create`, `update`, `merge` and `delete`), label and properties of a node entity.
 
 [#table_cud_node_fields]
 .**Node format** fields
