@@ -14,7 +14,7 @@ Two sub-strategies are available:
 [#schema]
 == Schema sub-strategy
 
-`Schema` strategy merges nodes and relationships by the constraints declared in the change event, thus preserves the source schema structure.
+The `Schema` strategy merges nodes and relationships using the constraints declared in the change event, thus preserving the source schema structure.
 
 Configuration of this strategy requires declaration of list of topics to read change events from.
 
@@ -32,7 +32,7 @@ Given that you configure the topics your sink connector subscribes to as follows
 "topics": "topic.1,topic.2"
 ----
 
-You need to declare that you want to use `cdc.schema` strategy by providing the list of topics you want to consume change events from.
+You need to declare that you want to use the `cdc.schema` strategy by providing the list of topics you want to consume change events from.
 
 [source,json,subs="verbatim,attributes"]
 ----
@@ -162,9 +162,10 @@ include::partial$create-sink-instance.adoc[]
 [#source-id]
 == Source ID sub-strategy
 
-`Source ID` strategy merges nodes and relationships by the source entity's `elementId` or `id` values, by storing this value as an explicit property on the target nodes and relationships and by marking nodes with an explicit label.
+The `Source ID` strategy merges nodes and relationships by the source entity's `elementId` or `id` values, by storing this value as an explicit property on the target nodes and relationships and by marking nodes with an explicit label.
 
-Configuration of this strategy requires declaration of list of topics to read change events from, and optional label name to be used as a marker and also the property name to store the `elementId` or `id` values of the source entities.
+The configuration of this strategy requires declaring the list of topics to read change events from.
+You can add an optional label name to use as a marker, and an optional property name to store the `elementId` or `id` values of the source entities.
 
 [source,json,subs="verbatim,attributes"]
 ----

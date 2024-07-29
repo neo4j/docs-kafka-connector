@@ -26,8 +26,8 @@ Second, you need to define your query to track changes and where to publish them
 
 == Creating Source instance
 
-Based on the above example, we can use one of the following configurations.
-Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as `source.query.neo4j.json`.
+Based on the above example, you can use one of the following configurations.
+Pick one of the message serialization format examples and save it as a file named `source.query.neo4j.json` into a local directory.
 
 [.tabbed-example]
 ====

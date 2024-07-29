@@ -229,5 +229,5 @@ Typically, our connector is used as either a sink when pulling data from other d
 - Check logs for the connector.
 
 [WARNING]
-Please note that custom connector logs in Confluent Cloud appear do not appear immediately, but with a delay.
+Please note that custom connector logs in Confluent Cloud may not be available immediately.
 It might be useful to keep this in mind while testing out configuration changes on the connector instance.

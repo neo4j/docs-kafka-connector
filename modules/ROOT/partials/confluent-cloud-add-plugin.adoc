@@ -2,9 +2,9 @@
 
 === {type-text}
 
-. Select the cluster you want to install the connector into, open `Connectors` section and click `Add plugin`.
+. Select the cluster you want to install the connector into, open the `Connectors` section and click `Add plugin`.
 
-. Click `Add Plugin` and fill in details for the new custom connector as shown below, accept conditions and click `Submit`.
+. Click `Add Plugin` and fill in the details for the new custom connector as shown below, then accept the conditions and click `Submit`.
 +
 Connector plugin name:: Neo4j Connector for Confluent {type-text}
 Custom plugin description:: Neo4j Connector for Confluent {type-text} plugin as a custom connector.

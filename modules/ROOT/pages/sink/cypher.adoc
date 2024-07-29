@@ -72,7 +72,7 @@ MATCH (p:Person {name: before.properties.name, surname: before.properties.surnam
 DETACH DELETE p
 ----
 
-== Creating Sink instance
+== Creating the Sink instance
 
 :strategy: cypher
 include::partial$create-sink-instance.adoc[]

@@ -59,7 +59,7 @@ Only `pattern` settings are mandatory in the above example, and others are optio
 == Creating Source instance
 
 Based on the above example, we can use one of the following configurations.
-Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as `source.cdc.neo4j.json`.
+Pick one of the message serialization format examples and save it as a file named `source.cdc.neo4j.json` into a local directory.
 
 [.tabbed-example]
 ====

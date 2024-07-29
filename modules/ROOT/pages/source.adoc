@@ -5,10 +5,10 @@ In this chapter we'll discuss how the Source instance is configured.
 
 == Strategies
 
-Source connector can be configured with two different strategies:
+The Source connector can use two different strategies to detect changes and publish them as Kafka messages:
 
-xref:source/cdc.adoc[Change Data Capture]:: Uses database's link:{page-canonical-root}/cdc[Change Data Capture] feature to query changes happening in the database and publishes Kafka messages out of them.
-xref:source/query.adoc[Query]:: Uses a user defined Cypher query to detect changes and publishes Kafka messages out of them.
+xref:source/cdc.adoc[Change Data Capture]:: Uses the database's link:{page-canonical-root}/cdc[Change Data Capture] feature to track all changes happening to the database in real time.
+xref:source/query.adoc[Query]:: Runs a user-defined Cypher query to track specific changes.
 
 [IMPORTANT]
 Source connector always generates messages with schema support, and you will need to pick your key and value converters accordingly.

@@ -1,5 +1,5 @@
-Based on the above example, we can use one of the following configurations.
-Pick one of the following message serialization formats, save the content of the provided file into a local directory, named as `sink.{strategy}.neo4j.json`.
+Based on the above example, you can use one of the following configurations.
+Pick one of the message serialization format examples and save it as a file named `sink.{strategy}.neo4j.json` into a local directory.
 
 [.tabbed-example]
 ====
@@ -48,4 +48,5 @@ curl -X POST http://localhost:8083/connectors \
   -d @sink.{strategy}.neo4j.json
 ----
 
-Now you can access your Confluent Control Center instance under: \http://localhost:9021/clusters, and verify that the configured connector instance is running under Connect, connect-default.
+Now you can access your Confluent Control Center instance under `http://localhost:9021/clusters`.
+Verify that the configured connector instance is running in the `Connect` tab under `connect-default`.
