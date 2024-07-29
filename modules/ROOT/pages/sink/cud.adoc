@@ -11,7 +11,7 @@ You can configure the topic in the following way:
 "neo4j.cud.topics": "<COMMA_SEPARATED_LIST_OF_TOPICS>"
 ----
 
-For instance, if you have two topics, `topic.1` and `topic.2` that you publish CUD formatted messages, you can configure the sink instance as follows.
+For instance, if you have two topics, `topic.1` and `topic.2` that you publish as CUD-formatted messages, you can configure the sink instance as follows.
 
 [source,json]
 ----
