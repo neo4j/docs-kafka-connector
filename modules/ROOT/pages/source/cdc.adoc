@@ -109,7 +109,7 @@ curl -X POST http://localhost:8083/connectors \
 ----
 
 This will create a Kafka Connect source instance that will send change event messages matching the provided selectors over to the `my-topic` topic, using your preferred serialization format.
-In Control Center, confirm that the source connector has been created in the Connect tab, under connect-default.
+In Control Center, confirm that the Source connector has been created in the Connect tab, under connect-default.
 
 [#patterns]
 == Patterns

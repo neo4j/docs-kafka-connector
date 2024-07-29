@@ -28,7 +28,7 @@ The connector provides a source component, which listens for changes occurring i
 Source component can be configured to read changes using link:{page-canonical-root}/cdc[Change Data Capture] feature or a provided custom query.
 
 [IMPORTANT]
-Change Data Capture is a new feature introduced with Neo4j 5.13.0 and Aura 5, and the source connector with CDC support requires at least these versions of Neo4j and Aura.
+Change Data Capture is a new feature introduced with Neo4j 5.13.0 and Aura 5, and the Source connector with CDC support requires at least these versions of Neo4j and Aura.
 
 == Compatibility
 

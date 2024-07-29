@@ -38,7 +38,7 @@ You need to declare that you want to use `cypher` strategy and provide the corre
 
 The above configuration excerpt defines that;
 
-* messages received from `creates` topic will be unpacked by the sink connector into Neo4j with the following Cypher query:
+* messages received from `creates` topic will be unpacked by the Sink connector into Neo4j with the following Cypher query:
 +
 [source,cypher]
 ----
@@ -48,7 +48,7 @@ MERGE (f:Family {name: state.properties.surname})
 MERGE (p)-[:BELONGS_TO]->(f)
 ----
 
-* messages received from `updates` topic will be unpacked by the sink connector into Neo4j with the following Cypher query:
+* messages received from `updates` topic will be unpacked by the Sink connector into Neo4j with the following Cypher query:
 +
 [source,cypher]
 ----
@@ -63,7 +63,7 @@ MERGE (f:Family {name: after.properties.surname})
 MERGE (p)-[:BELONGS_TO]->(f)
 ----
 
-* messages received from `deletes` topic will be unpacked by the sink connector into Neo4j with the following Cypher query:
+* messages received from `deletes` topic will be unpacked by the Sink connector into Neo4j with the following Cypher query:
 +
 [source,cypher]
 ----

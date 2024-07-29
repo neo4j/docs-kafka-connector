@@ -69,7 +69,7 @@ include::example$producer-data/node.created.streams.json[]
 
 ====
 
-The relationship is persisted as follows, with the sink connector using the `keys` or `schema` fields in order to insert/update the nodes, without a need for extra properties or labels.
+The relationship is persisted as follows, with the Sink connector using the `keys` or `schema` fields in order to insert/update the nodes, without a need for extra properties or labels.
 
 [.tabbed-example]
 ====
@@ -125,7 +125,7 @@ include::example$producer-data/relationship.created.streams.json[]
 
 ====
 
-The relationship is persisted as follows, with the sink connector using the `keys` fields of the start and end nodes from the change event to create or update the relationship, again without a need for extra properties or labels.
+The relationship is persisted as follows, with the Sink connector using the `keys` fields of the start and end nodes from the change event to create or update the relationship, again without a need for extra properties or labels.
 
 [.tabbed-example]
 ====
@@ -220,7 +220,7 @@ include::example$producer-data/node.created.streams.json[]
 
 ====
 
-The node is persisted as follows, with the sink connector using the `elementId` or `id` fields of the node change event to create or update the node.
+The node is persisted as follows, with the Sink connector using the `elementId` or `id` fields of the node change event to create or update the node.
 
 [.tabbed-example]
 ====
@@ -276,7 +276,7 @@ include::example$producer-data/relationship.created.streams.json[]
 
 ====
 
-The relationship is persisted as follows, with the sink connector using the `elementId` or `id` fields of the start and end nodes from the change event to create or update the relationship.
+The relationship is persisted as follows, with the Sink connector using the `elementId` or `id` fields of the start and end nodes from the change event to create or update the relationship.
 
 [.tabbed-example]
 ====

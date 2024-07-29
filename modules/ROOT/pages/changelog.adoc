@@ -44,7 +44,7 @@ label:new[]
 Added support for error handling in sink connector.
 
 a|
-The sink connector now has proper error handling in-place so that it can make use of Kafka Connect error handling configuration and direct failing messages into a DLQ.
+The Sink connector now has proper error handling in-place so that it can make use of Kafka Connect error handling configuration and direct failing messages into a DLQ.
 
 a|
 label:configuration[] label:removed[]
