@@ -14,7 +14,13 @@ include::partial$experimental.adoc[]
 
 endif::[]
 
-The {product-name} is designed for customers who want to stream data from Apache Kafka (R) topics into Neo4j or Aura, or publish changes occurring in Neo4j or Aura into Apache Kafka (R) topics.
+The {product-name} is designed for customers who want to stream data between Apache Kafka(R) and Neo4j or Aura databases using the Kafka Connect framework.
+
+The connector supports several Kafka-based platforms:
+
+* Open-source software (OSS) Apache Kafka(R)
+* Confluent Platform(R) and Confluent Cloud(R)
+* Amazon Managed Streaming for Apache Kafka (Amazon MSK(R))
 
 == Components
 
@@ -25,7 +31,7 @@ The connector provides a sink component, which consumes messages from Apache Kaf
 === Source
 
 The connector provides a source component, which listens for changes occurring in a Neo4j or Aura database and publishes messages into Apache Kafka topics.
-Source component can be configured to read changes using link:{page-canonical-root}/cdc[Change Data Capture] feature or a provided custom query.
+Source component can be configured to read changes using the link:{page-canonical-root}/cdc[Change Data Capture] feature or a provided custom query.
 
 [IMPORTANT]
 Change Data Capture is a new feature introduced with Neo4j 5.13.0 and Aura 5, and the Source connector with CDC support requires at least these versions of Neo4j and Aura.
@@ -42,7 +48,7 @@ Some features, such as constraints and CDC, are only available with Neo4j Enterp
 
 === Kafka Connect compatibility
 
-The connector is designed to be compatible with versions of Apache Kafka Connect {kafka-connect-version} and later, including, AWS Managed Streaming for Kafka, Confluent Cloud and Platform.
+The connector is designed to be compatible with versions of Apache Kafka Connect {kafka-connect-version} and later, including AWS Managed Streaming for Kafka, Confluent Cloud, and Confluent Platform.
 
 === Java compatibility
 
