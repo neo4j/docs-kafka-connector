@@ -14,13 +14,12 @@ include::partial$experimental.adoc[]
 
 endif::[]
 
-The {product-name} is designed for customers who want to stream data between Apache Kafka(R) and Neo4j or Aura databases using the Kafka Connect framework.
+The {product-name} is designed to stream data between Apache Kafka(R) and Neo4j or Aura databases using the Kafka Connect framework.
 
-The connector supports several Kafka-based platforms:
+The connector is available in two different distributions to support different Kafka-based platforms.
 
-* Confluent Platform(R) and Confluent Cloud(R)
-* Open-source software (OSS) Apache Kafka(R)
-* Amazon Managed Streaming for Apache Kafka (Amazon MSK(R))
+* The xref:installation.adoc#confluent-dist[Neo4j Connector for Confluent] is available for the Confluent Platform(R) and the Confluent Cloud(R).
+* The xref:installation.adoc#kafka-dist[Neo4j Connector for OSS Apache Kafka] is available for platforms built on the open-source software (OSS) Apache Kafka, including Amazon MSK(R).
 
 == Components
 
