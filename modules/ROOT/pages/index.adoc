@@ -18,8 +18,8 @@ The {product-name} is designed for customers who want to stream data between Apa
 
 The connector supports several Kafka-based platforms:
 
-* Open-source software (OSS) Apache Kafka(R)
 * Confluent Platform(R) and Confluent Cloud(R)
+* Open-source software (OSS) Apache Kafka(R)
 * Amazon Managed Streaming for Apache Kafka (Amazon MSK(R))
 
 == Components
@@ -61,7 +61,7 @@ You are free to download, modify, and redistribute the connector; however, Neo4j
 
 == Support
 
-For Neo4j Enterprise and Neo4j AuraDB customers, official releases of this connector deployed into Apache Kafka, Amazon MSK and Confluent Cloud are supported under the terms of your existing Neo4j support agreement.
+For Neo4j Enterprise and Neo4j AuraDB customers, official releases of this connector deployed into OSS Apache Kafka, Confluent Cloud, and Amazon MSK are supported under the terms of your existing Neo4j support agreement.
 This support extends only to regular releases and excludes alpha, beta, and pre-releases.
 If you have any questions about the support policy, get in touch with Neo4j.
 
