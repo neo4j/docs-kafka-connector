@@ -1,4 +1,4 @@
-= Quickstart with Docker Compose
+= Quickstart for Confluent Platform
 :page-aliases: quickstart-connect.adoc
 
 [[quickstart]]

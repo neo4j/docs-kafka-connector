@@ -18,7 +18,7 @@ The {product-name} is designed to stream data between Apache Kafka(R) and Neo4j 
 
 The connector is available in two different distributions to support different Kafka-based platforms.
 
-* The xref:installation.adoc#confluent-dist[Neo4j Connector for Confluent] is available for the Confluent Platform(R) and the Confluent Cloud(R).
+* The xref:installation.adoc#confluent-dist[Neo4j Connector for Confluent] is available for Confluent Platform(R) and Confluent Cloud(R).
 * The xref:installation.adoc#kafka-dist[Neo4j Connector for OSS Apache Kafka] is available for platforms built on the open-source software (OSS) Apache Kafka, including Amazon MSK(R).
 
 == Components
