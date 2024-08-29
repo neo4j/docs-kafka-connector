@@ -16,10 +16,10 @@ endif::[]
 
 The {product-name} is designed to stream data between Apache Kafka(R) and Neo4j or Aura databases using the Kafka Connect framework.
 
-The connector is available in two different distributions to support different Kafka-based platforms.
+The connector is available in two distributions which support the different platforms running Kafka Connect.
 
-* The xref:installation.adoc#confluent-dist[Neo4j Connector for Confluent] is available for Confluent Platform(R) and Confluent Cloud(R).
-* The xref:installation.adoc#kafka-dist[Neo4j Connector for OSS Apache Kafka] is available for platforms built on the open-source software (OSS) Apache Kafka, including Amazon MSK(R).
+. The xref:installation.adoc#confluent-dist[Neo4j Connector for Confluent] is available for Confluent Platform(R) and Confluent Cloud(R).
+. The xref:installation.adoc#kafka-dist[Neo4j Connector for OSS Apache Kafka] is available for platforms built on the open-source software (OSS) Apache Kafka, including Amazon MSK(R).
 
 == Components
 
@@ -60,7 +60,7 @@ You are free to download, modify, and redistribute the connector; however, Neo4j
 
 == Support
 
-For Neo4j Enterprise and Neo4j AuraDB customers, official releases of this connector deployed into OSS Apache Kafka, Confluent Cloud, and Amazon MSK are supported under the terms of your existing Neo4j support agreement.
+For Neo4j Enterprise and Neo4j AuraDB customers, official releases of this connector deployed to Confluent Platform, Confluent Cloud, Apache Kafka, and Amazon MSK are supported under the terms of your existing Neo4j support agreement.
 This support extends only to regular releases and excludes alpha, beta, and pre-releases.
 If you have any questions about the support policy, get in touch with Neo4j.
 

@@ -4,8 +4,7 @@
 [#distribution]
 == Distribution
 
-The latest version of {product-name} is {exact-connector-version}.
-It is available in two packaging variants.
+The latest version of the connector is {exact-connector-version}.
 
 [#confluent-dist]
 === Neo4j Connector for Confluent
@@ -17,9 +16,9 @@ The package is available for download from link:{url-confluent-hub-neo4j}[Conflu
 [#kafka-dist]
 === Neo4j Connector for OSS Apache Kafka
 
-This package can be deployed to any Apache Kafka distribution, such as standalone Apache Kafka Connect clusters or Amazon Managed Streaming for Apache Kafka (Amazon MSK).
+This package can be deployed to any Apache Kafka distribution running Apache Kafka Connect, including Amazon Managed Streaming for Apache Kafka (Amazon MSK).
 
-The package is available for download as a Confluent Hub component archive from the link:{url-github}/releases/download/{exact-connector-version}/neo4j-kafka-connect-{exact-connector-version}.jar[GitHub repository].
+The package is available for download from the link:{url-github}/releases/download/{exact-connector-version}/neo4j-kafka-connect-{exact-connector-version}.jar[GitHub repository].
 
 == Installation
 
