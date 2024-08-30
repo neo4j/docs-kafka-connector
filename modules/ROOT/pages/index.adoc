@@ -47,7 +47,7 @@ Some features, such as constraints and CDC, are only available with Neo4j Enterp
 
 === Kafka Connect compatibility
 
-The connector is designed to be compatible with versions of Apache Kafka Connect {kafka-connect-version} and later, including AWS Managed Streaming for Kafka, Confluent Cloud, and Confluent Platform.
+The connector is designed to be compatible with versions of Apache Kafka Connect {kafka-connect-version} and later, including Confluent Platform, Confluent Cloud, and Amazon MSK.
 
 === Java compatibility
 
