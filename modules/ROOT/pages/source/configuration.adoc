@@ -56,6 +56,8 @@ One of `CHANGE_EVENT`, `ENTITY_EVENT`.
 
 Default: `CHANGE_EVENT`
 
+Note: If you're using a sink connector with any CDC strategy, the `CHANGE_EVENT` serialisation strategy is required.
+
 | neo4j.cdc.poll-duration
 | Maximum amount of time Kafka Connect poll request will wait for a change to be received from the database (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`)
 
