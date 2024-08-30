@@ -125,11 +125,6 @@ Default: `1h` (Driver default)
 
 Default: `30s`
 
-| neo4j.max-retry-attempts
-| Maximum number of attempts during the duration specified by `neo4j.max-retry-time`.
-
-Default: `5`
-
 | neo4j.security.encrypted
 | Whether encryption is enabled. Only applicable when `bolt` or `neo4j` schemes are used inside `neo4j.uri`.
 One of `true`, `false`
