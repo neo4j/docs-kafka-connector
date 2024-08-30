@@ -55,3 +55,4 @@ asciidoc:
     cypher-manual-page-uri: https://neo4j.com/docs/cypher-manual/current
     page-add-notes-module: ROOT
     page-add-notes-tags: note
+    page-add-notes-versions: ['5.1']
