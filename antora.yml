@@ -1,6 +1,6 @@
 name: kafka
 version: '5.1-preview'
-title: Neo4j Connector for Apache Kafka
+title: Neo4j Connector for Kafka
 start_page: ROOT:index.adoc
 nav:
   - modules/ROOT/content-nav.adoc
@@ -9,12 +9,12 @@ asciidoc:
   attributes:
     theme: docs
     copyright: Neo4j Inc.
-    page-product: Neo4j Connector for Apache Kafka
+    page-product: Neo4j Connector for Kafka
     kafka-connect-version: 3.0
     connector-version: '5.1'
     exact-connector-version: '5.1.0-rc02'
     page-pagination: true
-    product-name: Neo4j Connector for Apache Kafka
+    product-name: Neo4j Connector for Kafka
     url-common-license-page: https://neo4j.com/docs/license/
     url-confluent-blog: https://www.confluent.io/blog
     url-confluent-download: https://www.confluent.io/get-started/

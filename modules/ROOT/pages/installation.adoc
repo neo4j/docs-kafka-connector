@@ -14,7 +14,7 @@ This package can be deployed to Confluent Platform as a self-managed connector, 
 The package is available for download from link:{url-confluent-hub-neo4j}[Confluent Hub] or from the link:{url-github}/releases/download/{exact-connector-version}/neo4j-kafka-connect-{exact-connector-version}.zip[GitHub repository].
 
 [#kafka-dist]
-=== Neo4j Connector for OSS Apache Kafka
+=== Neo4j Connector for Apache Kafka
 
 This package can be deployed to any Apache Kafka distribution running Apache Kafka Connect, including Amazon Managed Streaming for Apache Kafka (Amazon MSK).
 

@@ -14,23 +14,23 @@ include::partial$experimental.adoc[]
 
 endif::[]
 
-The {product-name} is designed to stream data between Apache Kafka(R) and Neo4j or Aura databases using the Kafka Connect framework.
+The {product-name} streams data between Neo4j or Aura databases and platforms based on Apache Kafka(R) using the Kafka Connect framework.
 
-The connector is available in two distributions which support the different platforms running Kafka Connect.
+The connector is distributed in two versions:
 
 . The xref:installation.adoc#confluent-dist[Neo4j Connector for Confluent] is available for Confluent Platform(R) and Confluent Cloud(R).
-. The xref:installation.adoc#kafka-dist[Neo4j Connector for OSS Apache Kafka] is available for platforms built on the open-source software (OSS) Apache Kafka, including Amazon MSK(R).
+. The xref:installation.adoc#kafka-dist[Neo4j Connector for Apache Kafka] is available for platforms built on the open-source software (OSS) Apache Kafka(R), including Amazon MSK(R).
 
 == Components
 
 === Sink
 
-The connector provides a sink component, which consumes messages from Apache Kafka topics and applies configured changes into a Neo4j or Aura database.
+The sink component consumes messages from Apache Kafka topics and applies configured changes into a Neo4j or Aura database.
 
 === Source
 
-The connector provides a source component, which listens for changes occurring in a Neo4j or Aura database and publishes messages into Apache Kafka topics.
-Source component can be configured to read changes using the link:{page-canonical-root}/cdc[Change Data Capture] feature or a provided custom query.
+The source component listens for changes occurring in a Neo4j or Aura database and publishes messages into Apache Kafka topics.
+It can be configured to read changes using either the link:{page-canonical-root}/cdc[Change Data Capture] feature or a provided custom query.
 
 [IMPORTANT]
 Change Data Capture is a new feature introduced with Neo4j 5.13.0 and Aura 5, and the Source connector with CDC support requires at least these versions of Neo4j and Aura.
