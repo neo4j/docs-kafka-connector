@@ -1,6 +1,8 @@
 [[connector-upgrade]]
 = Connector Upgrade
 
+include::partial$third-party.adoc[]
+
 == 5.0.x => 5.1 migration guide
 
 When upgrading to the new 5.1 Neo4j Kafka Connector be aware that many of the configuration properties have been changed and updated.
@@ -10,13 +12,11 @@ Firstly, read over xref:whats-new.adoc[] to familiarise yourself with the recent
 
 For generic Kafka Connect plugin upgrade documentation see: https://docs.confluent.io/platform/current/connect/upgrade.html[Upgrade]
 
-=== Connector Upgrade
-
-==== Confluent Platform
-
-This guide follows the connector xref:quickstart-docker.adoc[] docker run method.
-
 IMPORTANT: Please complete the following steps in full for each connector (source or sink) currently registered.
+
+=== Confluent Platform
+
+This guide follows the connector xref:quickstart-docker.adoc[] docker execution method.
 
 .Steps
 . Go to Confluent Control Center instance at `http://localhost:9021/clusters` and find the registered connector.
@@ -34,13 +34,7 @@ include::example$docker-data/how-to-upgrade.migrated-config.log[]
 . Create a new `JSON` file `(source/sink)5_1.neo4j.json` and copy the migrated example config to this file along with the connector name.
 .. The configuration should contain a `name` property and the migrated configuration should be nested in the `config` key.
 
-. Validate the new configuration contains all relevant keys compared with the previous version of the connector configuration.
-.. See xref:source/configuration.adoc[] and xref:sink/configuration.adoc[] for descriptions and examples of the new configuration options
-.. If migrating the Neo4j Source Connector, make note of the `neo4j.start-from.value` that has been set to the last checked offset.
-.. Sensitive values must be replaced
-[WARNING]
-Sensitive values in the original configuration are not printed in the migrated configuration. These keys need to be filled in with the appropriate values. The affected configuration keys are `neo4j.authentication.basic.password` and `neo4j.authentication.kerberos.ticket`.
-
+include::partial$how-to-upgrade-validate-config.adoc[]
 
 . Download the new connector version following the xref:installation.adoc[] guide and remove the original 5.0.x connector version.
 .. The new plugin should be copied into the `./plugins/` folder created during the docker setup
@@ -53,9 +47,42 @@ This allows the new plugin to picked up by the Kafka Connect platform reading fr
 
 . Once the connector is up and running, validate it is successfully running.
 
-==== Confluent Cloud
+=== Confluent Cloud
 
+This guide follows the connector xref:quickstart-confluent-cloud.adoc[] execution method.
 
+.Steps
+
+. Access the Confluent Cloud cluster associated with the relevant connectors.
+. Open the `Connectors` section and find the relevant source or sink connector for upgrading
+. Go to the `Settings` section, click the pause button for the connector.
++
+image::migration/confluent-cloud-pause.png[]
+. Go to the `Logs` section, locate or search for a log message starting with `The migrated settings for 5.1 version of Neo4j`.
++
+image::migration/confluent-cloud-config-log.png[width=800]
+
+. Save this printed configuration locally
+
+include::partial$how-to-upgrade-validate-config.adoc[]
+
+. Follow the xref:quickstart-confluent-cloud.adoc[] tutorial to upload the new 5.1 Connector plugin
+. Create a Source or Sink instance
+. Using the new migrated configuration copy it into the Custom Configuration JSON section.
+.. Verify this configuration is correct
+. Continue with the steps in the Quickstart guide
+. Once the connector is up and running, validate it is successfully running.
 
 === Troubleshooting
 
+[qanda]
+Failing to connect to Neo4j instance?::
+The configuration migration login does not migrate the password of the Neo4j instance or other sensitive properties.
+These options need to be re-entered. Once updated re-run the connector.
+
+Unexpected error::
+Looking at the logs of Kafka Connect may reveal other errors in configuration.
+. Confluent Cloud
+.. Logs are accessible through the `Logs` section on the Connector run page
+. Confluent Platform
+.. Logs are accessible through docker commands `docker-compose logs -f connect`
