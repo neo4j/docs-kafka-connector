@@ -1,7 +1,6 @@
 * xref::index.adoc[]
 
 * xref:whats-new.adoc[]
-** xref::how-to-upgrade.adoc[Connector Migration and Upgrade]
 
 * *Getting started*
 * xref::installation.adoc[]
@@ -30,3 +29,5 @@
 * xref::known-issues.adoc[]
 * xref::changelog.adoc[]
 * xref::versioning-strategy.adoc[]
+* xref::how-to-upgrade.adoc[Connector Migration and Upgrade]
+
