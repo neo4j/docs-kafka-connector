@@ -3,9 +3,9 @@
 * xref:whats-new.adoc[]
 
 * *Getting started*
-* xref::installation.adoc[Installation]
+* xref::installation.adoc[]
 * Quickstart
-** xref::quickstart-docker.adoc[Docker Compose]
+** xref::quickstart-docker.adoc[Confluent Platform]
 ** xref::quickstart-confluent-cloud.adoc[Confluent Cloud]
 // * xref::amazon-msk.adoc[Amazon MSK quickstart]
 

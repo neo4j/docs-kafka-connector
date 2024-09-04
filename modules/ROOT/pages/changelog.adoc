@@ -40,6 +40,16 @@ In earlier versions of {product-name}, the Source connector derived Kafka Connec
 Schema derivation logic is now updated to encode type information into a dedicated struct so that this limitation no longer applies.
 
 a|
+label:functionality[]
+label:new[]
+
+Pattern sink strategy now checks for matching key constraint for properties marked as key.
+
+a|
+Added a new check into pattern sink strategy handlers, which will now verify if there is a matching constraint for properties marked as key in provided patterns.
+If no matching constraint is found, it is logged as a message into Kafka Connect logs.
+
+a|
 label:configuration[]
 label:changed[]
 

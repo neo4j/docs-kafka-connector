@@ -1,4 +1,4 @@
-= Quickstart with Confluent Cloud
+= Quickstart for Confluent Cloud
 :page-aliases: confluent-cloud.adoc
 :xrefstyle: full
 
