@@ -2,6 +2,24 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.1.0
+
+=== New and updated features
+
+[cols="2",options="header"]
+|===
+| Feature
+| Details
+
+a|
+label:feature[]
+label:new[]
+
+Added value serialisation strategies for CDC source messages.
+a| We've introduced an optional property `neo4j.cdc.topic.$topic.value-strategy`, which specifies how the values of CDC source messages will be serialised. Available options as `CHANGE_EVENT`, `ENTITY_EVENT`.
+
+|===
+
 == Version 5.1.0-rc02
 
 === New and updated features
