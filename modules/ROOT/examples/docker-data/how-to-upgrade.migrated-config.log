@@ -1,6 +1,6 @@
 connect  | [2024-09-04 09:18:40,066] INFO The migrated settings for 5.1 version of Neo4j Source Connector 'Neo4jSourceConnectorAVRO' is: `{
 connect  |   "connector.class" : "org.neo4j.connectors.kafka.source.Neo4jConnector",
-connect  |   "neo4j.authentication.basic.password" : "password",
+connect  |   "neo4j.authentication.basic.password" : "",
 connect  |   "neo4j.uri" : "bolt://neo4j:7687",
 connect  |   "neo4j.query" : "MATCH (ts:TestSource) WHERE ts.timestamp > $lastCheck RETURN ts.name AS name, ts.surname AS surname, ts.timestamp AS timestamp",
 connect  |   "neo4j.query.streaming-property" : "timestamp",

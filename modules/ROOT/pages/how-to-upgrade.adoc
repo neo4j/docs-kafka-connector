@@ -19,35 +19,41 @@ This guide follows the connector xref:quickstart-docker.adoc[] docker run method
 IMPORTANT: Please complete the following steps in full for each connector (source or sink) currently registered.
 
 .Steps
+. Go to Confluent Control Center instance at `http://localhost:9021/clusters` and find the registered connector.
+Once found delete the source/sink connector.
 
-. Go to Confluent Control Center instance at `http://localhost:9021/clusters` and find the registered connector. Once found
-delete the source/sink connector.
+. Look at the logs for the `connect` container (`docker-compose logs -f connect`).
+As part of the connector deletion/shutdown a migrated configuration will be printed to the logs.
+Example:
 
-. Look at the logs for the `connect` container (`docker-compose logs -f connect`). As part of the connector deletion/shutdown a migrated configuration will be printed to the logs.
-    Example:
-[source,log]
+[source,shell]
 ----
 include::example$docker-data/how-to-upgrade.migrated-config.log[]
 ----
 
 . Create a new `JSON` file `(source/sink)5_1.neo4j.json` and copy the migrated example config to this file along with the connector name.
+.. The configuration should contain a `name` property and the migrated configuration should be nested in the `config` key.
 
-. Validate the new configuration matches reasonably with the previous version of the connector configuration.
+. Validate the new configuration contains all relevant keys compared with the previous version of the connector configuration.
+.. See xref:source/configuration.adoc[] and xref:sink/configuration.adoc[] for descriptions and examples of the new configuration options
 .. If migrating the Neo4j Source Connector, make note of the `neo4j.start-from.value` that has been set to the last checked offset.
+.. Sensitive values must be replaced
+[WARNING]
+Sensitive values in the original configuration are not printed in the migrated configuration. These keys need to be filled in with the appropriate values. The affected configuration keys are `neo4j.authentication.basic.password` and `neo4j.authentication.kerberos.ticket`.
+
 
 . Download the new connector version following the xref:installation.adoc[] guide and remove the original 5.0.x connector version.
+.. The new plugin should be copied into the `./plugins/` folder created during the docker setup
 
-. Restart the Kafka Connect Worker by running `docker-compose restart connect`. This allows the new plugin to picked up by the Kafka Connect platform.
+. Restart the Kafka Connect Worker by running `docker-compose restart connect`.
+This allows the new plugin to picked up by the Kafka Connect platform reading from the `./plugins/` folder.
 
 . Using the new configuration continue following the xref:quickstart-docker.adoc[] guide to deploy the plugin to Kafka Connect.
 .. Make sure to enable Change Data Capture and update the configuration with CDC related properties.
 
-
-. Once the connector is up and running validate it is successfully running.
-
+. Once the connector is up and running, validate it is successfully running.
 
 ==== Confluent Cloud
-
 
 
 
