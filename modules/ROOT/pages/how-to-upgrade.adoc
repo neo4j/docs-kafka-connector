@@ -1,0 +1,55 @@
+[[connector-upgrade]]
+= Connector Upgrade
+
+== 5.0.x => 5.1 migration guide
+
+When upgrading to the new 5.1 Neo4j Kafka Connector be aware that many of the configuration properties have been changed and updated.
+Please take special care to ensure the new configuration logically matches the previous configuration.
+
+Firstly, read over xref:whats-new.adoc[] to familiarise yourself with the recent changes.
+
+For generic Kafka Connect plugin upgrade documentation see: https://docs.confluent.io/platform/current/connect/upgrade.html[Upgrade]
+
+=== Connector Upgrade
+
+==== Confluent Platform
+
+This guide follows the connector xref:quickstart-docker.adoc[] docker run method.
+
+IMPORTANT: Please complete the following steps in full for each connector (source or sink) currently registered.
+
+.Steps
+
+. Go to Confluent Control Center instance at `http://localhost:9021/clusters` and find the registered connector. Once found
+delete the source/sink connector.
+
+. Look at the logs for the `connect` container (`docker-compose logs -f connect`). As part of the connector deletion/shutdown a migrated configuration will be printed to the logs.
+    Example:
+[source,log]
+----
+include::example$docker-data/how-to-upgrade.migrated-config.log[]
+----
+
+. Create a new `JSON` file `(source/sink)5_1.neo4j.json` and copy the migrated example config to this file along with the connector name.
+
+. Validate the new configuration matches reasonably with the previous version of the connector configuration.
+.. If migrating the Neo4j Source Connector, make note of the `neo4j.start-from.value` that has been set to the last checked offset.
+
+. Download the new connector version following the xref:installation.adoc[] guide and remove the original 5.0.x connector version.
+
+. Restart the Kafka Connect Worker by running `docker-compose restart connect`. This allows the new plugin to picked up by the Kafka Connect platform.
+
+. Using the new configuration continue following the xref:quickstart-docker.adoc[] guide to deploy the plugin to Kafka Connect.
+.. Make sure to enable Change Data Capture and update the configuration with CDC related properties.
+
+
+. Once the connector is up and running validate it is successfully running.
+
+
+==== Confluent Cloud
+
+
+
+
+=== Troubleshooting
+
