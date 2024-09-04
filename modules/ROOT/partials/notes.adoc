@@ -1,5 +1,2 @@
 #tag::note[]
-
-include::partial$experimental.adoc[]
-
 #end::note[]
