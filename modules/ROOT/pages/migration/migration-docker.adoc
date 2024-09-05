@@ -1,0 +1,34 @@
+[[migration-docker]]
+= Confluent Cloud
+
+This guide follows the connector xref:quickstart-docker.adoc[] docker execution method.
+
+.Steps
+. Go to Confluent Control Center instance at `http://localhost:9021/clusters` and find the registered connector.
+Once found delete the source/sink connector.
+
+. Look at the logs for the `connect` container (`docker-compose logs -f connect`).
+As part of the connector deletion/shutdown a migrated configuration will be printed to the logs.
+Example:
+
+[source,shell]
+----
+include::example$docker-data/how-to-upgrade.migrated-config.log[]
+----
+
+. Create a new `JSON` file `(source/sink)5_1.neo4j.json` and copy the migrated example config to this file along with the connector name.
+.. The configuration should contain a `name` property and the migrated configuration should be nested in the `config` key.
+
+include::partial$how-to-upgrade-validate-config.adoc[]
+
+. Download the new connector version following the xref:installation.adoc[] guide and remove the original 5.0.x connector version.
+.. The new plugin should be copied into the `./plugins/` folder created during the docker setup
+
+. Restart the Kafka Connect Worker by running `docker-compose restart connect`.
+This allows the new plugin to picked up by the Kafka Connect platform reading from the `./plugins/` folder.
+
+. Using the new configuration continue following the xref:quickstart-docker.adoc[] guide to deploy the plugin to Kafka Connect.
+.. Make sure to enable Change Data Capture and update the configuration with CDC related properties.
+
+. Once the connector is up and running, validate it is successfully running.
+

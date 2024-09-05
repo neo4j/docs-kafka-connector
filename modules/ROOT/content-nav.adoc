@@ -25,9 +25,12 @@
 * xref:sink/error-handling.adoc[Error handling]
 * xref:sink/configuration.adoc[Settings]
 
+* *Migration*
+* xref::migration/migration-overview.adoc[Overview]
+** xref::migration/migration-docker.adoc[Confluent Platform]
+** xref::migration/migration-confluent-cloud.adoc[Confluent Cloud]
+
 * *Reference*
 * xref::known-issues.adoc[]
 * xref::changelog.adoc[]
 * xref::versioning-strategy.adoc[]
-* xref::how-to-upgrade.adoc[Connector Migration and Upgrade]
-

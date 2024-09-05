@@ -1,0 +1,34 @@
+[[connector-migration]]
+= Connector Migration
+
+== 5.0.x => 5.1 migration guide
+
+When upgrading to the new 5.1 Neo4j Kafka Connector be aware that many of the configuration properties have been changed and updated.
+Please take special care to ensure the new configuration logically matches the previous configuration.
+
+Firstly, read over xref:whats-new.adoc[] to familiarise yourself with the recent changes.
+
+For generic Kafka Connect plugin upgrade documentation see: https://docs.confluent.io/platform/current/connect/upgrade.html[Upgrade]
+
+== Deployment guides
+
+Depending on how the Plugin is deployed follow the relevant guide:
+
+xref:migration/migration-docker.adoc[Confluent Platform Migration]::
+Deployed to Confluent Platform as a self-managed connector
+xref:migration/migration-confluent-cloud.adoc[Confluent Cloud Migration]::
+Deployed as a Custom Connector on Confluent Cloud
+
+== Troubleshooting
+
+[qanda]
+Failing to connect to Neo4j instance?::
+The configuration migration login does not migrate the password of the Neo4j instance or other sensitive properties.
+These options need to be re-entered. Once updated re-run the connector.
+
+Unexpected error::
+Looking at the logs of Kafka Connect may reveal other errors in configuration.
+. Confluent Cloud
+.. Logs are accessible through the `Logs` section on the Connector run page
+. Confluent Platform
+.. Logs are accessible through docker commands `docker-compose logs -f connect`
