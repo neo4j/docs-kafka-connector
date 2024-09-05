@@ -1,6 +1,6 @@
 . Validate that the new configuration contains all relevant keys compared with the previous version of the connector configuration.
 .. See xref:source/configuration.adoc[] and xref:sink/configuration.adoc[] for descriptions and examples of the new configuration options
-.. If migrating the Neo4j Source Connector, make note of the `neo4j.start-from.value` that has been set to the last checked offset.
+.. If migrating the {product-name} Source Component, make note of the `neo4j.start-from.value` that has been set to the last checked offset.
 .. Sensitive values must be replaced
 [WARNING]
 Sensitive values in the original configuration are not printed in the migrated configuration. These keys need to be filled in with the appropriate values. The affected configuration keys are `neo4j.authentication.basic.password` and `neo4j.authentication.kerberos.ticket`.

@@ -1,14 +1,14 @@
 [[connector-migration]]
 = Connector Migration
 
-== 5.0.x => 5.1 migration guide
+== 5.0.x => {connector-version} migration guide
 
-When upgrading to the new 5.1 Neo4j Kafka Connector be aware that many of the configuration properties have been changed and updated.
+When upgrading to the new {connector-version} {product-name} be aware that many of the configuration properties have been changed and updated.
 Please take special care to ensure the new configuration logically matches the previous configuration.
 
 Firstly, read over xref:whats-new.adoc[] to familiarise yourself with the recent changes.
 
-For generic Kafka Connect plugin upgrade documentation see: https://docs.confluent.io/platform/current/connect/upgrade.html[Upgrade]
+For generic Kafka Connect plugin upgrade documentation see: https://docs.confluent.io/platform/current/connect/upgrade.html[Confluent Documentation -> Upgrade a Connector Plugin]
 
 == Deployment guides
 

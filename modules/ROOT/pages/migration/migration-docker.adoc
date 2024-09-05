@@ -16,7 +16,7 @@ Example:
 include::example$docker-data/how-to-upgrade.migrated-config.log[]
 ----
 
-. Create a new `JSON` file `(source/sink)5_1.neo4j.json` and copy the migrated example config to this file along with the connector name.
+. Create a new `JSON` file `(source/sink)_migrated.neo4j.json` and copy the migrated example config to this file along with the connector name.
 .. The configuration should contain a `name` property and the migrated configuration should be nested in the `config` key.
 
 include::partial$how-to-upgrade-validate-config.adoc[]
@@ -28,7 +28,6 @@ include::partial$how-to-upgrade-validate-config.adoc[]
 This allows the new plugin to picked up by the Kafka Connect platform reading from the `./plugins/` folder.
 
 . Using the new configuration continue following the xref:quickstart-docker.adoc[] guide to deploy the plugin to Kafka Connect.
-.. Make sure to enable Change Data Capture and update the configuration with CDC related properties.
 
 . Once the connector is up and running, validate it is successfully running.
 
