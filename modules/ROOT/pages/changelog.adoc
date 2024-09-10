@@ -2,6 +2,23 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.1.1
+
+=== New and updated features
+
+[cols="2",options="header"]
+|===
+| Feature
+| Details
+
+a|
+label:fix[]
+
+Updated the Neo4j driver to mitigate Netty's CVE-2023-34462.
+a| The Neo4j driver has been updated to the latest 4.4.x version (4.4.18), which includes a fix for Netty's https://avd.aquasec.com/nvd/2023/cve-2023-34462/[CVE-2023-34462].
+
+|===
+
 == Version 5.1.0
 
 === New and updated features
