@@ -10,7 +10,7 @@ Once found, delete it.
 . Look at the logs for the `connect` container (`docker-compose logs -f connect`).
 As part of the connector deletion/shutdown a migrated configuration will be printed to the logs.
 Example:
-
++
 [source,shell]
 ----
 include::example$docker-data/how-to-upgrade.migrated-config.log[]
