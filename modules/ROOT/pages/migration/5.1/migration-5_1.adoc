@@ -12,9 +12,9 @@ For generic Kafka Connect plugin upgrade documentation see: https://docs.conflue
 
 Depending on how the Plugin is deployed follow the relevant guide:
 
-xref:migration/migration-docker.adoc[Confluent Platform Migration]::
+xref:migration/5.1/migration-docker.adoc[Confluent Platform Migration]::
 Deployed to Confluent Platform as a self-managed connector
-xref:migration/migration-confluent-cloud.adoc[Confluent Cloud Migration]::
+xref:migration/5.1/migration-confluent-cloud.adoc[Confluent Cloud Migration]::
 Deployed as a Custom Connector on Confluent Cloud
 
 == Troubleshooting
