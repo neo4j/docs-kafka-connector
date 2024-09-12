@@ -1,5 +1,5 @@
 [[migration-confluent-cloud]]
-= Confluent Cloud
+= Migration on Confluent Cloud
 
 include::partial$third-party.adoc[]
 
@@ -12,7 +12,7 @@ This guide follows the connector xref:quickstart-confluent-cloud.adoc[] executio
 . Access the Confluent Cloud cluster associated with the relevant connectors.
 . Open the *Connectors* section and find the relevant source or sink connector for upgrading.
 . Open the *Settings* section and select *Pause* to pause the connector.
-. Open the `Logs` section and search for a log message starting with `The migrated settings for 5.1 version of Neo4j`.
+. Open the *Logs* section and search for a log message starting with `The migrated settings for 5.1 version of Neo4j`.
 +
 image::migration/confluent-cloud-config-log.png[width=800]
 

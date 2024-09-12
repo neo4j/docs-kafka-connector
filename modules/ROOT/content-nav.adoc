@@ -25,7 +25,7 @@
 * xref:sink/error-handling.adoc[Error handling]
 * xref:sink/configuration.adoc[Settings]
 
-* *Upgrades and Migrations*
+* *Upgrades and migrations*
 * xref:migration/5.1/migration-5_1.adoc[5.1 Migration]
 ** xref:migration/5.1/migration-docker.adoc[Confluent Platform]
 ** xref:migration/5.1/migration-confluent-cloud.adoc[Confluent Cloud]

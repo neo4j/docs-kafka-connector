@@ -1,5 +1,5 @@
 . Validate that the new configuration contains all the relevant keys compared with the previous version of the connector configuration.
-.. See xref:source/configuration.adoc[] and xref:sink/configuration.adoc[] for descriptions and examples of the new configuration options
+.. See xref:source/configuration.adoc[] and xref:sink/configuration.adoc[] for descriptions and examples of the new configuration options.
 .. If migrating the Source component, make note of the `neo4j.start-from.value` that has been set to the last checked offset.
 .. Replace the sensitive values.
 [WARNING]

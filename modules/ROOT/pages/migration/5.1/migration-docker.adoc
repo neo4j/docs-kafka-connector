@@ -1,5 +1,5 @@
 [[migration-docker]]
-= Confluent Cloud
+= Migration on Confluent Platform
 
 This guide follows the xref:quickstart-docker.adoc[].
 
@@ -8,7 +8,7 @@ This guide follows the xref:quickstart-docker.adoc[].
 Once found, delete it.
 
 . Look at the logs for the `connect` container (`docker-compose logs -f connect`).
-As part of the connector deletion/shutdown a migrated configuration will be printed to the logs.
+A migrated configuration will be printed to the logs as part of the connector deletion/shutdown.
 Example:
 +
 [source,shell]
