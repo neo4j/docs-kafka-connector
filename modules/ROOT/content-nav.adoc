@@ -25,6 +25,11 @@
 * xref:sink/error-handling.adoc[Error handling]
 * xref:sink/configuration.adoc[Settings]
 
+* *Upgrades and migrations*
+* xref:migration/5.1/index.adoc[Migrate to 5.1]
+** xref:migration/5.1/migration-docker.adoc[Confluent Platform]
+** xref:migration/5.1/migration-confluent-cloud.adoc[Confluent Cloud]
+
 * *Reference*
 * xref::known-issues.adoc[]
 * xref::changelog.adoc[]

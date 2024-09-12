@@ -1,0 +1,33 @@
+[[migration-docker]]
+= Migration on Confluent Platform
+
+This guide follows the xref:quickstart-docker.adoc[].
+
+.Steps
+. Open the Confluent Control Center instance at `http://localhost:9021/clusters` and find the registered source or sink connector.
+Once found, delete it.
+
+. Look at the logs for the `connect` container (`docker-compose logs -f connect`).
+A migrated configuration will be printed to the logs as part of the connector deletion/shutdown.
+Example:
++
+[source,shell]
+----
+include::example$docker-data/how-to-upgrade.migrated-config.log[]
+----
+
+. Create a new JSON file `(source/sink)_migrated.neo4j.json` and copy the migrated example config to this file along with the connector name.
+The configuration should contain a `name` property and the migrated configuration should be nested in the `config` key.
+
+include::partial$how-to-upgrade-validate-config.adoc[]
+
+. Download the new connector version following the xref:installation.adoc[] guide and remove the original 5.0.x connector version.
+Make sure to copy the new plugin into the `./plugins/` folder created during the Docker setup.
+
+. Restart the Kafka Connect Worker by running `docker-compose restart connect`.
+This allows the Kafka Connect platform to pick up the new plugin from the `./plugins/` folder.
+
+. Continue following the xref:quickstart-docker.adoc[] to deploy the plugin to Kafka Connect with the new configuration.
+
+. Once the connector is up and running, validate it is successfully running.
+

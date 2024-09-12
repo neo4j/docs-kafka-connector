@@ -1,0 +1,18 @@
+connect  | [2024-09-04 09:18:40,066] INFO The migrated settings for 5.1 version of Neo4j Source Connector 'Neo4jSourceConnectorAVRO' is: `{
+connect  |   "connector.class" : "org.neo4j.connectors.kafka.source.Neo4jConnector",
+connect  |   "neo4j.authentication.basic.password" : "",
+connect  |   "neo4j.uri" : "bolt://neo4j:7687",
+connect  |   "neo4j.query" : "MATCH (ts:TestSource) WHERE ts.timestamp > $lastCheck RETURN ts.name AS name, ts.surname AS surname, ts.timestamp AS timestamp",
+connect  |   "neo4j.query.streaming-property" : "timestamp",
+connect  |   "value.converter.schema.registry.url" : "http://schema-registry:8081",
+connect  |   "task.class" : "streams.kafka.connect.source.Neo4jSourceTask",
+connect  |   "neo4j.authentication.basic.username" : "neo4j",
+connect  |   "name" : "Neo4jSourceConnectorAVRO",
+connect  |   "neo4j.query.topic" : "my-topic",
+connect  |   "value.converter" : "io.confluent.connect.avro.AvroConverter",
+connect  |   "key.converter" : "io.confluent.connect.avro.AvroConverter",
+connect  |   "key.converter.schema.registry.url" : "http://schema-registry:8081",
+connect  |   "neo4j.query.poll-interval" : "5000ms",
+connect  |   "neo4j.start-from" : "USER_PROVIDED",
+connect  |   "neo4j.start-from.value" : 1725441505774
+connect  | }` (streams.kafka.connect.source.Neo4jSourceService)
