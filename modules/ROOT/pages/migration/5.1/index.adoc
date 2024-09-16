@@ -1,12 +1,14 @@
 [[connector-migration]]
-= Migrate from 5.0.x to 5.1
+= Migrate from 5.0 to 5.1
 
 When upgrading the {product-name} to 5.1, be aware that many of the configuration properties have been changed and updated.
 Read over xref:whats-new.adoc[] to familiarize with the recent changes, and make sure that the new configuration logically matches the previous configuration.
 
 For generic Kafka Connect plugin upgrade documentation see: https://docs.confluent.io/platform/current/connect/upgrade.html[Confluent Documentation -> Upgrade a Connector Plugin].
 
-== Deployment guides
+IMPORTANT: Connector *MUST* be at version 5.0.6 before following the migration guides as it includes a configuration conversion helper to make the upgrade easier.
+
+== Migration guides
 
 Follow the relevant instructions to configure and deploy the new connector.
 
