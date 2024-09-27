@@ -12,7 +12,7 @@ asciidoc:
     page-product: Neo4j Connector for Kafka
     kafka-connect-version: 3.0
     connector-version: '5.1'
-    exact-connector-version: '5.1.1'
+    exact-connector-version: '5.1.2'
     page-pagination: true
     product-name: Neo4j Connector for Kafka
     url-common-license-page: https://neo4j.com/docs/license/

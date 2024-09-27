@@ -2,6 +2,23 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.1.2
+
+=== New and updated features
+
+[cols="2",options="header"]
+|===
+| Feature
+| Details
+
+a|
+label:fix[]
+
+Support JSON strings with JsonConverter when schemas are not enabled
+a|Resolved an issue with the `org.apache.kafka.connect.json.JsonConverter` where it did not support JSON strings when `schemas.enable=false`. The connector now correctly handles incoming JSON strings without requiring schema definitions.
+
+|===
+
 == Version 5.1.1
 
 === New and updated features
