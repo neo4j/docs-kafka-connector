@@ -16,7 +16,7 @@ label:bug[]
 label:fixed[]
 
 Fixes a bug where messages read by the Sink connector which do not have valid constraints result in not processing the message.
-a| Resolves an issue where messages created from the `5.0` Source connector, handled by the `5.1` Sink connector, which include constraints which do not exist in the target Sink database produce a cypher query containing null property values. Depending on the operation type (`UPDATE/DELETE/CREATE`) this can cause unexpected behaviour as the query may not match the intended nodes.
+a| Resolves an issue where messages created from the neo4j-streams `4.1` source plugin, which include unique constraints which do not have a corresponding values in the entity, produces a cypher query containing null property filters to match on. Depending on the operation type (`UPDATE/DELETE/CREATE`) this can cause unexpected behaviour as the query may not match the intended nodes.
 |===
 == Version 5.1.2
 
