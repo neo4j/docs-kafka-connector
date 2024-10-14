@@ -10,7 +10,7 @@ Confluent's Custom Connectors provide a way to extend the Confluent Cloud beyond
 == Prerequisites
 
 * An AuraDB Enterprise or a Neo4j Enterprise on-prem deployment, with CDC enabled, which is accessible through public internet.
-Follow link:{page-canonical-root}/cdc/current/get-started/aura[Enable CDC on Neo4j Aura] or link:{page-canonical-root}/cdc/current/get-started/on-prem[Enable CDC on Neo4j DBMS] for instructions.
+Follow link:{page-canonical-root}/cdc/current/get-started/aura[Enable CDC on Neo4j Aura] or link:{page-canonical-root}/cdc/current/get-started/self-managed[Enable CDC on Neo4j DBMS] for instructions.
 
 * An environment and a running cluster must be available at link:{url-confluent-cloud}[Confluent Cloud], similar to what's shown in <<running-cluster>>.
 
