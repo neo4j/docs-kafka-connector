@@ -32,6 +32,7 @@ It is no longer possible to turn off this behavior in the connector itself, and 
 * Error handling is re-implemented to provide full integration with Kafka Connect infrastructure, and failing messages can be identified and forwarded to Dead Letter Queues (if configured) independently.
 
 * Both link:{page-canonical-root}/cdc[Change Data Capture] and previous streams plugin generated change event messages are supported in CDC strategies.
+Change events that cannot be processed for reasons such as invalid schema (no key fields, etc.) will no longer be silently ignored, but cause failures which must be monitored and handled through xref:sink/error-handling.adoc[error handling] mechanisms.
 
 * All message fields, including message timestamp as stored in Kafka, message headers, key and value can be referenced in Cypher strategy.
 

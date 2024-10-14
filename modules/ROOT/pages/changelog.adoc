@@ -2,6 +2,24 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.1.4
+
+=== New and updated features
+
+[cols="2",options="header"]
+|===
+| Feature
+| Details
+
+a|
+label:bug[]
+label:fixed[]
+
+Fixed a bug in the CDC schema sink connector where relationship update and delete events without any start or end node keys incorrectly generated Cypher statements.
+a| Resolved an issue where messages referring to relationship update and delete events, which do not contain any start or end node keys, generate Cypher statements that update or delete wider entities on the target database.
+These messages now generate a failure which should be handled through xref:sink/error-handling.adoc[usual error handling] mechanisms.
+|===
+
 == Version 5.1.3
 
 === New and updated features
@@ -19,6 +37,7 @@ Fixed a bug in the Sink connector where messages without valid constraints would
 a| Resolved an issue where messages created from the `neo4j-streams` 4.1 source plugin, which include unique constraints without a corresponding value in the entity, result in a Cypher query containing null property filters to match on.
 Depending on the operation type (`UPDATE/DELETE/CREATE`), this can cause unexpected behavior as the query may not match the intended nodes.
 |===
+
 == Version 5.1.2
 
 === New and updated features
