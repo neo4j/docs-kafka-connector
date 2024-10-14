@@ -2,12 +2,4 @@
 = Known Issues
 :description: This chapter describes known issues related to {product-name}.
 
-== 5.1.0-rc02
-
-No known issues at this time.
-
-== 5.1.0-rc01
-
-* label:added[Resolved] Source connector with CDC strategy is being killed when it receives a change event that contains an update of type for a property.
-An example of such a change is when a node that has a property named `age` was set to a string value of `"25"`, but updated to be an `int` value of `25`.
-Change events with this condition will break schema derivation in the connector and a fix is being implemented to address this.
+_No known issues at this time._
