@@ -32,9 +32,9 @@ The payload mode can be configured in the source connector's settings as follows
 
 The following examples show how data will be published in each payload mode.
 
-=== COMPACT Mode Example
+=== `COMPACT` Mode Example
 
-The COMPACT mode produces a minimalistic payload with only the essential fields:
+The `COMPACT` mode produces a minimalistic payload with only the essential fields:
 
 [source,json]
 ----
@@ -47,9 +47,9 @@ The COMPACT mode produces a minimalistic payload with only the essential fields:
 
 This mode is useful when performance and simplicity are priorities, and it is suitable for scenarios where schema evolution and temporal consistency are not a primary concern.
 
-=== EXTENDED Mode Example
+=== `EXTENDED` Mode Example
 
-The EXTENDED mode includes additional structure and metadata to support complex types and schema consistency, preventing issues when property types change over time:
+The `EXTENDED` mode includes additional structure and metadata to support complex types and schema consistency, preventing issues when property types change over time:
 
 [source,json]
 ----
@@ -138,9 +138,9 @@ The EXTENDED mode includes additional structure and metadata to support complex 
 
 This mode is especially beneficial for data with complex schema requirements, as it ensures compatibility even if property types change on the Neo4j side.
 
-== Understanding the EXTENDED Payload Structure
+== Understanding the `EXTENDED` Payload Structure
 
-In EXTENDED mode, each property includes fields for every supported Neo4j type. Only the field corresponding to the actual property type will contain a non-null value, while all others are set to null. This structure ensures that any change in the type of a property does not cause schema enforcement errors at either the source or sink connector.
+In `EXTENDED` mode, each property includes fields for every supported Neo4j type. Only the field corresponding to the actual property type will contain a non-null value, while all others are set to null. This structure ensures that any change in the type of a property does not cause schema enforcement errors at either the source or sink connector.
 
 [cols="1,2"]
 |===
@@ -178,8 +178,8 @@ For example, a string field will be represented as:
 
 == Configuration Recommendations
 
-For production environments where performance and payload simplicity are important, COMPACT mode is recommended. If your environment involves schema evolution, temporal data types, or other complex data requirements, EXTENDED mode provides the necessary structure for schema compatibility.
+For production environments where performance and payload simplicity are important, `COMPACT` mode is recommended. If your environment involves schema evolution, temporal data types, or other complex data requirements, `EXTENDED` mode provides the necessary structure for schema compatibility.
 
 == Compatibility with Sink Connectors
 
-The EXTENDED format was introduced in connector version 5.1.0 to ensure that all data published to Kafka topics adheres to a consistent schema. This prevents issues when a property changes type on the Neo4j side (e.g., a name property changes from integer to string), enabling smooth data processing across connectors and Kafka consumers.
+The `EXTENDED` format was introduced in connector version 5.1.0 to ensure that all data published to Kafka topics adheres to a consistent schema. This prevents issues when a property changes type on the Neo4j side (e.g., a name property changes from integer to string), enabling smooth data processing across connectors and Kafka consumers.
