@@ -12,10 +12,10 @@ The `neo4j.payload-mode` configuration offers the following options:
 
 [WARNING]
 ====
-*Limitations of COMPACT Mode*
+*Limitations of `COMPACT` Mode*
 
-* **Property Type Changes**: COMPACT mode does not support changes in property types. If a property type changes in Neo4j (e.g., from integer to string), it can break the schema.
-* **Protobuf Compatibility**: COMPACT mode is not supported with Protobuf. It does not support serialization of temporal types (e.g., `LocalDate`, `LocalDateTime`).
+* **Property Type Changes**: `COMPACT` mode does not support changes in property types. If a property type changes in Neo4j (e.g., from integer to string), it can break the schema.
+* **Protobuf Compatibility**: `COMPACT` mode is not supported with Protobuf. It does not support serialization of temporal types (e.g., `LocalDate`, `LocalDateTime`).
 ====
 
 
