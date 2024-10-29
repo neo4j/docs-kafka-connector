@@ -15,7 +15,7 @@ label:functionality[]
 label:new[]
 
 Added `neo4j.payload-mode` configuration property for source connector.
-| Introduced the `neo4j.payload-mode` option to define the structure of change messages. Available values are `COMPACT` and `EXTENDED`. `COMPACT` provides simpler messages but may have schema compatibility issues with property type changes, while `EXTENDED` includes type information to avoid such issues. Default is `EXTENDED`.
+| Introduced the `neo4j.payload-mode` option to define the structure of change messages. Available values are `COMPACT` and `EXTENDED`. `COMPACT` provides simpler messages but faces schema compatibility issues with property type changes, while `EXTENDED` includes type information to avoid such issues. Default is `EXTENDED`.
 
 a|
 label:bug[]
