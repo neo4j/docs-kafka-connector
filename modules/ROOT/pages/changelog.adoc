@@ -2,6 +2,29 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.1.5
+
+=== New and Updated Features
+
+[cols="1,2", options="header"]
+|===
+| Feature | Details
+
+a|
+label:functionality[]
+label:new[]
+
+Added `neo4j.payload-mode` configuration property for source connector.
+| Introduced the `neo4j.payload-mode` option to define the structure of change messages. Available values are `COMPACT` and `EXTENDED`. `COMPACT` provides simpler messages but may have schema compatibility issues with property type changes, while `EXTENDED` includes type information to avoid such issues. Default is `EXTENDED`.
+
+a|
+label:bug[]
+label:fixed[]
+
+Prevented exception caused by adding duplicate fields in schema generation for CDC source events.
+| Resolved an issue in the ChangeEvent schema generation process where duplicate fields were causing an exception (`org.apache.kafka.connect.errors.SchemaBuilderException: Cannot create field because of field name duplication id`). When building the schema for key array elements, if different maps contained the same field name, the field was being added multiple times, leading to this exception. Now, duplicate fields are handled appropriately to avoid this issue.
+|===
+
 == Version 5.1.4
 
 === New and updated features
