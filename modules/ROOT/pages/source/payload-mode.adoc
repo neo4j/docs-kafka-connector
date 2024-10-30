@@ -178,7 +178,7 @@ For example, a string field will be represented as:
 
 == Configuration Recommendations
 
-For production environments where performance and payload simplicity are important, `COMPACT` mode is recommended. If your environment involves schema evolution, temporal data types, or other complex data requirements, `EXTENDED` mode provides the necessary structure for schema compatibility.
+`COMPACT` mode is useful and easier to work with when generated messages are consumed with other connectors or applications, and you can relax your schema compatibility mode on target topics. If your environment requires schema compatibility, temporal data types, or you have strong type safety requirements with different converters (`AVRO`, `JSON Schema`, `PROTOBUF` or `JSON Embedded`), `EXTENDED` mode should be preferred.
 
 == Compatibility with Sink Connectors
 
