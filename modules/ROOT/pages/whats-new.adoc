@@ -25,6 +25,12 @@ It is no longer possible to turn off this behavior in the connector itself, and 
 
 * It is now possible to ignore stored offsets by setting `neo4j.ignore-stored-offset` to `true` if required.
 
+* The new `payload.mode` configuration provides options to control the payload structure:
+
+** **`EXTENDED`**: Provides detailed data and type information, ensuring compatibility even if property types change.
+
+** **`COMPACT`**: Provides a simpler, lightweight format with only essential fields, best used when schema compatibility or complex types aren’t needed.
+
 == Sink
 
 * Changes are now applied in the order they are received from Kafka Connect, grouped by their topics.
