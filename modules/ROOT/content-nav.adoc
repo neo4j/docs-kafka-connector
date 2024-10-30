@@ -15,6 +15,7 @@
 ** xref:source/query.adoc[Query]
 * xref:source/schema-registry.adoc[Schema Registry]
 * xref:source/configuration.adoc[Settings]
+* xref:source/payload-mode.adoc[Payload Mode]
 
 * *Sink connector*
 * xref::sink.adoc[Configuration]
