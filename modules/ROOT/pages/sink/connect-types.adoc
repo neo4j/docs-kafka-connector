@@ -1,10 +1,10 @@
-= Type Support
+= Type support
 
-Sink connector supports the following built-in Kafka Connect types.
+The Sink connector supports the following built-in Kafka Connect types.
 
 [cols="1,2",options="header"]
 |===
-| Kafka Connect Type | Conversion Rule
+| Kafka Connect type | Conversion rule
 
 | Boolean
 | Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#property-types[BOOLEAN] type.
