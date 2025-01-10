@@ -36,7 +36,7 @@ label:fixed[]
 
 User provided Cypher queries that return results were failing in cypher sink strategy.
 | When a sink connector is configured with the Cypher strategy and the provided query included a `RETURN` clause, the internally re-written Cypher query was not being generated correctly and the connector ended up failing.
-The Cypher generation logic is now fixed and these type of queries can also be specified.
+The Cypher generation logic is now fixed and these type of queries are now supported.
 |===
 
 
