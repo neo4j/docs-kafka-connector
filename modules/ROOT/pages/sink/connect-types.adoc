@@ -1,0 +1,63 @@
+= Type Support
+
+Sink connector supports the following built-in Kafka Connect types.
+
+[cols="1,2",options="header"]
+|===
+| Kafka Connect Type | Conversion Rule
+
+| Boolean
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#property-types[BOOLEAN] type.
+
+| Bytes
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#property-types[BYTE ARRAY] type.
+
+| Float32
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#property-types[FLOAT] type.
+
+| Float64
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#property-types[FLOAT] type.
+
+| Int8
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#property-types[INTEGER] type.
+
+| Int16
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#property-types[INTEGER] type.
+
+| Int32
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#property-types[INTEGER] type.
+
+| Int64
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#property-types[INTEGER] type.
+
+| String
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#property-types[STRING] type.
+
+| Decimal
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#property-types[STRING] type.
+This is to avoid data loss, since Neo4j does not have native support for decimal values.
+
+| Date
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/temporal/#_temporal_value_types[DATE] type.
+
+| Time
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/temporal/#_temporal_value_types[LOCAL TIME] type.
+
+| Timestamp
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/temporal/#_temporal_value_types[LOCAL DATETIME] type.
+
+| Array
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#constructed-types[LIST] of converted elements.
+
+| Map
+a| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#constructed-types[MAP] of keys to respective converted values.
+
+[WARNING]
+====
+Incoming map values must have string-typed keys.
+====
+
+| Struct
+| Converted into link:{page-canonical-root}/cypher-manual/current/values-and-types/property-structural-constructed/#constructed-types[MAP] of field name to respective converted values.
+
+|===
