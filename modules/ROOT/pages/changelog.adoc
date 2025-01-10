@@ -2,6 +2,44 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.1.8
+
+[cols="1,2", options="header"]
+|===
+| Feature | Details
+
+a|
+label:functionality[]
+label:new[]
+
+Support for `decimal`, `date`, `time` and `timestamp` Kafka Connect types in sink connector.
+a|
+When an incoming message contained one of the built-in Kafka Connect types (`decimal`, `date`, `time` and `timestamp`), the message could not be processed by the sink connector since it did not support these types.
+Support for these types is now made available.
+
+[NOTE]
+====
+To avoid a data loss, `decimal` typed values are converted to `string` values.
+====
+
+a|
+label:bug[]
+label:fixed[]
+
+Rethrow exceptions if no errant record reporter is not set.
+| When a sink connector is configured without any error handling options, errant record reporter is not set by Kafka Connect and exceptions raised were silently ignored.
+These exceptions are no longer ignored, and re-thrown if no errant record reporter is set.
+
+a|
+label:bug[]
+label:fixed[]
+
+User provided Cypher queries that return results were failing in cypher sink strategy.
+| When a sink connector is configured with the Cypher strategy and the provided query included a `RETURN` clause, the internally re-written Cypher query was not being generated correctly and the connector ended up failing.
+The Cypher generation logic is now fixed and these type of queries are now supported.
+|===
+
+
 == Version 5.1.7
 
 This is a maintenance release which provides updated dependencies.

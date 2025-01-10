@@ -23,6 +23,7 @@
 ** xref:sink/cdc.adoc[Change Data Capture]
 ** xref:sink/pattern.adoc[Pattern]
 ** xref:sink/cud.adoc[CUD]
+* xref:sink/connect-types.adoc[Type support]
 * xref:sink/error-handling.adoc[Error handling]
 * xref:sink/configuration.adoc[Settings]
 
