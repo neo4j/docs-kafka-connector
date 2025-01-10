@@ -14,7 +14,7 @@ label:new[]
 
 Support for `decimal`, `date`, `time` and `timestamp` Kafka Connect types in sink connector.
 a|
-When an incoming message contained one of the built-in Kafka Connect types (`decimal`, `date`, `time` and `timestamp`), the message could not be processed by the sink connector since theses types were not recognized by the sink connector.
+When an incoming message contained one of the built-in Kafka Connect types (`decimal`, `date`, `time` and `timestamp`), the message could not be processed by the sink connector since it did not support these types.
 Support for these types is now made available.
 
 [NOTE]
