@@ -1,4 +1,5 @@
 = Kafka Source Connector: Payload Mode Configuration
+:page-role: new-5.1.5
 
 The Kafka Source Connector for Neo4j supports two payload modes to control the format of data serialized and published to Kafka topics: `EXTENDED` and `COMPACT`. This feature is configurable through the `neo4j.payload-mode` property, allowing users to select the preferred serialization format based on data requirements.
 
