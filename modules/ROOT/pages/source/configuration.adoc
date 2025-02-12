@@ -36,7 +36,6 @@ Default: `false`
 Default: `1000`
 
 | neo4j.payload-mode
-
 | Defines the structure of change messages. One of `COMPACT`, `EXTENDED`. `COMPACT` provides simpler messages but faces schema compatibility issues if property types change. `EXTENDED` includes type information to avoid such issues.
 
 Default: `EXTENDED`. label:new[Introduced in 5.1.5]
