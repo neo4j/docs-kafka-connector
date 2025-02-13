@@ -2,6 +2,25 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.1.10
+
+This is a maintenance release which provides updated dependencies.
+
+== Version 5.1.9
+
+[cols="1,2", options="header"]
+|===
+| Feature | Details
+
+a|
+label:bug[]
+label:fixed[]
+
+Incorrect parsing of Neo4j version.
+| Resolved an issue where the sink connector fails due to wrong handling of Neo4j version strings.
+|===
+
+
 == Version 5.1.8
 
 [cols="1,2", options="header"]
