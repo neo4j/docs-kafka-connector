@@ -2,6 +2,14 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.1.12
+
+This is a maintenance release which provides updated dependencies.
+
+== Version 5.1.11
+
+This is a maintenance release which provides updated dependencies.
+
 == Version 5.1.10
 
 This is a maintenance release which provides updated dependencies.
