@@ -24,4 +24,4 @@ The package is available for download from the link:{url-github}/releases/downlo
 
 The {product-name} is a plugin designed to run in an Apache Kafka Connect environment, which is deployed separately from the Neo4j database.
 
-For standalone Kafka Connect installations, download the <<kafka-dist, self-contained JAR file>> and copy it into the `plugins` directory for each of your Kafka Connect cluster members.
+For standalone Kafka Connect installations, download the link:{url-github}/releases/download/{exact-connector-version}/neo4j-kafka-connect-{exact-connector-version}.jar[self-contained JAR file] and copy it into the `plugins` directory for each of your Kafka Connect cluster members.
