@@ -96,6 +96,17 @@ include::example$docker-data/source.cdc.protobuf.json[]
 ----
 =====
 
+[.include-with-JSON-messages-with-embedded-schema]
+=====
+ifdef::backend-pdf[]
+.source.cdc.protobuf.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/source.cdc.json-schema.json[]
+----
+=====
+
 ====
 
 We will now create the source instance by invoking the following REST call:
