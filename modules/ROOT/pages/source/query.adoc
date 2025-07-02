@@ -188,11 +188,11 @@ Generated change event messages in this case will have the following structure, 
 ----
 
 While the above serialized form of the change message is forward compatible in terms of property type changes, it might make the consumer side deserialization logic quite complex and not desired.
-In this case, you can configure `neo4j.payload-mode` setting as `COMPACT` and change event messages will instead be structured as;
+In this case, you can configure `neo4j.payload-mode` setting as `COMPACT` so that change event messages will instead be structured as follows:
 
 [source,json]
 ----
 {"name": "<name>", "surname": "<surname>", "timestamp": <timestamp>}
 ----
 
-Refer to xref:source/payload-mode.adoc[payload mode] for more information about `neo4j.payload-mode` setting, including its limitations.
+Refer to the xref:source/payload-mode.adoc[payload mode] page for more information about the `neo4j.payload-mode` setting, including its limitations.
