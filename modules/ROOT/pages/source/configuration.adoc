@@ -146,5 +146,8 @@ Default: `1s`
 | neo4j.query.timeout
 | Maximum amount of time query is allowed to run (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
 
+| neo4j.query.force-maps-as-struct
+| In `COMPACT` mode, this forces the schema encoding of map values to be structs (default: `true`). Setting the value to `false` will only affect the schema encoding of maps with homogeneous value types. Note that the Protobuf converter does not support map message types.
+
 Default: `0s`
 |===
