@@ -101,9 +101,19 @@ curl -X POST http://localhost:8083/connectors \
 This will create a Kafka Connect source instance that will send change event messages derived by the provided query over to the `my-topic` topic, using your preferred serialization format.
 In Control Center, confirm that the Source connector has been created in the Connect tab, under connect-default.
 
-Generated change event messages in this case will have the following structure:
+Generated change event messages in this case will have the following structure, which wraps each field into a dedicated structure which is type safe:
 
 [source,json]
 ----
-{"name": <name>, "surname": <surname>, "timestamp": <timestamp>}
+include::example$producer-data/query.extended.json[]
 ----
+
+While the above serialized form of the change message is forward compatible in terms of property type changes, it might make the consumer side deserialization logic quite complex and not desired.
+In this case, you can configure `neo4j.payload-mode` setting as `COMPACT` so that change event messages will instead be structured as follows:
+
+[source,json]
+----
+include::example$producer-data/query.compact.json[]
+----
+
+Refer to the xref:source/payload-mode.adoc[payload mode] page for more information about the `neo4j.payload-mode` setting, including its limitations.
