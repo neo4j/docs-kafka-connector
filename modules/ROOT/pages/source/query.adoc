@@ -187,7 +187,7 @@ Generated change event messages in this case will have the following structure, 
 }
 ----
 
-While the above serialized form of the change message is type safe, it might make the consumer side deserialization logic quite complex and not desired.
+While the above serialized form of the change message is forward compatible in terms of property type changes, it might make the consumer side deserialization logic quite complex and not desired.
 In this case, you can configure `neo4j.payload-mode` setting as `COMPACT` and change event messages will instead be structured as;
 
 [source,json]
