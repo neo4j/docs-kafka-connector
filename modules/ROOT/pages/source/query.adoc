@@ -101,9 +101,98 @@ curl -X POST http://localhost:8083/connectors \
 This will create a Kafka Connect source instance that will send change event messages derived by the provided query over to the `my-topic` topic, using your preferred serialization format.
 In Control Center, confirm that the Source connector has been created in the Connect tab, under connect-default.
 
-Generated change event messages in this case will have the following structure:
+Generated change event messages in this case will have the following structure, which wraps each field into a dedicated structure which is type safe:
 
 [source,json]
 ----
-{"name": <name>, "surname": <surname>, "timestamp": <timestamp>}
+{
+  "name": {
+    "type": "S",
+    "B": null,
+    "I64": null,
+    "F64": null,
+    "S": "<name>",
+    "BA": null,
+    "TLD": null,
+    "TLDT": null,
+    "TLT": null,
+    "TZDT": null,
+    "TOT": null,
+    "TD": null,
+    "SP": null,
+    "LB": null,
+    "LI64": null,
+    "LF64": null,
+    "LS": null,
+    "LTLD": null,
+    "LTLDT": null,
+    "LTLT": null,
+    "LZDT": null,
+    "LTOT": null,
+    "LTD": null,
+    "LSP": null
+  },
+  "surname": {
+    "type": "S",
+    "B": null,
+    "I64": null,
+    "F64": null,
+    "S": "<surname>",
+    "BA": null,
+    "TLD": null,
+    "TLDT": null,
+    "TLT": null,
+    "TZDT": null,
+    "TOT": null,
+    "TD": null,
+    "SP": null,
+    "LB": null,
+    "LI64": null,
+    "LF64": null,
+    "LS": null,
+    "LTLD": null,
+    "LTLDT": null,
+    "LTLT": null,
+    "LZDT": null,
+    "LTOT": null,
+    "LTD": null,
+    "LSP": null
+  },
+  "timestamp": {
+    "type": "I64",
+    "B": null,
+    "I64": <timestamp>,
+    "F64": null,
+    "S": null,
+    "BA": null,
+    "TLD": null,
+    "TLDT": null,
+    "TLT": null,
+    "TZDT": null,
+    "TOT": null,
+    "TD": null,
+    "SP": null,
+    "LB": null,
+    "LI64": null,
+    "LF64": null,
+    "LS": null,
+    "LTLD": null,
+    "LTLDT": null,
+    "LTLT": null,
+    "LZDT": null,
+    "LTOT": null,
+    "LTD": null,
+    "LSP": null
+  }
+}
 ----
+
+While the above serialized form of the change message is type safe, it might make the consumer side deserialization logic quite complex and not desired.
+In this case, you can configure `neo4j.payload-mode` setting as `COMPACT` and change event messages will instead be structured as;
+
+[source,json]
+----
+{"name": "<name>", "surname": "<surname>", "timestamp": <timestamp>}
+----
+
+Refer to xref:source/payload-mode.adoc[payload mode] for more information about `neo4j.payload-mode` setting, including its limitations.

@@ -16,7 +16,6 @@
     "neo4j.query.streaming-property": "timestamp",
     "neo4j.query.topic": "test-source",
     "neo4j.query.polling-interval": "1s",
-    "neo4j.query.polling-duration": "5s",
-    "neo4j.payload-mode": "COMPACT"
+    "neo4j.query.polling-duration": "5s"
   }
 }
