@@ -105,86 +105,7 @@ Generated change event messages in this case will have the following structure, 
 
 [source,json]
 ----
-{
-  "name": {
-    "type": "S",
-    "B": null,
-    "I64": null,
-    "F64": null,
-    "S": "<name>",
-    "BA": null,
-    "TLD": null,
-    "TLDT": null,
-    "TLT": null,
-    "TZDT": null,
-    "TOT": null,
-    "TD": null,
-    "SP": null,
-    "LB": null,
-    "LI64": null,
-    "LF64": null,
-    "LS": null,
-    "LTLD": null,
-    "LTLDT": null,
-    "LTLT": null,
-    "LZDT": null,
-    "LTOT": null,
-    "LTD": null,
-    "LSP": null
-  },
-  "surname": {
-    "type": "S",
-    "B": null,
-    "I64": null,
-    "F64": null,
-    "S": "<surname>",
-    "BA": null,
-    "TLD": null,
-    "TLDT": null,
-    "TLT": null,
-    "TZDT": null,
-    "TOT": null,
-    "TD": null,
-    "SP": null,
-    "LB": null,
-    "LI64": null,
-    "LF64": null,
-    "LS": null,
-    "LTLD": null,
-    "LTLDT": null,
-    "LTLT": null,
-    "LZDT": null,
-    "LTOT": null,
-    "LTD": null,
-    "LSP": null
-  },
-  "timestamp": {
-    "type": "I64",
-    "B": null,
-    "I64": <timestamp>,
-    "F64": null,
-    "S": null,
-    "BA": null,
-    "TLD": null,
-    "TLDT": null,
-    "TLT": null,
-    "TZDT": null,
-    "TOT": null,
-    "TD": null,
-    "SP": null,
-    "LB": null,
-    "LI64": null,
-    "LF64": null,
-    "LS": null,
-    "LTLD": null,
-    "LTLDT": null,
-    "LTLT": null,
-    "LZDT": null,
-    "LTOT": null,
-    "LTD": null,
-    "LSP": null
-  }
-}
+include::example$producer-data/query.extended.json[]
 ----
 
 While the above serialized form of the change message is forward compatible in terms of property type changes, it might make the consumer side deserialization logic quite complex and not desired.
@@ -192,7 +113,7 @@ In this case, you can configure `neo4j.payload-mode` setting as `COMPACT` so tha
 
 [source,json]
 ----
-{"name": "<name>", "surname": "<surname>", "timestamp": <timestamp>}
+include::example$producer-data/query.compact.json[]
 ----
 
 Refer to the xref:source/payload-mode.adoc[payload mode] page for more information about the `neo4j.payload-mode` setting, including its limitations.
