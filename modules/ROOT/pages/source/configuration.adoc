@@ -152,5 +152,5 @@ Default: `0s`
 | This forces the schema encoding of map values to be structs (default: `true`).
 Setting the value to `false` will only affect the schema encoding of maps with homogeneous value types.
 Maps with heterogeneous value types will remain encoded as structs.
-Note that the Protobuf converter does not support map message types (map message types can happen in the `COMPACT` payload mode and this parameter set to `false`).
+Note that the Protobuf converter does not support map message types (map message types can happen in the `COMPACT` payload mode and when this parameter set to `false`).
 |===
