@@ -78,7 +78,7 @@ Although Neo4j allows to create nodes without labels, it's not advised to do so 
 
 | detach
 | label:Optional[]
-a| When operation is `delete`, you can specify whether to perform a link:{page-canonical-root}/cypher-manual/delete/["detach" delete].
+a| When operation is `delete`, you can specify whether to perform a link:{page-canonical-root}/cypher-manual/current/clauses/delete/["detach" delete].
 
 [NOTE]
 If no value is provided, the default is `false`.
