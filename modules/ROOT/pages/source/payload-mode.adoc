@@ -196,5 +196,5 @@ If your environment requires schema compatibility, temporal data types, or you h
 == Compatibility with Sink Connectors
 
 The `EXTENDED` format was introduced in connector version 5.1.0 to ensure that all data published to Kafka topics adheres to a consistent schema.
-This prevents issues when a property changes type on the Neo4j side (e.g., a name property changes from integer to string), enabling smooth data processing across connectors and Kafka consumers.
-When a Neo4j sink connector is fed by a Neo4j source connector, it’s recommended to use `EXTENDED` mode, as the Neo4j sink connector can seamlessly handle the `EXTENDED` data type.
+This prevents issues when a property changes type on the Neo4j side (for example, a name property changes from integer to string), enabling smooth data processing across connectors and Kafka consumers.
+Use the `EXTENDED` mode when a Neo4j sink connector is fed by a Neo4j source connector, as the Neo4j sink connector can seamlessly handle the `EXTENDED` data type.
