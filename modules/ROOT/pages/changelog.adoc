@@ -2,6 +2,20 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.1.15
+
+[cols="1,2", options="header"]
+|===
+| Feature | Details
+
+a|
+label:bug[]
+label:fixed[]
+
+Introduce `RAW_JSON_STRING` payload mode.
+| For xref:source/query.adoc[], users can now use a new payload mode named `RAW_JSON_STRING` which will generate the messages as raw JSON strings similar to the 5.0.x versions of the connector.
+|===
+
 == Version 5.1.14
 
 This is a maintenance release which provides updated dependencies.
@@ -19,6 +33,7 @@ label:fixed[]
 Introduce `neo4j.query.force-maps-as-struct`
 | For the source query strategy, users can now control whether maps with homogeneous value types are encoded as structs or maps.
 |===
+
 == Version 5.1.12
 
 This is a maintenance release which provides updated dependencies.
