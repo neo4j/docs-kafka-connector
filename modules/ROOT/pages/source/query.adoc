@@ -116,4 +116,7 @@ In this case, you can configure `neo4j.payload-mode` setting as `COMPACT` so tha
 include::example$producer-data/query.compact.json[]
 ----
 
+In case you generate complex data structures as part of your Cypher query, you can also use the `RAW_JSON_STRING` payload mode which will produce a raw JSON string representation of the data without any schema compatibility guarantees.
+Although the generated message will look exactly the same as the `COMPACT` mode, it will be encoded as a `STRING` type.
+
 Refer to the xref:source/payload-mode.adoc[payload mode] page for more information about the `neo4j.payload-mode` setting, including its limitations.

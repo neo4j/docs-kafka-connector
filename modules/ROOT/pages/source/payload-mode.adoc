@@ -1,22 +1,32 @@
 = Kafka Source Connector: Payload Mode Configuration
 :page-role: new-5.1.5
 
-The Kafka Source Connector for Neo4j supports two payload modes to control the format of data serialized and published to Kafka topics: `EXTENDED` and `COMPACT`. This feature is configurable through the `neo4j.payload-mode` property, allowing users to select the preferred serialization format based on data requirements.
+The Kafka Source Connector for Neo4j supports three payload modes to control the format of data serialized and published to Kafka topics: `EXTENDED`, `COMPACT` and `RAW_JSON_STRING`.
+This feature is configurable through the `neo4j.payload-mode` property, allowing users to select the preferred serialization format based on data requirements.
 
 == Payload Modes
 
 The `neo4j.payload-mode` configuration offers the following options:
 
-* **`EXTENDED` (Default)**: Provides a detailed structure for each property, supporting schema compatibility and consistency. This format is especially useful in cases where schema changes (such as property type changes) or temporal types are present, ensuring data consistency across changes.
+* **`EXTENDED` (Default)**: Provides a detailed structure for each property, supporting schema compatibility and consistency.
+This format is especially useful in cases where schema changes (such as property type changes) or temporal types are present, ensuring data consistency across changes.
 
-* **`COMPACT`**: Produces a simpler format that only includes the essential fields. This format is lighter and may be preferable when schema compatibility or complex data types are not required.
+* **`COMPACT`**: Produces a simpler format that only includes the essential fields.
+This format is lighter and may be preferable when schema compatibility or complex data types are not required.
+
+* **`RAW_JSON_STRING`**: Produces a raw JSON string representation of the data.
+This mode is useful for scenarios where you generate complex data structures using xref:source/query.adoc[] which are not easily represented in the `EXTENDED` or `COMPACT` modes.
+*Only available when using xref:source/query.adoc[] strategy.*
 
 [WARNING]
 ====
 *Limitations of `COMPACT` Mode*
 
-* **Property Type Changes**: `COMPACT` mode does not support changes in property types. If a property type changes in Neo4j (e.g., from integer to string), it can break the schema.
-* **Protobuf Compatibility**: `COMPACT` mode is not supported with Protobuf. It does not support serialization of temporal types (e.g., `LocalDate`, `LocalDateTime`).
+* **Property Type Changes**: `COMPACT` mode does not support changes in property types.
+If a property type changes in Neo4j (e.g., from integer to string), it can break the schema.
+
+* **Protobuf Compatibility**: `COMPACT` mode is not supported with Protobuf.
+It does not support serialization of temporal types (e.g., `LocalDate`, `LocalDateTime`).
 ====
 
 
@@ -141,7 +151,8 @@ This mode is especially beneficial for data with complex schema requirements, as
 
 == Understanding the `EXTENDED` Payload Structure
 
-In `EXTENDED` mode, each property includes fields for every supported Neo4j type. Only the field corresponding to the actual property type will contain a non-null value, while all others are set to null. This structure ensures that any change in the type of a property does not cause schema enforcement errors at either the source or sink connector.
+In `EXTENDED` mode, each property includes fields for every supported Neo4j type. Only the field corresponding to the actual property type will contain a non-null value, while all others are set to null.
+This structure ensures that any change in the type of a property does not cause schema enforcement errors at either the source or sink connector.
 
 [cols="1,2"]
 |===
@@ -179,8 +190,11 @@ For example, a string field will be represented as:
 
 == Configuration Recommendations
 
-`COMPACT` mode is useful and easier to work with when generated messages are consumed with other connectors or applications, and you can relax your schema compatibility mode on target topics. If your environment requires schema compatibility, temporal data types, or you have strong type safety requirements with different converters (`AVRO`, `JSON Schema`, `PROTOBUF` or `JSON Embedded`), `EXTENDED` mode should be preferred.
+`COMPACT` mode is useful and easier to work with when generated messages are consumed with other connectors or applications, and you can relax your schema compatibility mode on target topics.
+If your environment requires schema compatibility, temporal data types, or you have strong type safety requirements with different converters (`AVRO`, `JSON Schema`, `PROTOBUF` or `JSON Embedded`), `EXTENDED` mode should be preferred.
 
 == Compatibility with Sink Connectors
 
-The `EXTENDED` format was introduced in connector version 5.1.0 to ensure that all data published to Kafka topics adheres to a consistent schema. This prevents issues when a property changes type on the Neo4j side (e.g., a name property changes from integer to string), enabling smooth data processing across connectors and Kafka consumers. When a Neo4j sink connector is fed by a Neo4j source connector, it’s recommended to use `EXTENDED` mode, as the Neo4j sink connector can seamlessly handle the `EXTENDED` data type.
+The `EXTENDED` format was introduced in connector version 5.1.0 to ensure that all data published to Kafka topics adheres to a consistent schema.
+This prevents issues when a property changes type on the Neo4j side (for example, a name property changes from integer to string), enabling smooth data processing across connectors and Kafka consumers.
+Use the `EXTENDED` mode when a Neo4j sink connector is fed by a Neo4j source connector, as the Neo4j sink connector can seamlessly handle the `EXTENDED` data type.
