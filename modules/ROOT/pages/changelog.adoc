@@ -2,7 +2,7 @@
 
 This page lists changes to the {product-name}.
 
-== Version 5.1.15
+== Version 5.1.16
 
 [cols="1,2", options="header"]
 |===
@@ -11,6 +11,21 @@ This page lists changes to the {product-name}.
 a|
 label:bug[]
 label:fixed[]
+
+Fix wrong serialization of point types in RAW_JSON_STRING mode.
+| For WGS-84 points, longitude and latitude values were mixed up in RAW_JSON_STRING mode.
+|===
+
+
+== Version 5.1.15
+
+[cols="1,2", options="header"]
+|===
+| Feature | Details
+
+a|
+label:functionality[]
+label:new[]
 
 Introduce `RAW_JSON_STRING` payload mode.
 | For xref:source/query.adoc[], users can now use a new payload mode named `RAW_JSON_STRING` which will generate the messages as raw JSON strings similar to the 5.0.x versions of the connector.
