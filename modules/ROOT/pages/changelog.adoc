@@ -12,8 +12,8 @@ a|
 label:bug[]
 label:fixed[]
 
-Fix wrong serialization of point types in RAW_JSON_STRING mode.
-| For WGS-84 points, longitude and latitude values were mixed up in RAW_JSON_STRING mode.
+Fix wrong serialization of point types in `RAW_JSON_STRING` mode.
+| For WGS-84 points, longitude and latitude values were mixed up in `RAW_JSON_STRING` mode.
 |===
 
 
