@@ -13,8 +13,8 @@ label:bug[]
 label:fixed[]
 
 Fix CDC polling to prevent repeated scans of transaction log.
-| When CDC source connector is configured with specific patterns and no changes are detected, the connector uses the stored offset to re-scan the same transaction log entries in the next poll cycle.
-This has been fixed so that the connector now correctly advances the in memory offset even when no changes are detected.
+| When the CDC source connector is configured with specific patterns and no changes are detected, the connector uses the stored offset to re-scan the same transaction log entries in the next poll cycle.
+This has been fixed so that the connector now correctly advances the in-memory offset even when no changes are detected.
 |===
 
 == Version 5.1.16
