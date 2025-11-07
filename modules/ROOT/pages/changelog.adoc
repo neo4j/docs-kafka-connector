@@ -2,7 +2,7 @@
 
 This page lists changes to the {product-name}.
 
-== Version 5.1.17
+== Version 5.1.18
 
 [cols="1,2", options="header"]
 |===
