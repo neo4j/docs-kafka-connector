@@ -1,5 +1,5 @@
 = Configuring source connector
-:page-aliases: kafka-connect/source.adoc
+:page-aliases: kafka-connect/source.adoc, kafka-source.adoc
 
 In this chapter we'll discuss how the Source instance is configured.
 

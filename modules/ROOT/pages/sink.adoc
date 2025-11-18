@@ -1,5 +1,5 @@
 = Configuring sink connector
-:page-aliases: kafka-connect/sink.adoc
+:page-aliases: kafka-connect/sink.adoc, kafka-sink.adoc
 
 In this chapter we'll discuss how the Sink instance is configured.
 
