@@ -10,7 +10,7 @@ asciidoc:
     theme: docs
     copyright: Neo4j Inc.
     page-product: Neo4j Connector for Kafka
-    confluence-connect-version: '7.4'
+    confluent-connect-version: '7.4'
     connector-version: '5.1'
     exact-connector-version: '5.1.19'
     kafka-connect-version: '3.4.1'
