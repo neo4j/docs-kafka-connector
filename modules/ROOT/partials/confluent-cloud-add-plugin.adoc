@@ -1,7 +1,5 @@
 [[upload-connector-{type}]]
 
-=== {type-text}
-
 . Select the cluster you want to install the connector into, open the `Connectors` section and click `Add plugin`.
 
 . Click `Add Plugin` and fill in the details for the new custom connector as shown below, then accept the conditions and click `Submit`.

@@ -39,7 +39,7 @@ Change Data Capture is a new feature introduced with Neo4j 5.13.0 and Aura 5, an
 
 === Neo4j compatibility
 
-The connector supports Neo4j 5.x and 4.4, whether run as a managed service in link:{page-canonical-root}/aura/[Neo4j Aura], as a single instance, or as a cluster.
+The connector supports Neo4j 2025.x and 5.x, whether run as a managed service in link:{page-canonical-root}/aura/[Neo4j Aura], as a single instance, or as a cluster.
 It supports both the Community and the Enterprise Edition.
 
 [IMPORTANT]

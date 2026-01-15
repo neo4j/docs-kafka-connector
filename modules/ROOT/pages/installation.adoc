@@ -9,7 +9,8 @@ The latest version of the connector is {exact-connector-version}.
 [#confluent-dist]
 === Neo4j Connector for Confluent
 
-This package can be deployed to Confluent Platform as a self-managed connector, and to Confluent Cloud as a custom connector.
+This package can be deployed to Confluent Platform as a self-managed connector, and to Confluent Cloud as a custom connector to use Aura/Neo4j as a source.
+For sinking data to Aura/Neo4j, please refer to link:{url-confluent-managed-sink-docs}[Neo4j Sink Connector for Confluent Cloud].
 
 The package is available for download from link:{url-confluent-hub-neo4j}[Confluent Hub] or from the link:{url-github}/releases/download/{exact-connector-version}/neo4j-kafka-connect-{exact-connector-version}.zip[GitHub repository].
 

@@ -29,5 +29,6 @@ asciidoc:
     url-confluent-java-client: https://docs.confluent.io/clients-kafka-java/current/overview.html
     url-confluent-hub-neo4j: https://www.confluent.io/hub/neo4j/kafka-connect-neo4j
     url-confluent-hub-datagen: https://www.confluent.io/hub/confluentinc/kafka-connect-datagen
+    url-confluent-managed-sink-docs: https://docs.confluent.io/cloud/current/connectors/cc-neo4j-sink/cc-neo4j-sink.html
     url-github: https://github.com/neo4j/neo4j-kafka-connector
     page-canonical-root: /docs
