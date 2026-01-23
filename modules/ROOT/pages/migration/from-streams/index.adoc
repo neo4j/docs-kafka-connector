@@ -1,5 +1,5 @@
 [[streams-migration]]
-= Migrate from Neo4j Streams to 5.1
+= Migrate from Neo4j Streams
 
 There are significant differences between the Neo4j Streams plugin, which runs on Neo4j as a plugin, and the Neo4j Connector for Kafka that runs on Kafka Connect Clusters.
 

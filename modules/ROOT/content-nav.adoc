@@ -31,6 +31,7 @@
 * xref:migration/5.1/index.adoc[From 5.0 to 5.1]
 ** xref:migration/5.1/migration-docker.adoc[Confluent Platform]
 ** xref:migration/5.1/migration-confluent-cloud.adoc[Confluent Cloud]
+* xref:migration/from-4.x/index.adoc[From 4.x to 5.1]
 * xref:migration/from-streams/index.adoc[From Neo4j Streams]
 
 * *Reference*
