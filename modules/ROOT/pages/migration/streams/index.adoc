@@ -1,0 +1,99 @@
+[[streams-migration]]
+= Migrate from Neo4j Streams to 5.1
+
+There are significant differences between the Neo4j Streams plugin, which runs on Neo4j as a plugin, and the Neo4j Connector for Kafka that runs on Kafka Connect Clusters.
+
+This guide has been provided to help you understand which Streams settings have near equivalents to those available in the Neo4j Connector, and which settings do not apply. You will need to refer to the Connectors documentation to understand the behavioural differences and successfully configure the connector.
+
+== Architectural differences
+
+Neo4j Streams runs as a plugin (JAR file), deployed on Neo4j and configured via the _neo4j.conf_ file.
+Neo4j Connector for Kafka is a connector (JAR file), deployed on and configured via Kafka Connect Clusters. 
+
+The Neo4j Streams plugin does not need to be enabled or disabled for each mode (sink/source).
+Creating a configuration for a sink or source connection within Kafka Connect will enable the functionality.
+
+The following Streams config are Kafka settings that should be set on Kafka Connect.
+Refer to link:https://github.com/neo4j/docs-kafka-streams/blob/main/modules/ROOT/pages/{url-confluent-install}/configuration/consumer-configs.html[Confluent] or Apache Kafka documentation for details.
+
+[source]
+----
+kafka.bootstrap.servers=
+kafka.group.id=
+kafka.enable.auto.commit=true | false
+kafka.acks=all
+kafka.retries=2
+kafka.auto.offset.reset=earliest
+kafka.max.poll.records=500 (default) //  increasing this number can increase throughput
+kafka.key.deserializer=org.apache.kafka.common.serialization.ByteArrayDeserializer
+kafka.value.deserializer=org.apache.kafka.common.serialization.ByteArrayDeserializer
+io.confluent.kafka.serializers.KafkaAvroDeserializer
+kafka.buffer.memory=
+kafka.security.protocol=SSL
+kafka.ssl.truststore.location=
+kafka.ssl.truststore.password=
+kafka.ssl.keystore.location=
+kafka.ssl.keystore.password=
+kafka.ssl.key.password=
+kafka.ssl.endpoint.identification.algorithm=HTTPS
+----
+
+The following general settings for Neo4j Streams have a near equivalent or relevant setting that should be reviewed.
+
+[source]
+----
+kafka.batch.size=16384
+kafka.default.api.timeout.ms=5000
+neo4j.batch-size=1000
+neo4j.query.timeout=0
+----
+
+The following general settings for Streams (when used as a sink or source) **do not** have an equivalent:
+
+[source]
+----
+streams.procedures.enabled=true | false, default=true
+----
+
+== Neo4j Streams as a Source
+
+If you are using the Neo4j Streams connector as a source, see the documentation for the link:https://neo4j.com/docs/kafka/current/source/cdc/[Source connector CDC].
+
+The following source configuration settings have a near equivalent:
+
+[source]
+----
+streams.source.topic.nodes.<TOPIC_NAME>=<PATTERN> 
+streams.source.topic.relationships.<TOPIC_NAME>=<PATTERN>
+streams.source.topic.relationships.<TOPIC_NAME>.key_strategy=default | all
+streams.source.schema.polling.interval=10000
+----
+
+The following source configuration settings **do not** have an equivalent:
+
+[source]
+----
+streams.source.enabled=true
+----
+
+== Neo4j Streams as a Sink
+If you are using the Neo4j Streams connector as a sink, see the documentation for the link:https://neo4j.com/docs/kafka/current/sink/cdc/[Sink connector CDC].
+
+The following sink configuration settings have a near equivalent:
+
+[source]
+----
+streams.sink.topic.cypher.<topic>= "CREATE (p:Person{name: event.name, surname: event.surname})"
+streams.sink.topic.cdc.schema=<topic-name>
+----
+
+The following sink configuration settings **do not** have an equivalent:
+
+[source]
+----
+streams.sink.errors.log.include.messages=[true | false]
+streams.sink.enabled=true | false
+streams.sink.errors.log.enable=true | false
+streams.sink.errors.log.include.messages=true
+streams.sink.errors.tolerance=all
+----
