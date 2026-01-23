@@ -54,7 +54,7 @@ The following general settings for Streams (when used as a sink or source) **do 
 streams.procedures.enabled=true | false, default=true
 ----
 
-== Neo4j Streams as a Source
+== Neo4j Streams as a source
 
 If you are using the Neo4j Streams connector as a source, see the documentation for the link:https://neo4j.com/docs/kafka/current/source/cdc/[Source connector CDC].
 
@@ -75,7 +75,7 @@ The following source configuration settings **do not** have an equivalent:
 streams.source.enabled=true
 ----
 
-== Neo4j Streams as a Sink
+== Neo4j Streams as a sink
 If you are using the Neo4j Streams connector as a sink, see the documentation for the link:https://neo4j.com/docs/kafka/current/sink/cdc/[Sink connector CDC].
 
 The following sink configuration settings have a near equivalent:
