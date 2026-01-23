@@ -26,8 +26,7 @@ kafka.retries=2
 kafka.auto.offset.reset=earliest
 kafka.max.poll.records=500 (default) //  increasing this number can increase throughput
 kafka.key.deserializer=org.apache.kafka.common.serialization.ByteArrayDeserializer
-kafka.value.deserializer=org.apache.kafka.common.serialization.ByteArrayDeserializer
-io.confluent.kafka.serializers.KafkaAvroDeserializer
+kafka.value.deserializer=io.confluent.kafka.serializers.KafkaAvroDeserializer
 kafka.buffer.memory=
 kafka.security.protocol=SSL
 kafka.ssl.truststore.location=
@@ -83,8 +82,8 @@ The following sink configuration settings have a near equivalent:
 
 [source]
 ----
-streams.sink.topic.cypher.<topic>= "CREATE (p:Person{name: event.name, surname: event.surname})"
-streams.sink.topic.cdc.schema=<topic-name>
+streams.sink.topic.cypher.<TOPIC_NAME>= "CREATE (p:Person{name: event.name, surname: event.surname})"
+streams.sink.topic.cdc.schema=<TOPIC_NAME>
 ----
 
 The following sink configuration settings **do not** have an equivalent:
