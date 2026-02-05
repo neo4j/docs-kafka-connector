@@ -22,7 +22,7 @@ label:new[]
 New batched CDC sink handlers.
 | New CDC sink handlers are introduced to provide better performance when processing CDC events in the sink connector.
 These handlers will process messages in batches and apply them into the database in a more efficient way.
-New handlers utilize APOC Core `apoc.cypher.doIt` procedure and Cypher Set & Remove clauses with dynamic labels, and will be preferred over the default handlers based on availability of these features.
+New handlers use the APOC Core `apoc.cypher.doIt` procedure and Cypher `SET` and `REMOVE` clauses with dynamic labels, and will be preferred over the default handlers based on availability of these features.
 
 a|
 label:functionality[]
