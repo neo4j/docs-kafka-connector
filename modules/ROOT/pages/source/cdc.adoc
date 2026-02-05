@@ -56,6 +56,17 @@ Usually will be the same as authenticated user, but could be different if impers
 [NOTE]
 Only `pattern` settings are mandatory in the above example, and others are optional and can be added based on your requirements.
 
+== Exactly Once Semantics
+
+Starting from version 5.2.0, the CDC source connector declares itself as Exactly Once capable.
+For environments that support link:https://cwiki.apache.org/confluence/display/KAFKA/KIP-618%3A+Exactly-Once+Support+for+Source+Connectors[KIP-618: Exactly Once Support for Source Connectors], the CDC source connector will take advantage of this feature without any additional configuration.
+
+[NOTE]
+====
+Exactly Once semantics guarantees that each change event is delivered exactly once to the target Kafka topic, eliminating duplicate records that could occur during connector restarts or failures.
+This feature requires a Kafka Connect cluster that supports KIP-618 (available in Apache Kafka 3.3.0 and later).
+====
+
 == Creating Source instance
 
 Based on the above example, you can use one of the following configurations.

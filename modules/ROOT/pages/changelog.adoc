@@ -2,8 +2,40 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.2.0
+
+[cols="1,2",options="header"]
+|===
+| Feature | Details
+
+a|
+label:feature[]
+label:new[]
+
+CDC Source connector declare itself as Exactly Once capable.
+| For environments that support link:{https://cwiki.apache.org/confluence/display/KAFKA/KIP-618%3A+Exactly-Once+Support+for+Source+Connectors}[KIP-618: Exactly Once semantics for Source Connectors], CDC source connector will take advantage of this feature without any additional configuration.
+
+a|
+label:feature[]
+label:new[]
+
+New batched CDC sink handlers.
+| New set of CDC sink handlers are introduced to provide better performance when processing CDC events in sink connector.
+These handlers will process messages in batches and apply them into the database in a more efficient way.
+New handlers utilize APOC Core `apoc.cypher.doIt` procedure and Cypher Set & Remove clauses with dynamic labels, and will be preferred over the default handlers based on availability of these features.
+
+a|
+label:functionality[]
+label:new[]
+
+Improved logging for sink connector.
+| Sink connectors are improved to provide useful logging to track the progress of the connector and identify potential issues.
+
+|===
+
 == Version 5.1.19
-[cols="1,2", options="header"]
+
+[cols="1,2",options="header"]
 |===
 | Feature | Details
 
@@ -17,7 +49,7 @@ Configure Neo4j Java Driver to use provider SLF4J configuration.
 
 == Version 5.1.18
 
-[cols="1,2", options="header"]
+[cols="1,2",options="header"]
 |===
 | Feature | Details
 
@@ -32,7 +64,7 @@ This has been fixed so that the connector now correctly advances the in-memory o
 
 == Version 5.1.16
 
-[cols="1,2", options="header"]
+[cols="1,2",options="header"]
 |===
 | Feature | Details
 
@@ -44,10 +76,9 @@ Fix wrong serialization of point types in `RAW_JSON_STRING` mode.
 | For WGS-84 points, longitude and latitude values were mixed up in `RAW_JSON_STRING` mode.
 |===
 
-
 == Version 5.1.15
 
-[cols="1,2", options="header"]
+[cols="1,2",options="header"]
 |===
 | Feature | Details
 
@@ -65,7 +96,7 @@ This is a maintenance release which provides updated dependencies.
 
 == Version 5.1.13
 
-[cols="1,2", options="header"]
+[cols="1,2",options="header"]
 |===
 | Feature | Details
 
@@ -91,7 +122,7 @@ This is a maintenance release which provides updated dependencies.
 
 == Version 5.1.9
 
-[cols="1,2", options="header"]
+[cols="1,2",options="header"]
 |===
 | Feature | Details
 
@@ -103,10 +134,9 @@ Incorrect parsing of Neo4j version.
 | Resolved an issue where the sink connector fails due to wrong handling of Neo4j version strings.
 |===
 
-
 == Version 5.1.8
 
-[cols="1,2", options="header"]
+[cols="1,2",options="header"]
 |===
 | Feature | Details
 
@@ -141,7 +171,6 @@ User provided Cypher queries that return results were failing in cypher sink str
 The Cypher generation logic is now fixed and these type of queries are now supported.
 |===
 
-
 == Version 5.1.7
 
 This is a maintenance release which provides updated dependencies.
@@ -154,7 +183,7 @@ This is a maintenance release which provides updated dependencies.
 
 === New and Updated Features
 
-[cols="1,2", options="header"]
+[cols="1,2",options="header"]
 |===
 | Feature | Details
 
