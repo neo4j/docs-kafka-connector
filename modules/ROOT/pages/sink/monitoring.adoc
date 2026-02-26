@@ -20,14 +20,14 @@ The following JMX metrics are available for CDC Sink connector instances:
 | Attribute | Type | Description
 
 | `last_cdc_tx_commit_timestamp`
-| Long
-| The timestamp of the last committed CDC transaction as reported in the source database.
+| Number
+| The timestamp of the last committed CDC transaction processed by the connector.
 
 | `last_cdc_tx_start_timestamp`
-| Long
-| The timestamp of the start of the last CDC transaction as reported in the source database.
+| Number
+| The timestamp of the start of the last CDC transaction processed by the connector.
 
 | `last_cdc_tx_id`
-| String
-| The unique identifier of the last processed CDC transaction.
+| Number
+| The ID of the last processed CDC transaction.
 |===

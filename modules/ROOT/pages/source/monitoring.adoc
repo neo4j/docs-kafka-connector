@@ -58,7 +58,7 @@ Default: `false`
 
 | `neo4j.cdc.metric.last-tx-id.refresh-interval`
 | Duration
-| Interval between metric updates (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
+| Interval between `last_db_tx_id` metric refreshes (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
 
 Default: `30s`
 |===

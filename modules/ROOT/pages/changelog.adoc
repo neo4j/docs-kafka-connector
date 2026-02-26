@@ -2,6 +2,21 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.2.1
+
+[cols="1,2",options="header"]
+|===
+| Feature | Details
+
+a|
+label:feature[]
+label:new[]
+
+JMX metrics for CDC Source and Sink connectors.
+| The connector now provides JMX metrics for the Change Data Capture (CDC) strategy to monitor data ingestion progress.
+
+|===
+
 == Version 5.2.0
 
 [cols="1,2",options="header"]
