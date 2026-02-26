@@ -13,7 +13,7 @@ To consume these metrics, you must use a JMX-compatible monitoring tool or agent
 
 The following JMX metrics are available for CDC Sink connector instances:
 
-*   **ObjectName:** `kafka.connect:type=plugins,connector={CONNECTOR_NAME},task={TASK_ID}`
+* **ObjectName:** `kafka.connect:type=plugins,connector=+{CONNECTOR_NAME}+,task=+{TASK_ID}+`
 
 [%width="100%",cols="m,a,a",opts=header]
 |===
