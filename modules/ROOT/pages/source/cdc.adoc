@@ -72,6 +72,11 @@ This feature requires a Kafka Connect cluster that supports KIP-618 (available i
 Based on the above example, you can use one of the following configurations.
 Pick one of the message serialization format examples and save it as a file named `source.cdc.neo4j.json` into a local directory.
 
+== Monitoring
+
+The CDC Source connector provides JMX metrics to monitor the status of the data ingestion.
+See xref:source/monitoring.adoc[Source Monitoring] for more information.
+
 [.tabbed-example]
 ====
 [.include-with-AVRO-messages]
