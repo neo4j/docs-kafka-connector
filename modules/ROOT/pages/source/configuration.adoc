@@ -112,13 +112,13 @@ The key-value pair is matched against the actual transaction metadata (with the 
 Example: `"neo4j.cdc.topic.my-topic.patterns.0.metadata.txMetadata.app": "neo4j-browser"`
 
 
-| neo4j.cdc.metric.last-tx-id.enabled
+| neo4j.cdc.metric.last-db-tx-id.enabled
 | Whether to enable the `last_db_tx_id` metric.
 
 Default: `false`
 
-| neo4j.cdc.metric.last-tx-id.refresh-interval
-| Interval between `last_db_tx_id` metric refreshes (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
+| neo4j.cdc.metric.last-db-tx-id.refresh-interval
+| The refresh interval of the `last_db_tx_id` metric (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
 
 Default: `30s`
 

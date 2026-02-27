@@ -34,7 +34,7 @@ The following JMX metrics are available for CDC Source connector instances:
 | `last_db_tx_id`
 | Number
 | The ID of the last transaction in the database.
-This metric is only reported if enabled by the `neo4j.cdc.metric.last-tx-id.enabled` property.
+This metric is only reported if enabled by the `neo4j.cdc.metric.last-db-tx-id.enabled` property.
 |===
 
 [NOTE]
@@ -50,15 +50,15 @@ To enable the `last_db_tx_id` metric, you need to configure the following proper
 |===
 | Name | Type | Description
 
-| `neo4j.cdc.metric.last-tx-id.enabled`
+| `neo4j.cdc.metric.last-db-tx-id.enabled`
 | Boolean
 | Whether to enable the `last_db_tx_id` metric.
 
 Default: `false`
 
-| `neo4j.cdc.metric.last-tx-id.refresh-interval`
+| `neo4j.cdc.metric.last-db-tx-id.refresh-interval`
 | Duration
-| Interval between `last_db_tx_id` metric refreshes (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
+| The refresh interval of the `last_db_tx_id` metric (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
 
 Default: `30s`
 |===
