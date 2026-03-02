@@ -21,15 +21,15 @@ The following JMX metrics are available for CDC Source connector instances:
 
 | `last_cdc_tx_commit_timestamp`
 | Number
-| The timestamp of the last committed CDC transaction processed by the connector.
+| The timestamp of the last committed CDC transaction polled by the connector.
 
 | `last_cdc_tx_start_timestamp`
 | Number
-| The timestamp of the start of the last CDC transaction processed by the connector.
+| The timestamp of the start of the last CDC transaction polled by the connector.
 
 | `last_cdc_tx_id`
 | Number
-| The ID of the last processed CDC transaction.
+| The ID of the last CDC transaction polled by the connector.
 
 | `last_db_tx_id`
 | Number
