@@ -9,7 +9,7 @@ JMX metrics are not collected via the official Kafka Connect interface, and will
 To consume these metrics, you must use a JMX-compatible monitoring tool or agent.
 ====
 
-== JMX Metrics
+== JMX Metrics label:new[Introduced in 5.3.0]
 
 The following JMX metrics are available for CDC Sink connector instances:
 

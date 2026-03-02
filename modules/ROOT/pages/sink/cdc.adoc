@@ -176,7 +176,6 @@ endif::[]
 :strategy: cdc.schema
 include::partial$create-sink-instance.adoc[]
 
-
 [#source-id]
 == Source ID sub-strategy
 
@@ -323,11 +322,6 @@ endif::[]
 ====
 
 === Creating Sink instance
-
-== Monitoring
-
-The CDC Sink connector provides JMX metrics to monitor the status of the data ingestion.
-See xref:sink/monitoring.adoc[Sink Monitoring] for more information.
 
 :strategy: cdc.source-id
 include::partial$create-sink-instance.adoc[]

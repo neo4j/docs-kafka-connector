@@ -9,7 +9,7 @@ JMX metrics are not collected via the official Kafka Connect interface, and will
 To consume these metrics, you must use a JMX-compatible monitoring tool or agent.
 ====
 
-== JMX Metrics
+== JMX Metrics label:new[Introduced in 5.3.0]
 
 The following JMX metrics are available for CDC Source connector instances:
 
@@ -54,11 +54,11 @@ To enable the `last_db_tx_id` metric, you need to configure the following proper
 | Boolean
 | Whether to enable the `last_db_tx_id` metric.
 
-Default: `false`
+Default: `false`  label:new[Introduced in 5.3.0]
 
 | `neo4j.cdc.metric.last-db-tx-id.refresh-interval`
 | Duration
 | The refresh interval of the `last_db_tx_id` metric (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
 
-Default: `30s`
+Default: `30s`  label:new[Introduced in 5.3.0]
 |===
