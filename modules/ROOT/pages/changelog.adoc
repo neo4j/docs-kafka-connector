@@ -15,6 +15,13 @@ label:new[]
 JMX metrics for CDC Source and Sink connectors.
 | The connector now provides JMX metrics for the Change Data Capture (CDC) strategy to monitor data ingestion progress.
 
+a|
+label:feature[]
+label:new[]
+
+Ability to prefer leader for querying CDC events in Source connector.
+| The CDC Source connector now includes a configuration option to prefer querying the leader instance for CDC events, which can help reduce replication lag and improve the freshness of the data being captured.
+
 |===
 
 == Version 5.2.0

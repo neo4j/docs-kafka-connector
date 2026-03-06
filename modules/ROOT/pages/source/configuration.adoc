@@ -122,6 +122,10 @@ Default: `false` label:new[Introduced in 5.3.0]
 
 Default: `30s` label:new[Introduced in 5.3.0]
 
+| neo4j.cdc.use-leader
+| Whether to use the leader instance of the database for CDC queries.
+
+Default: `false` label:new[Introduced in 5.3.0]
 
 |===
 
