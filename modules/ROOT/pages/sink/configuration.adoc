@@ -28,14 +28,18 @@ Default: `0s`
 Default: `50`
 
 [NOTE]
-This setting is only applicable to CDC sink strategies for the time being, and will be ignored for non-CDC strategies and when APOC Core based batching strategy is used.
+====
+This setting is only applicable to CDC sink strategies for the time being, and is ignored for non-CDC strategies and when APOC Core based batching strategy is used.
+====
 
 | `neo4j.eos-offset-label` label:new[5.3.0]
 | Label name to attach to the node representing the offset of the last successfully processed message.
 When specified, this setting allows to achieve exactly-once processing guarantees for sink strategies by keeping track of the last successfully processed message offset in the database.
 
 [NOTE]
+====
 This setting is only applicable to CDC sink strategies for the time being, and is ignored for non-CDC strategies.
+====
 
 |===
 
