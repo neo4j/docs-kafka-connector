@@ -1,0 +1,64 @@
+= Source Monitoring
+:type: source
+
+The Neo4j Connector for Kafka Source provides JMX metrics for the xref:source/cdc.adoc[Change Data Capture strategy] to help you monitor the status of the data ingestion process.
+
+[IMPORTANT]
+====
+JMX metrics are not collected via the official Kafka Connect interface, and are not reported by reporters defined via `metric.reporters` Kafka Connect setting.
+To consume these metrics, you must use a JMX-compatible monitoring tool or agent.
+====
+
+== JMX Metrics label:new[Introduced in 5.3.0]
+
+The following JMX metrics are available for CDC Source connector instances:
+
+* **ObjectName:** `kafka.connect:type=plugins,connector=+{CONNECTOR_NAME}+,task=+{TASK_ID}+`
+
+[%width="100%",cols="m,a,a",opts=header]
+|===
+| Attribute | Type | Description
+
+| `last_cdc_tx_commit_timestamp`
+| Number
+| The timestamp of the last committed CDC transaction polled by the connector.
+
+| `last_cdc_tx_start_timestamp`
+| Number
+| The timestamp of the start of the last CDC transaction polled by the connector.
+
+| `last_cdc_tx_id`
+| Number
+| The ID of the last CDC transaction polled by the connector.
+
+| `last_db_tx_id`
+| Number
+| The ID of the last transaction in the database.
+This metric is only reported if enabled by the `neo4j.cdc.metric.last-db-tx-id.enabled` property.
+|===
+
+[NOTE]
+====
+The `last_db_tx_id` metric is refreshed periodically and may lag behind the actual database transaction state, depending on the configured `neo4j.cdc.metric.last-tx-id.refresh-interval` setting.
+====
+
+== Configuration
+
+To enable the `last_db_tx_id` metric, you need to configure the following properties in your Source instance:
+
+[%width="100%",cols="m,a,a",opts=header]
+|===
+| Name | Type | Description
+
+| `neo4j.cdc.metric.last-db-tx-id.enabled`
+| Boolean
+| Whether to enable the `last_db_tx_id` metric.
+
+Default: `false`  label:new[Introduced in 5.3.0]
+
+| `neo4j.cdc.metric.last-db-tx-id.refresh-interval`
+| Duration
+| The refresh interval of the `last_db_tx_id` metric (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
+
+Default: `30s`  label:new[Introduced in 5.3.0]
+|===

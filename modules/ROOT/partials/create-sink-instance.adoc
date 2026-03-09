@@ -50,3 +50,9 @@ curl -X POST http://localhost:8083/connectors \
 
 Now you can access your Confluent Control Center instance under `http://localhost:9021/clusters`.
 Verify that the configured connector instance is running in the `Connect` tab under `connect-default`.
+
+[NOTE]
+====
+The CDC Source connector provides JMX metrics to monitor the status of the data ingestion.
+See xref:source/monitoring.adoc[Source Monitoring] for more information.
+====
