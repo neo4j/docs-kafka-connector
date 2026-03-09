@@ -24,6 +24,13 @@ Second, you need to define your query to track changes and where to publish them
 <2> A Cypher query that returns changed entities since the last iteration, sent in by `$lastCheck` parameter.
 <3> The property (field name) that we use as a cursor to track changes. This needs to be part of the returned results.
 
+[NOTE]
+====
+For good source query performance, the property used for tracking (for example, a `timestamp` field) should have the correct type constraint and be backed by an index or key constraint where appropriate.
+
+If the connector filters or orders by this property, missing indexes can lead to full scans and significantly slower polling, especially as the dataset grows. Using a properly typed tracking property together with an index (or a suitable constraint that creates one) helps Neo4j locate new or updated records much more efficiently.
+====
+
 == Creating Source instance
 
 Based on the above example, you can use one of the following configurations.
