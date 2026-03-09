@@ -20,7 +20,14 @@ label:feature[]
 label:new[]
 
 Ability to prefer leader for querying CDC events in Source connector.
-| The CDC Source connector now includes a configuration option to prefer querying the leader instance for CDC events, which can help reduce replication lag and improve the freshness of the data being captured.
+| The CDC Source connector now includes a configuration option `neo4j.cdc.use-leader` to prefer querying the leader instance for CDC events, which can help reduce replication lag and improve the freshness of the data being captured.
+
+a|
+label:feature[]
+label:new[]
+
+Exactly Once support for CDC Sink connector.
+| The CDC Sink connector can now be configured to support Exactly Once semantics by tracking applied offsets in the target database.
 
 |===
 
