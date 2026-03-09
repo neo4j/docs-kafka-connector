@@ -5,7 +5,7 @@ The Neo4j Connector for Kafka Sink provides JMX metrics for the xref:sink/cdc.ad
 
 [IMPORTANT]
 ====
-JMX metrics are not collected via the official Kafka Connect interface, and will not be reported by reporters defined via `metric.reporters` Kafka Connect setting.
+JMX metrics are not collected via the official Kafka Connect interface, and are not reported by reporters defined via `metric.reporters` Kafka Connect setting.
 To consume these metrics, you must use a JMX-compatible monitoring tool or agent.
 ====
 

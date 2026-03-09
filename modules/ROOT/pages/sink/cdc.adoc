@@ -319,7 +319,7 @@ There are currently two batching strategies used by the CDC sink handlers:
 . Native strategy: This strategy generates a single Cypher statement containing multiple subqueries for each message in the batch, and executes it using the standard Cypher execution engine.
 The maximum number of subqueries included in a single batch when using the native strategy can be configured using the `neo4j.max-batched-queries` setting, which defaults to `50`.
 
-Connector will prefer APOC Core `apoc.cypher.doIt` based batching strategy when available, falling back to the native strategy when APOC Core is not available on the target database.
+Connector prefers APOC Core `apoc.cypher.doIt` based batching strategy when available, falling back to the native strategy when APOC Core is not available on the target database.
 Native strategy is only available starting from version 5.3.0.
 
 Batch size, which applies to both batching strategies, can be configured using the `neo4j.batch-size` setting, which defaults to `1000`.

@@ -35,7 +35,7 @@ This setting is only applicable to CDC sink strategies for the time being, and w
 When specified, this setting allows to achieve exactly-once processing guarantees for sink strategies by keeping track of the last successfully processed message offset in the database.
 
 [NOTE]
-This setting is only applicable to CDC sink strategies for the time being, and will be ignored for non-CDC strategies.
+This setting is only applicable to CDC sink strategies for the time being, and is ignored for non-CDC strategies.
 
 |===
 
