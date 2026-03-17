@@ -15,6 +15,7 @@
 ** xref:source/query.adoc[Query]
 * xref:source/schema-registry.adoc[Schema Registry]
 * xref:source/configuration.adoc[Settings]
+* xref:source/monitoring.adoc[Monitoring]
 * xref:source/payload-mode.adoc[Payload Mode]
 
 * *Sink connector*
@@ -26,6 +27,7 @@
 * xref:sink/connect-types.adoc[Type support]
 * xref:sink/error-handling.adoc[Error handling]
 * xref:sink/configuration.adoc[Settings]
+* xref:sink/monitoring.adoc[Monitoring]
 
 * *Upgrades and migrations*
 * xref:migration/5.1/index.adoc[From 5.0 to 5.1]

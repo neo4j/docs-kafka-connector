@@ -133,6 +133,12 @@ curl -X POST http://localhost:8083/connectors \
 This will create a Kafka Connect source instance that will send change event messages matching the provided selectors over to the `my-topic` topic, using your preferred serialization format.
 In Control Center, confirm that the Source connector has been created in the Connect tab, under connect-default.
 
+[NOTE]
+====
+The CDC Source connector provides JMX metrics to monitor the status of the data ingestion.
+See xref:source/monitoring.adoc[Source Monitoring] for more information.
+====
+
 [#patterns]
 == Patterns
 
