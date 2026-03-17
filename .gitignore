@@ -34,7 +34,7 @@ tags
 target/
 
 # node modules
-./package-lock.json
+package-lock.json
 node_modules/
 .env
 
