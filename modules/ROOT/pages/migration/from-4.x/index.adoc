@@ -1,3 +1,0 @@
-= Migrate from 4.x
-
-PLACEHOLDER PAGE
