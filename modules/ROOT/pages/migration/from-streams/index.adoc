@@ -3,17 +3,21 @@
 
 There are significant differences between the Neo4j Streams plugin (referred to as the Streams plugin), which runs on Neo4j as a plugin, and the Neo4j Connector for Kafka (referred to as the Connector for Kafka), which runs on Kafka Connect.
 
-This guide has been provided to help you understand which Streams plugin settings have near equivalents to those available in the Kafka Connector, and which settings do not apply. Please refer to the Neo4j Connector for Kafka documentation to understand the behavioural differences and successfully configure the connector.
+This guide has been provided to help you understand which Streams plugin settings have near equivalents to those available in the Kafka Connector, and which settings do not apply.
+Refer to the Neo4j Connector for Kafka documentation to understand the behavioural differences and successfully configure the connector.
 
 == Architectural differences
 
 Streams runs as a plugin (jar), deployed on Neo4j, and configured via _neo4j.conf_ file. The streams plugin manages Kafka connections itself, hence it needs several configuration options to configure the underlying Kafka clients accordingly.
 
-Neo4j Connector for Kafka is a Kafka Connect connector (JAR) that runs on top of Kafka Connect. Kafka Connect must be configured and brought online separately before deploying the Connector for Kafka. Please note that Kafka Connect introduces the concept of link:https://docs.confluent.io/platform/current/connect/index.html#converters[Converters], and you will need to configure them either globally for all your connectors in your Kafka Connect instance or per connector in the connector's configuration. 
+Neo4j Connector for Kafka is a Kafka Connect connector (JAR) that runs on top of Kafka Connect.
+Kafka Connect must be configured and brought online separately before deploying the Connector for Kafka.
+Note that Kafka Connect introduces the concept of link:https://docs.confluent.io/platform/current/connect/index.html#converters[Converters], and you will need to configure them either globally for all your connectors in your Kafka Connect instance or per connector in the connector's configuration. 
 
 The Streams plugin supports both sink and source capabilities within a single plugin instance, whereas the Neo4j Connector for Kafka must be configured explicitly as a source or sink connector at launch.
 
-Unlike the Streams plugin, the Neo4j Connector for Kafka does not handle Kafka-specific configuration settings. Please ensure the appropriate settings are set on Kafka Connect. 
+Unlike the Streams plugin, the Neo4j Connector for Kafka does not handle Kafka-specific configuration settings.
+Ensure the appropriate settings are set on Kafka Connect. 
 
 The Streams plugin operates as an in-process client for the underlying Neo4j database, whereas Neo4j Connector for Kafka is designed to run on Kafka Connect and establishes a database connection over BOLT using the Neo4j Driver for Java.
 
@@ -29,9 +33,12 @@ streams.source.enabled=true
 
 == Kafka settings
 
-The following settings were previously referenced in the Streams documentation; they may have been in the _neo4j.conf_ file, they are no longer supported and should not be included in the new connector configuration. Please ensure your Kafka Connect instance is configured correctly. Please refer to link:https://docs.confluent.io/platform/current/connect/index.html[Confluent] or link:https://kafka.apache.org/42/kafka-connect/overview/[Apache Kafka] documentation for details.
+The following settings were previously referenced in the Streams documentation; they may have been in the _neo4j.conf_ file, they are no longer supported and should not be included in the new connector configuration.
+Ensure your Kafka Connect instance is configured correctly.
+Refer to link:https://docs.confluent.io/platform/current/connect/index.html[Confluent] or link:https://kafka.apache.org/42/kafka-connect/overview/[Apache Kafka] documentation for details.
 
-NOTE: These settings are listed for reference and should not be used for your Kafka Connect instance. Please refer to the relevant documentation for configuring a Kafka Connect instance instead. 
+NOTE: These settings are listed for reference and should not be used for your Kafka Connect instance.
+Refer to the relevant documentation for configuring a Kafka Connect instance instead.
 
 === Consumer settings
 
@@ -58,7 +65,7 @@ These control how your application sends data to Kafka.
 
 [source]
 ----
-kafka.acks=1all
+kafka.acks=all
 kafka.batch.size=16384
 kafka.buffer.memory=33554432
 kafka.linger.ms=1
@@ -124,7 +131,9 @@ streams.source.topic.nodes.<TOPIC_NAME>=<PATTERN>
 streams.source.topic.relationships.<TOPIC_NAME>=<PATTERN>
 ----
 
-The pattern syntax used for the Streams plugin has been slightly updated to better reflect Cypher pattern syntax. Please refer to the link:https://neo4j.com/docs/kafka/current/source/cdc/#patterns[Patterns section] for more information about the new syntax. After you've migrated your patterns to the new syntax, please follow the instructions in the link:https://neo4j.com/docs/kafka/current/source/cdc/#_configuration[Configuration section] to build your new configuration.
+The pattern syntax used for the Streams plugin has been slightly updated to better reflect Cypher pattern syntax.
+Refer to the link:https://neo4j.com/docs/kafka/current/source/cdc/#patterns[Patterns section] for more information about the new syntax.
+After you've migrated your patterns to the new syntax, follow the instructions in the link:https://neo4j.com/docs/kafka/current/source/cdc/#_configuration[Configuration section] to build your new configuration.
 
 For example, the following Streams configuration:
 
@@ -146,7 +155,7 @@ Will become:
 [NOTE]
 ====
 If you are on a Neo4j or Aura version where CDC is not available, you can use the query-based source connector instead.
-Please refer to the link:https://neo4j.com/docs/kafka/current/source/query/[Query strategy section] for more information.
+Refer to the link:https://neo4j.com/docs/kafka/current/source/query/[Query strategy section] for more information.
 ====
 
 == Streams as a Sink
@@ -253,4 +262,4 @@ Will become:
 === Error handling
 
 Kafka Connect has its own error-handling mechanism for processing sink messages.
-Please refer to the link:https://neo4j.com/docs/kafka/current/sink/error-handling/[Error handling section] for more information on configuring your sink connectors for advanced error handling.
+Refer to the link:https://neo4j.com/docs/kafka/current/sink/error-handling/[Error handling section] for more information on configuring your sink connectors for advanced error handling.
