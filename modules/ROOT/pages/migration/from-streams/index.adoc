@@ -39,7 +39,7 @@ neo4j.batch-size
 neo4j.query.timeout
 ----
 
-=== Deprecated settings
+=== Removed settings
 
 The following _neo4j.conf_ settings, previously referenced in the link:https://neo4j.com/docs/kafka-streams/[Neo4j Streams documentation], are no longer supported and should not be included in the new connector configuration.
 
@@ -102,158 +102,171 @@ kafka.replication
 kafka.streams.log.compaction.strategy
 ----
 
-== Streams as a Source
+== Neo4j Streams as a source
 
-If you are using the Streams connector as a source, then read link:https://neo4j.com/docs/kafka/current/source.
-Streams as a source has been superseded by the CDC + Neo4j Connector for Kafka Source connector, and you will need to be on a Neo4j 5.26 LTS enterprise edition, the latest calver Enterprise Edition, Aura Business Critical, or Virtual Private Connect tiers in order to use CDC.
+The source capability of the Neo4j Streams plugin has been replaced by the xref:source/cdc.adoc[Change Data Capture (CDC) source connector].
 
-The following source configuration settings are no longer in use:
+[IMPORTANT]
+====
+CDC requires one of the following Neo4j deployments:
 
-[source]
-----
-streams.source.enabled=true | false
-streams.source.enabled.from.<database>=true | false
-streams.source.topic.relationships.<TOPIC_NAME>.key_strategy=default
-streams.source.schema.polling.interval=10000
-----
+* Neo4j Aura Business Critical or Virtual Private Connect tier
+* The latest Neo4j Enterprise Edition
+* Neo4j 5.26 LTS Enterprise Edition
 
-The following streams' source configuration settings have a near equivalent:
+If you are on a Neo4j or Aura version where CDC is not available, you can use the xref:source/query.adoc[query-based source connector] instead.
+====
 
-[source]
-----
-streams.source.topic.nodes.<TOPIC_NAME>=<PATTERN> 
-streams.source.topic.relationships.<TOPIC_NAME>=<PATTERN>
-----
+=== Required changes
 
-The pattern syntax used for the Streams plugin has been slightly updated to better reflect Cypher pattern syntax.
-Refer to the link:https://neo4j.com/docs/kafka/current/source/cdc/#patterns[Patterns section] for more information about the new syntax.
-After you've migrated your patterns to the new syntax, follow the instructions in the link:https://neo4j.com/docs/kafka/current/source/cdc/#_configuration[Configuration section] to build your new configuration.
+See xref:source/cdc.adoc[Source -> CDC] for details on the new configuration options.
 
-For example, the following Streams configuration:
+The pattern syntax used for the Streams plugin has been updated to better reflect the Cypher pattern syntax, as in the following example:
 
+[.tabbed-example]
+====
+[.include-with-Neo4j-Streams]
+=====
 [source]
 ----
 streams.source.topic.nodes.my-nodes-topic=Person{*}
 streams.source.topic.relationships.my-rels-topic=BELONGS-TO{*}
 ----
+=====
 
-Will become:
-
+[.include-with-Neo4j-Connector-for-Kafka]
+=====
 [source]
 ----
 "neo4j.source-strategy": "CDC",
 "neo4j.cdc.topic.my-nodes-topic.patterns": "(:Person)"
 "neo4j.cdc.topic.my-rels-topic.patterns": "()-[:BELONGS-TO]->()"
 ----
-
-[NOTE]
-====
-If you are on a Neo4j or Aura version where CDC is not available, you can use the query-based source connector instead.
-Refer to the link:https://neo4j.com/docs/kafka/current/source/query/[Query strategy section] for more information.
+=====
 ====
 
-== Streams as a Sink
+=== Removed settings
 
-If you are using the Streams connector as a sink, then read link:https://neo4j.com/docs/kafka/current/sink/[Sink configuration section].
+[source]
+----
+streams.source.enabled
+streams.source.enabled.from.<database>
+streams.source.topic.relationships.<TOPIC_NAME>.key_strategy
+streams.source.schema.polling.interval
+----
 
-Neo4j Connector for Kafka supports all of the sink strategies available in the Streams plugin.
+== Neo4j Streams as a sink
+
+Neo4j Connector for Kafka supports all of the sink strategies available for the Neo4j Streams plugin.
 
 === Cypher strategy
 
-The Streams setting
+[cols="1a,1a",options="header"]
+|===
+|Neo4j Streams | Neo4j Connector for Kafka
 
-[source]
+|
 ----
 streams.sink.topic.cypher.<TOPIC_NAME>=<CYPHER_QUERY>
 ----
 
-becomes:
-
-[source]
+|
 ----
 "neo4j.cypher.topic.<YOUR_TOPIC>": "<YOUR_CYPHER_QUERY>"
 ----
+|===
 
-in the Neo4j Connector for Kafka. Furthermore, you have more options to map incoming message headers, keys, and/or values in recent versions, as described link:https://neo4j.com/docs/kafka/current/sink/cypher/[here].
+The Neo4j Connector for Kafka adds more options to map incoming message headers, keys, and/or values in recent versions, as described in xref:sink/cypher.adoc[Sink -> Cypher].
 
-=== Change Data Capture Event strategy
+=== CDC strategy
 
-Both SourceId and Schema strategies for CDC events are still supported. While Neo4j Connector for Kafka Source CDC connectors will emit CDC events with a new CDC-compatible schema, sink connectors are still able to read CDC messages generated from the Streams plugin.
+Both SourceId and Schema strategies for CDC events are still supported.
+While the source CDC connectors emit CDC events with a new CDC-compatible schema, sink connectors are still able to read CDC messages generated from the Neo4j Streams plugin.
 
-The following SourceId Streams configuration:
+.Changes for the SourceId strategy
+[cols="1a,1a",options="header"]
+|===
+|Neo4j Streams | Neo4j Connector for Kafka
 
-[source]
+|
 ----
 streams.sink.topic.cdc.sourceId=<list of topics separated by semicolon>
 streams.sink.topic.cdc.sourceId.labelName=<the label attached to the node, default=SourceEvent>
 streams.sink.topic.cdc.sourceId.idName=<the id name given to the CDC id field, default=sourceId>
 ----
 
-Will become:
-
-[source]
+|
 ----
 "neo4j.cdc.source-id.topics": "<comma-separated list of topics>"
 "neo4j.cdc.source-id.label-name": "<the label attached to the node, default=SourceEvent>"
 "neo4j.cdc.source-id.property-name": "<the property name given to the CDC id field, default=sourceId>"
 ----
+|===
 
-Similar to above, the following Schema Streams configuration:
+.Changes for the Schema strategy
+[cols="1a,1a",options="header"]
+|===
+|Neo4j Streams | Neo4j Connector for Kafka
 
-[source]
+|
 ----
 streams.sink.topic.cdc.schema=<LIST_OF_TOPICS_SEPARATED_BY_SEMICOLON>
 ----
 
-Will become:
-[source]
+|
 ----
 "neo4j.cdc.schema.topics": "<COMMA_SEPARATED_LIST_OF_TOPICS>"
 ----
+|===
 
 === Pattern strategy
 
-The pattern syntax in Streams configuration is fully supported in Neo4j Connector for Kafka. While both simple and Cypher-like patterns are supported, Cypher-like patterns are the more preferred way of defining patterns.
+The pattern syntax from the Neo4j Streams configuration is fully supported in the Neo4j Connector for Kafka.
+While both simple and Cypher-like patterns are supported, the latter are the preferred way of defining patterns.
 
-The following pattern Streams configuration:
+[cols="1a,1a",options="header"]
+|===
+|Neo4j Streams | Neo4j Connector for Kafka
 
-[source]
+|
 ----
 streams.sink.topic.pattern.node.user=(:User{!userId})
 streams.sink.topic.pattern.node.product=(:Product{!productId})
 streams.sink.topic.pattern.relationship.bought=(:User{!userId})-[:BOUGHT{price, currency}]->(:Product{!productId})
 ----
 
-Will become:
-
-[source]
+|
 ----
 "neo4j.pattern.topic.user": "(:User{!userId})",
 "neo4j.pattern.topic.product": "(:Product{!productId})",
 "neo4j.pattern.topic.bought": "(:User{!userId})-[:BOUGHT{price, currency}]->(:Product{!productId})"
 ----
+|===
 
-Note that there is no node or relationship distinction in Neo4j Connector for Kafka while declaring your pattern configuration. You can also add more topics with different patterns to the same connector. Furthermore, Neo4j Connector for Kafka introduces additional capabilities in your patterns, such as mapping incoming message properties to a new name, as discussed in the link:https://neo4j.com/docs/kafka/current/sink/pattern/#_patterns[Patterns section].
+Note that there is no node or relationship distinction in Neo4j Connector for Kafka while declaring your pattern configuration.
+You can also add more topics with different patterns to the same connector.
+Furthermore, Neo4j Connector for Kafka introduces additional capabilities in your patterns, such as mapping incoming message properties to a new name, as discussed in the xref:sink/pattern.adoc#_patterns[Patterns section].
 
 === CUD File Format strategy
 
 The CUD File Format strategy in Streams configuration is fully supported in Neo4j Connector for Kafka.
 
-The following Streams plugin configuration:
+[cols="1a,1a",options="header"]
+|===
+|Neo4j Streams | Neo4j Connector for Kafka
 
-[source]
+|
 ----
 streams.sink.topic.cud=<LIST_OF_TOPICS_SEPARATED_BY_SEMICOLON>
 ----
 
-Will become:
-
-[source]
+|
 ----
 "neo4j.cud.topics": "<COMMA_SEPARATED_LIST_OF_TOPICS>"
 ----
+|===
 
 === Error handling
 
 Kafka Connect has its own error-handling mechanism for processing sink messages.
-Refer to the link:https://neo4j.com/docs/kafka/current/sink/error-handling/[Error handling section] for more information on configuring your sink connectors for advanced error handling.
+Refer to xref:sink/error-handling.adoc[Sink -> Error handling] for more information on configuring your sink connectors for advanced error handling.
