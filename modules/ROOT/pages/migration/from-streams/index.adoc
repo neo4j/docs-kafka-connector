@@ -1,117 +1,111 @@
 [[streams-migration]]
 = Migrate from Neo4j Streams
 
-There are significant differences between the Neo4j Streams plugin (referred to as the Streams plugin), which runs on Neo4j as a plugin, and the Neo4j Connector for Kafka (referred to as the Connector for Kafka), which runs on Kafka Connect.
+The Neo4j Connector for Kafka and the link:https://neo4j.com/docs/kafka-streams/[Neo4j Streams plugin] differ significantly in the architecture.
 
-This guide has been provided to help you understand which Streams plugin settings have near equivalents to those available in the Kafka Connector, and which settings do not apply.
-Refer to the Neo4j Connector for Kafka documentation to understand the behavioural differences and successfully configure the connector.
+The following table summarises the differences between the two solutions.
 
-== Architectural differences
+[cols="1s,1,1",options="header"]
+|===
+| | Neo4j Streams plugin | Neo4j Connector for Kafka
 
-Streams runs as a plugin (jar), deployed on Neo4j, and configured via _neo4j.conf_ file. The streams plugin manages Kafka connections itself, hence it needs several configuration options to configure the underlying Kafka clients accordingly.
+|Deployment
+|Plugin deployed on Neo4j as JAR file; manages Kafka connections itself
+|Kafka Connect connector running on Kafka Connect, running separately from Neo4j
 
-Neo4j Connector for Kafka is a Kafka Connect connector (JAR) that runs on top of Kafka Connect.
-Kafka Connect must be configured and brought online separately before deploying the Connector for Kafka.
-Note that Kafka Connect introduces the concept of link:https://docs.confluent.io/platform/current/connect/index.html#converters[Converters], and you will need to configure them either globally for all your connectors in your Kafka Connect instance or per connector in the connector's configuration. 
+|Communication
+|In-process client for the underlying Neo4j database
+|Establishes a database connection over BOLT using the Neo4j Driver for Java
 
-The Streams plugin supports both sink and source capabilities within a single plugin instance, whereas the Neo4j Connector for Kafka must be configured explicitly as a source or sink connector at launch.
+|Configuration
+|Kafka configuration options in the _neo4j.conf_ file
+|Kafka configuration and link:https://docs.confluent.io/platform/current/connect/index.html#converters[Converters] configured either globally in the Kafka Connect instance or per connector in the connector's configuration
 
-Unlike the Streams plugin, the Neo4j Connector for Kafka does not handle Kafka-specific configuration settings.
-Ensure the appropriate settings are set on Kafka Connect. 
+|Sink/Source role
+|Supports both sink and source capabilities within a single plugin instance
+|Must be configured explicitly as a source or sink connector at launch
 
-The Streams plugin operates as an in-process client for the underlying Neo4j database, whereas Neo4j Connector for Kafka is designed to run on Kafka Connect and establishes a database connection over BOLT using the Neo4j Driver for Java.
+|===
 
-The following settings are no longer required within the Neo4j Connector for Kafka.
+== Kafka configuration
 
-[source]
-----
-streams.procedures.enabled=true | false <1>
-streams.sink.enabled=true
-streams.source.enabled=true
-----
-<1> The default is `true`.
+=== Near-equivalent settings
 
-== Kafka settings
-
-The following settings were previously referenced in the Streams documentation; they may have been in the _neo4j.conf_ file, they are no longer supported and should not be included in the new connector configuration.
-Ensure your Kafka Connect instance is configured correctly.
-Refer to link:https://docs.confluent.io/platform/current/connect/index.html[Confluent] or link:https://kafka.apache.org/42/kafka-connect/overview/[Apache Kafka] documentation for details.
-
-NOTE: These settings are listed for reference and should not be used for your Kafka Connect instance.
-Refer to the relevant documentation for configuring a Kafka Connect instance instead.
-
-=== Consumer settings
-
-Control how your application reads data from Kafka.
+The following Kafka settings managed in the Streams plugin have a near-equivalent setting in the Neo4j Connector.
 
 [source]
 ----
-kafka.auto.offset.reset=earliest
-kafka.enable.auto.commit=true | false
-kafka.group.id=
-kafka.max.poll.records=500 <1>
-kafka.session.timeout.ms=15000
-kafka.topic.discovery.polling.interval=300000
-kafka.value.deserializer=io.confluent.kafka.serializers.KafkaAvroDeserializer <2>
-kafka.value.deserializer=org.apache.kafka.common.serialization.ByteArrayDeserializer <3>
+neo4j.batch-size
+neo4j.query.timeout
 ----
-<1> `500` is the default value.
-<2> Common for Schema Registry.
-<3> Standard raw bytes.
 
-=== Producer settings
+=== Deprecated settings
 
-These control how your application sends data to Kafka.
+The following _neo4j.conf_ settings, previously referenced in the link:https://neo4j.com/docs/kafka-streams/[Neo4j Streams documentation], are no longer supported and should not be included in the new connector configuration.
 
+[NOTE]
+====
+In general, configuration settings starting with the `kafka.` prefix are no longer supported in the Kafka connector.
+====
+
+.General plugin settings
 [source]
 ----
-kafka.acks=all
-kafka.batch.size=16384
-kafka.buffer.memory=33554432
-kafka.linger.ms=1
-kafka.retries=2
-kafka.transactional.id=
+streams.procedures.enabled
+streams.sink.enabled
+streams.source.enabled
 ----
 
-=== Security and connection settings
-
-General settings for establishing and securing the connection to the cluster.
-
+.Consumer settings
 [source]
 ----
-kafka.bootstrap.servers=
-kafka.connection.timeout.ms=10000
-kafka.security.protocol=SSL
-kafka.ssl.endpoint.identification.algorithm=HTTPS
-kafka.ssl.key.password=
-kafka.ssl.keystore.location=
-kafka.ssl.keystore.password=
-kafka.ssl.truststore.location=
-kafka.ssl.truststore.password=
+kafka.auto.offset.reset
+kafka.enable.auto.commit
+kafka.group.id
+kafka.max.poll.records
+kafka.session.timeout.ms
+kafka.topic.discovery.polling.interval
+kafka.value.deserializer
+kafka.value.deserializer
 ----
 
-=== Miscellaneous / Stream settings
-
+.Producer settings
 [source]
 ----
-kafka.reindex.batch.size=1000
-kafka.replication=1
-kafka.streams.log.compaction.strategy=delete
+kafka.acks
+kafka.batch.size
+kafka.buffer.memory
+kafka.linger.ms
+kafka.retries
+kafka.transactional.id
 ----
 
-=== Configuring Kafka and Neo4j to work together
-
-The following Kafka settings managed in the Streams plugin have a near equivalent setting in the Neo4j Connector that should be reviewed.
-
+.Security and connection settings
 [source]
 ----
-neo4j.batch-size=1000
-neo4j.query.timeout=0
+kafka.bootstrap.servers
+kafka.connection.timeout.ms
+kafka.security.protocol
+kafka.ssl.endpoint.identification.algorithm
+kafka.ssl.key.password
+kafka.ssl.keystore.location
+kafka.ssl.keystore.password
+kafka.ssl.truststore.location
+kafka.ssl.truststore.password
+----
+
+.Other settings
+[source]
+----
+kafka.reindex.batch.size
+kafka.replication
+kafka.streams.log.compaction.strategy
 ----
 
 == Streams as a Source
 
-If you are using the Streams connector as a source, then read https://neo4j.com/docs/kafka/current/source. Streams as a source has been superseded by the CDC + Neo4j Connector for Kafka Source connector, and you will need to be on a Neo4j 5.26 LTS enterprise edition, the latest calver Enterprise Edition, Aura Business Critical, or Virtual Private Connect tiers in order to use CDC.
+If you are using the Streams connector as a source, then read link:https://neo4j.com/docs/kafka/current/source.
+Streams as a source has been superseded by the CDC + Neo4j Connector for Kafka Source connector, and you will need to be on a Neo4j 5.26 LTS enterprise edition, the latest calver Enterprise Edition, Aura Business Critical, or Virtual Private Connect tiers in order to use CDC.
 
 The following source configuration settings are no longer in use:
 
