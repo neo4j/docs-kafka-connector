@@ -29,16 +29,7 @@ The following table summarises the differences between the two solutions.
 
 == Kafka configuration
 
-=== Near-equivalent settings
-
-The following Kafka settings managed in the Streams plugin have a near-equivalent setting in the Neo4j Connector.
-See the xref:source/configuration.adoc[source] and xref:sink/configuration.adoc[sink] configuration settings for more details.
-
-[source]
-----
-neo4j.batch-size
-neo4j.query.timeout
-----
+See the xref:source/configuration.adoc[source] and xref:sink/configuration.adoc[sink] configuration for a detailed description of the new settings.
 
 === Removed settings
 
@@ -111,11 +102,11 @@ The source capability of the Neo4j Streams plugin has been replaced by the xref:
 ====
 CDC requires one of the following Neo4j deployments:
 
-* Neo4j Aura Business Critical or Virtual Private Connect tier
+* Neo4j AuraDB Business Critical or Virtual Dedicated Cloud tier
 * The latest Neo4j Enterprise Edition
 * Neo4j 5.26 LTS Enterprise Edition
 
-If you are on a Neo4j or Aura version where CDC is not available, you can use the xref:source/query.adoc[query-based source connector] instead.
+If you are on a Neo4j or AuraDB version where CDC is not available, you can use the xref:source/query.adoc[query-based source connector] instead.
 ====
 
 === Required changes
@@ -205,8 +196,8 @@ streams.sink.topic.cdc.sourceId.idName=_<the ID name given to the CDC ID field, 
 =====
 [source,subs="+quotes"]
 ----
-"neo4j.cdc.source-id.topics": "_<comma-separated list of topics>_"
-"neo4j.cdc.source-id.label-name": "_<the label attached to the node, default=SourceEvent>_"
+"neo4j.cdc.source-id.topics": "_<comma-separated list of topics>_",
+"neo4j.cdc.source-id.label-name": "_<the label attached to the node, default=SourceEvent>_",
 "neo4j.cdc.source-id.property-name": "_<the property name given to the CDC id field, default=sourceId>_"
 ----
 =====
