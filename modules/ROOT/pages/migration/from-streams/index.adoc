@@ -32,6 +32,7 @@ The following table summarises the differences between the two solutions.
 === Near-equivalent settings
 
 The following Kafka settings managed in the Streams plugin have a near-equivalent setting in the Neo4j Connector.
+See the xref:source/configuration.adoc[source] and xref:sink/configuration.adoc[sink] configuration settings for more details.
 
 [source]
 ----
@@ -41,11 +42,11 @@ neo4j.query.timeout
 
 === Removed settings
 
-The following _neo4j.conf_ settings, previously referenced in the link:https://neo4j.com/docs/kafka-streams/[Neo4j Streams documentation], are no longer supported and should not be included in the new connector configuration.
+The Kafka settings in the _neo4j.conf_ file used by the Neo4j Streams plugin are no longer supported, and must not be included in the new connector configuration.
 
 [NOTE]
 ====
-In general, configuration settings starting with the `kafka.` prefix are no longer supported in the Kafka connector.
+In general, configuration settings starting with the `kafka.` prefix are no longer supported in the Neo4j Connector for Kafka.
 ====
 
 .General plugin settings
@@ -157,7 +158,7 @@ streams.source.schema.polling.interval
 
 == Neo4j Streams as a sink
 
-Neo4j Connector for Kafka supports all of the sink strategies available for the Neo4j Streams plugin.
+The Neo4j Connector for Kafka supports all of the sink strategies available for the Neo4j Streams plugin.
 
 === Cypher strategy
 
@@ -259,13 +260,14 @@ streams.sink.topic.pattern.relationship.bought=(:User{!userId})-[:BOUGHT{price, 
 =====
 ====
 
-Note that there is no node or relationship distinction in Neo4j Connector for Kafka while declaring your pattern configuration.
+Note that there is no node or relationship distinction in the Neo4j Connector for Kafka while declaring your pattern configuration.
+
 You can also add more topics with different patterns to the same connector.
-Furthermore, Neo4j Connector for Kafka introduces additional capabilities in your patterns, such as mapping incoming message properties to a new name, as discussed in the xref:sink/pattern.adoc#_patterns[Patterns section].
+Furthermore, the Neo4j Connector for Kafka introduces additional capabilities such as mapping incoming message properties to a new name, as shown in the xref:sink/pattern.adoc#_patterns[Patterns section].
 
 === CUD File Format strategy
 
-The CUD File Format strategy in Streams configuration is fully supported in Neo4j Connector for Kafka.
+The CUD File Format strategy is fully supported in the Neo4j Connector for Kafka.
 
 [.tabbed-example]
 ====
@@ -288,5 +290,5 @@ streams.sink.topic.cud=<LIST_OF_TOPICS_SEPARATED_BY_SEMICOLON>
 
 === Error handling
 
-Kafka Connect has its own error-handling mechanism for processing sink messages.
+Kafka Connect has its own error-handling mechanism to process sink messages.
 Refer to xref:sink/error-handling.adoc[Sink -> Error handling] for more information on configuring your sink connectors for advanced error handling.
