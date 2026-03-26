@@ -161,20 +161,24 @@ Neo4j Connector for Kafka supports all of the sink strategies available for the 
 
 === Cypher strategy
 
-[cols="1a,1a",options="header"]
-|===
-|Neo4j Streams | Neo4j Connector for Kafka
-
-|
+[.tabbed-example]
+====
+[.include-with-Neo4j-Streams]
+=====
+[source]
 ----
 streams.sink.topic.cypher.<TOPIC_NAME>=<CYPHER_QUERY>
 ----
+=====
 
-|
+[.include-with-Neo4j-Connector-for-Kafka]
+=====
+[source]
 ----
 "neo4j.cypher.topic.<YOUR_TOPIC>": "<YOUR_CYPHER_QUERY>"
 ----
-|===
+=====
+====
 
 The Neo4j Connector for Kafka adds more options to map incoming message headers, keys, and/or values in recent versions, as described in xref:sink/cypher.adoc[Sink -> Cypher].
 
@@ -184,64 +188,76 @@ Both SourceId and Schema strategies for CDC events are still supported.
 While the source CDC connectors emit CDC events with a new CDC-compatible schema, sink connectors are still able to read CDC messages generated from the Neo4j Streams plugin.
 
 .Changes for the SourceId strategy
-[cols="1a,1a",options="header"]
-|===
-|Neo4j Streams | Neo4j Connector for Kafka
-
-|
+[.tabbed-example]
+====
+[.include-with-Neo4j-Streams]
+=====
+[source]
 ----
 streams.sink.topic.cdc.sourceId=<list of topics separated by semicolon>
 streams.sink.topic.cdc.sourceId.labelName=<the label attached to the node, default=SourceEvent>
 streams.sink.topic.cdc.sourceId.idName=<the id name given to the CDC id field, default=sourceId>
 ----
+=====
 
-|
+[.include-with-Neo4j-Connector-for-Kafka]
+=====
+[source]
 ----
 "neo4j.cdc.source-id.topics": "<comma-separated list of topics>"
 "neo4j.cdc.source-id.label-name": "<the label attached to the node, default=SourceEvent>"
 "neo4j.cdc.source-id.property-name": "<the property name given to the CDC id field, default=sourceId>"
 ----
-|===
+=====
+====
 
 .Changes for the Schema strategy
-[cols="1a,1a",options="header"]
-|===
-|Neo4j Streams | Neo4j Connector for Kafka
-
-|
+[.tabbed-example]
+====
+[.include-with-Neo4j-Streams]
+=====
+[source]
 ----
 streams.sink.topic.cdc.schema=<LIST_OF_TOPICS_SEPARATED_BY_SEMICOLON>
 ----
+=====
 
-|
+[.include-with-Neo4j-Connector-for-Kafka]
+=====
+[source]
 ----
 "neo4j.cdc.schema.topics": "<COMMA_SEPARATED_LIST_OF_TOPICS>"
 ----
-|===
+=====
+====
 
 === Pattern strategy
 
 The pattern syntax from the Neo4j Streams configuration is fully supported in the Neo4j Connector for Kafka.
 While both simple and Cypher-like patterns are supported, the latter are the preferred way of defining patterns.
 
-[cols="1a,1a",options="header"]
-|===
-|Neo4j Streams | Neo4j Connector for Kafka
-
-|
+[.tabbed-example]
+====
+[.include-with-Neo4j-Streams]
+=====
+[source]
 ----
 streams.sink.topic.pattern.node.user=(:User{!userId})
 streams.sink.topic.pattern.node.product=(:Product{!productId})
 streams.sink.topic.pattern.relationship.bought=(:User{!userId})-[:BOUGHT{price, currency}]->(:Product{!productId})
 ----
+=====
 
-|
+[.include-with-Neo4j-Connector-for-Kafka]
+=====
+[source]
 ----
 "neo4j.pattern.topic.user": "(:User{!userId})",
 "neo4j.pattern.topic.product": "(:Product{!productId})",
 "neo4j.pattern.topic.bought": "(:User{!userId})-[:BOUGHT{price, currency}]->(:Product{!productId})"
 ----
-|===
+=====
+====
 
 Note that there is no node or relationship distinction in Neo4j Connector for Kafka while declaring your pattern configuration.
 You can also add more topics with different patterns to the same connector.
@@ -251,20 +267,24 @@ Furthermore, Neo4j Connector for Kafka introduces additional capabilities in you
 
 The CUD File Format strategy in Streams configuration is fully supported in Neo4j Connector for Kafka.
 
-[cols="1a,1a",options="header"]
-|===
-|Neo4j Streams | Neo4j Connector for Kafka
-
-|
+[.tabbed-example]
+====
+[.include-with-Neo4j-Streams]
+=====
+[source]
 ----
 streams.sink.topic.cud=<LIST_OF_TOPICS_SEPARATED_BY_SEMICOLON>
 ----
+=====
 
-|
+[.include-with-Neo4j-Connector-for-Kafka]
+=====
+[source]
 ----
 "neo4j.cud.topics": "<COMMA_SEPARATED_LIST_OF_TOPICS>"
 ----
-|===
+=====
+====
 
 === Error handling
 
