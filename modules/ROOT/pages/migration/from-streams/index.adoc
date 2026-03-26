@@ -5,7 +5,7 @@ The Neo4j Connector for Kafka and the link:https://neo4j.com/docs/kafka-streams/
 
 The following table summarises the differences between the two solutions.
 
-[cols="1s,1,1",options="header"]
+[cols="1s,2,2",options="header"]
 |===
 | | Neo4j Streams plugin | Neo4j Connector for Kafka
 
