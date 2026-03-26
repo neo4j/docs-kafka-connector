@@ -148,11 +148,11 @@ streams.source.topic.relationships.my-rels-topic=BELONGS-TO{*}
 
 === Removed settings
 
-[source]
+[source,subs="+quotes"]
 ----
 streams.source.enabled
-streams.source.enabled.from.<database>
-streams.source.topic.relationships.<TOPIC_NAME>.key_strategy
+streams.source.enabled.from._<database>_
+streams.source.topic.relationships._<TOPIC_NAME>_.key_strategy
 streams.source.schema.polling.interval
 ----
 
@@ -166,17 +166,17 @@ The Neo4j Connector for Kafka supports all of the sink strategies available for 
 ====
 [.include-with-Neo4j-Streams]
 =====
-[source]
+[source,subs="+quotes"]
 ----
-streams.sink.topic.cypher.<TOPIC_NAME>=<CYPHER_QUERY>
+streams.sink.topic.cypher._<TOPIC_NAME>=<CYPHER_QUERY>_
 ----
 =====
 
 [.include-with-Neo4j-Connector-for-Kafka]
 =====
-[source]
+[source,subs="+quotes"]
 ----
-"neo4j.cypher.topic.<YOUR_TOPIC>": "<YOUR_CYPHER_QUERY>"
+"neo4j.cypher.topic._<YOUR_TOPIC>_": "_<CYPHER_QUERY>_"
 ----
 =====
 ====
@@ -193,21 +193,21 @@ While the source CDC connectors emit CDC events with a new CDC-compatible schema
 ====
 [.include-with-Neo4j-Streams]
 =====
-[source]
+[source,subs="+quotes"]
 ----
-streams.sink.topic.cdc.sourceId=<list of topics separated by semicolon>
-streams.sink.topic.cdc.sourceId.labelName=<the label attached to the node, default=SourceEvent>
-streams.sink.topic.cdc.sourceId.idName=<the id name given to the CDC id field, default=sourceId>
+streams.sink.topic.cdc.sourceId=_<list of topics separated by semicolon>_
+streams.sink.topic.cdc.sourceId.labelName=_<the label attached to the node, default=SourceEvent>_
+streams.sink.topic.cdc.sourceId.idName=_<the ID name given to the CDC ID field, default=sourceId>_
 ----
 =====
 
 [.include-with-Neo4j-Connector-for-Kafka]
 =====
-[source]
+[source,subs="+quotes"]
 ----
-"neo4j.cdc.source-id.topics": "<comma-separated list of topics>"
-"neo4j.cdc.source-id.label-name": "<the label attached to the node, default=SourceEvent>"
-"neo4j.cdc.source-id.property-name": "<the property name given to the CDC id field, default=sourceId>"
+"neo4j.cdc.source-id.topics": "_<comma-separated list of topics>_"
+"neo4j.cdc.source-id.label-name": "_<the label attached to the node, default=SourceEvent>_"
+"neo4j.cdc.source-id.property-name": "_<the property name given to the CDC id field, default=sourceId>_"
 ----
 =====
 ====
@@ -217,17 +217,17 @@ streams.sink.topic.cdc.sourceId.idName=<the id name given to the CDC id field, d
 ====
 [.include-with-Neo4j-Streams]
 =====
-[source]
+[source,subs="+quotes"]
 ----
-streams.sink.topic.cdc.schema=<LIST_OF_TOPICS_SEPARATED_BY_SEMICOLON>
+streams.sink.topic.cdc.schema=_<list of topics separated by semicolon>_
 ----
 =====
 
 [.include-with-Neo4j-Connector-for-Kafka]
 =====
-[source]
+[source,subs="+quotes"]
 ----
-"neo4j.cdc.schema.topics": "<COMMA_SEPARATED_LIST_OF_TOPICS>"
+"neo4j.cdc.schema.topics": "_<comma-separated list of topics>_"
 ----
 =====
 ====
@@ -241,7 +241,7 @@ While both simple and Cypher-like patterns are supported, the latter are the pre
 ====
 [.include-with-Neo4j-Streams]
 =====
-[source]
+[source,subs="+quotes"]
 ----
 streams.sink.topic.pattern.node.user=(:User{!userId})
 streams.sink.topic.pattern.node.product=(:Product{!productId})
@@ -251,7 +251,7 @@ streams.sink.topic.pattern.relationship.bought=(:User{!userId})-[:BOUGHT{price, 
 
 [.include-with-Neo4j-Connector-for-Kafka]
 =====
-[source]
+[source,subs="+quotes"]
 ----
 "neo4j.pattern.topic.user": "(:User{!userId})",
 "neo4j.pattern.topic.product": "(:Product{!productId})",
@@ -273,17 +273,17 @@ The CUD File Format strategy is fully supported in the Neo4j Connector for Kafka
 ====
 [.include-with-Neo4j-Streams]
 =====
-[source]
+[source,subs="+quotes"]
 ----
-streams.sink.topic.cud=<LIST_OF_TOPICS_SEPARATED_BY_SEMICOLON>
+streams.sink.topic.cud=_<list of topics separated by semicolon>_
 ----
 =====
 
 [.include-with-Neo4j-Connector-for-Kafka]
 =====
-[source]
+[source,subs="+quotes"]
 ----
-"neo4j.cud.topics": "<COMMA_SEPARATED_LIST_OF_TOPICS>"
+"neo4j.cud.topics": "_<comma-separated list of topics>_"
 ----
 =====
 ====
