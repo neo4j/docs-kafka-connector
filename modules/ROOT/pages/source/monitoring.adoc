@@ -23,9 +23,9 @@ The following JMX metrics are available for CDC Source connector instances:
 | Number
 | The timestamp of the last committed CDC transaction polled by the connector.
 
-| `last_cdc_tx_commit_time_delta`
+| `last_cdc_tx_commit_age`
 | Number
-| Number of seconds since the last commited CDC message was polled by the connector.
+| Number of seconds since the last commited CDC message was polled by the connector. Retruns `-1` if no commit was polled.
 label:new[Introduced in 5.4.0]
 
 | `last_cdc_tx_start_timestamp`
