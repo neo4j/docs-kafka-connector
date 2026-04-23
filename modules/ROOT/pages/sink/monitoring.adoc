@@ -25,7 +25,7 @@ The following JMX metrics are available for CDC Sink connector instances:
 
 | `last_cdc_tx_commit_age`
 | Number
-| Number of seconds since the last commited CDC message was pushed by the connector. Returns `-1` if no commits was pushed.
+| Number of seconds since the last committed CDC message was pushed by the connector. Returns `-1` if no commits was pushed.
 label:new[Introduced in 5.4.0]
 
 | `last_cdc_tx_start_timestamp`
