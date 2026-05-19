@@ -2,6 +2,21 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.3.1
+
+[cols="1,2",options="header"]
+|===
+| Feature | Details
+
+a|
+label:feature[]
+label:new[]
+
+New JMX metric `last_cdc_tx_commit_age` for CDC Source and Sink connectors.
+| Reports the number of seconds since the last committed CDC message was polled (Source) or pushed (Sink) by the connector. Returns `-1` if no commit has been processed yet.
+
+|===
+
 == Version 5.3.0
 
 [cols="1,2",options="header"]
