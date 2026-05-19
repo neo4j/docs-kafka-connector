@@ -19,8 +19,8 @@ a|
 label:feature[]
 label:new[]
 
-Exactly Once support for CUD sink strategy.
-| The CUD sink strategy can now be configured to support Exactly Once semantics by tracking applied offsets in the target database, aligning its behavior with the CDC sink handlers.
+CUD sink strategy now supports Exactly Once semantics and batched processing.
+| The CUD sink strategy has been re-implemented on top of the shared sink action abstraction, so it now supports Exactly Once offset tracking and benefits from the batched processing strategies introduced for CDC sink handlers.
 
 a|
 label:feature[]
@@ -34,7 +34,7 @@ label:bug[]
 label:fixed[]
 
 Fix last database transaction ID query to handle multiple results.
-| In clustered Neo4j environments, the query used by the CDC Source connector to fetch the last database transaction ID could return multiple values, causing the connector to fail. The query is now updated to correctly handle multiple results.
+| In clustered Neo4j environments, the query used by the CDC Source connector to fetch the last database transaction ID could return multiple values, causing the connector to fail. The query has been updated to correctly handle multiple results.
 
 |===
 
