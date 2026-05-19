@@ -10,10 +10,10 @@ asciidoc:
     theme: docs
     copyright: Neo4j Inc.
     page-product: Neo4j Connector for Kafka
-    confluent-connect-version: '7.4'
+    confluent-connect-version: '7.7'
     connector-version: '5.3'
     exact-connector-version: '5.3.1'
-    kafka-connect-version: '3.9.2'
+    kafka-connect-version: '3.7.0'
     page-pagination: true
     product-name: Neo4j Connector for Kafka
     url-common-license-page: https://neo4j.com/docs/license/
