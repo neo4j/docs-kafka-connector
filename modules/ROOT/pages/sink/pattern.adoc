@@ -201,11 +201,11 @@ These handlers process messages in batches and apply them to the database more e
 
 There are currently two batching strategies used by the pattern sink handlers:
 
-. APOC Core based strategy: This strategy uses the `apoc.cypher.doIt` procedure to execute batches of Cypher statements generated from the pattern events.
+. APOC Core strategy: This strategy uses the `apoc.cypher.doIt` procedure to execute batches of Cypher statements generated from the pattern events.
 . Native strategy: This strategy generates a single Cypher statement containing multiple subqueries for each message in the batch, and executes it using the standard Cypher execution engine.
 The maximum number of subqueries included in a single batch when using the native strategy can be configured using the `neo4j.max-batched-queries` setting, which defaults to `50`.
 
-Connector prefers APOC Core `apoc.cypher.doIt` based batching strategy when available, falling back to the native strategy when APOC Core is not available on the target database.
+The connector defaults to the APOC core batching strategy when available, falling back to the native strategy when APOC Core is not available on the target database.
 
 Batch size, which applies to both batching strategies, can be configured using the `neo4j.batch-size` setting, which defaults to `1000`.
 
@@ -213,14 +213,15 @@ Batch size, which applies to both batching strategies, can be configured using t
 
 Starting from version 5.4.0, pattern sink handlers can be configured to achieve exactly-once processing guarantees by keeping track of the last successfully processed message offset in the database.
 This is achieved by storing a dedicated node representing the offset of the last successfully processed message.
-Use `neo4j.eos-offset-label` setting to specify a label name to attach to the offset node.
+
+Use the `neo4j.eos-offset-label` setting to specify a label name to attach to the offset node.
 This setting is empty by default, meaning that exactly-once semantics are disabled and the connector will not keep track of processed message offsets in the target database, meaning that at-least-once processing guarantees are provided.
 
 [IMPORTANT]
 ====
-Make sure that the configured label has a NODE KEY constraint defined on the 'strategy', 'topic' and 'partition' properties.
+Make sure that the configured label has a node key constraint defined on the `strategy`, `topic` and `partition` node properties.
 
-Assuming your `neo4j.eos-offset-label` is set to `__KafkaOffset`, the following constraint should be created on the target database:
+For example, if your `neo4j.eos-offset-label` is set to `__KafkaOffset`, the following constraint must appear on the target database:
 
 [source,cypher]
 ----
