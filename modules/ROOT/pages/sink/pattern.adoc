@@ -196,7 +196,7 @@ In order to achieve this, you have to use a different topic for each pattern.
 
 == Batching of pattern events
 
-Starting from version 5.3.1, batched sink handlers are available for the Pattern strategy to provide better throughput when processing pattern events.
+Starting from version 5.4.0, batched sink handlers are available for the Pattern strategy to provide better throughput when processing pattern events.
 These handlers process messages in batches and apply them to the database more efficiently.
 
 There are currently two batching strategies used by the pattern sink handlers:
@@ -211,7 +211,7 @@ Batch size, which applies to both batching strategies, can be configured using t
 
 == Exactly-once semantics
 
-Starting from version 5.3.1, pattern sink handlers can be configured to achieve exactly-once processing guarantees by keeping track of the last successfully processed message offset in the database.
+Starting from version 5.4.0, pattern sink handlers can be configured to achieve exactly-once processing guarantees by keeping track of the last successfully processed message offset in the database.
 This is achieved by storing a dedicated node representing the offset of the last successfully processed message.
 Use `neo4j.eos-offset-label` setting to specify a label name to attach to the offset node.
 This setting is empty by default, meaning that exactly-once semantics are disabled and the connector will not keep track of processed message offsets in the target database, meaning that at-least-once processing guarantees are provided.
