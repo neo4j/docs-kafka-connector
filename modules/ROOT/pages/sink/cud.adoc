@@ -578,7 +578,7 @@ This setting is empty by default, meaning that exactly-once semantics are disabl
 
 [IMPORTANT]
 ====
-Make sure that the configured label has a NODE KEY constraint defined on the 'strategy', 'topic' and 'partition' properties.
+Make sure that the configured label has a node key constraint defined on the `strategy`, `topic` and `partition` node properties.
 
 Assuming your `neo4j.eos-offset-label` is set to `__KafkaOffset`, the following constraint should be created on the target database:
 
