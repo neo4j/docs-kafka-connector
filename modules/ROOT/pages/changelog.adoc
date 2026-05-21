@@ -2,6 +2,42 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.4.0
+
+[cols="1,2",options="header"]
+|===
+| Feature | Details
+
+a|
+label:feature[]
+label:new[]
+
+New JMX metric `last_cdc_tx_commit_age` for CDC Source and Sink connectors.
+| Reports the number of seconds since the last committed CDC message was polled (Source) or pushed (Sink) by the connector. Returns `-1` if no commit has been processed yet.
+
+a|
+label:feature[]
+label:new[]
+
+CUD sink strategy now supports Exactly Once semantics and batched processing.
+| The CUD sink strategy has been re-implemented on top of the shared sink action abstraction, so it now supports Exactly Once offset tracking and benefits from the batched processing strategies introduced for CDC sink handlers.
+
+a|
+label:feature[]
+label:new[]
+
+Pattern sink handlers now support Exactly Once semantics and batched processing.
+| Node and relationship pattern sink handlers have been re-implemented on top of the shared sink action abstraction, so they now support Exactly Once offset tracking and benefit from the batched processing strategies introduced for CDC sink handlers.
+
+a|
+label:bug[]
+label:fixed[]
+
+Fix last database transaction ID query to handle multiple results.
+| In clustered Neo4j environments, the query used by the CDC Source connector to fetch the last database transaction ID could return multiple values, causing the connector to fail. The query has been updated to correctly handle multiple results.
+
+|===
+
 == Version 5.3.0
 
 [cols="1,2",options="header"]
