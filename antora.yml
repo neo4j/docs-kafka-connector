@@ -1,5 +1,5 @@
 name: kafka
-version: '5.3'
+version: '5.4'
 title: Neo4j Connector for Kafka
 start_page: ROOT:index.adoc
 nav:
