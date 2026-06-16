@@ -12,7 +12,7 @@ asciidoc:
     page-product: Neo4j Connector for Kafka
     confluent-connect-version: '7.7'
     connector-version: '5.4'
-    exact-connector-version: '5.4.0'
+    exact-connector-version: '5.4.1'
     kafka-connect-version: '3.7.0'
     page-pagination: true
     product-name: Neo4j Connector for Kafka
