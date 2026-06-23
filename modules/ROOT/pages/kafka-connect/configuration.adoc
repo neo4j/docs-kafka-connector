@@ -112,7 +112,7 @@ For further information about Kafka Connect properties, please checkout the foll
 * {url-confluent-install}/configuration/connect/sink-connect-configs.html
 * {url-confluent-install}/configuration/connect/source-connect-configs.html
 
-For further details about error handling properties refers to <<kafka_connect_error_handling, How deal with bad data>> section
+For further details about error handling properties refers to xref:kafka-connect/sink.adoc#kafka_connect_error_handling[How deal with bad data] section
 ====
 
 {product-name} supports also the secured Neo4j URI schemes.
