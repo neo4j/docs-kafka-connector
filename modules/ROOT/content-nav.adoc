@@ -13,6 +13,7 @@
 * xref::source.adoc[Configuration]
 ** xref:source/cdc.adoc[Change Data Capture]
 ** xref:source/query.adoc[Query]
+* xref:source/operational-best-practices.adoc[Best practices for Source connector]
 * xref:source/schema-registry.adoc[Schema Registry]
 * xref:source/configuration.adoc[Settings]
 * xref:source/monitoring.adoc[Monitoring]
