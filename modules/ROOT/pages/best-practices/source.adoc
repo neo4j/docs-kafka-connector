@@ -1,6 +1,6 @@
 = Best practices for Source connector
 
-This page collects recommendations for getting the best throughput out of the Source connector.
+This page collects recommendations and operational practices for running the Source connector.
 Each recommendation explains the trade-offs so you can decide whether it applies to your use case.
 
 [#serialization-format]
@@ -21,12 +21,12 @@ Before adopting it, make sure the structure of your exported data is suitable fo
 [#cdc-key-strategy]
 == Choose the CDC key strategy deliberately
 
-For the xref:source/cdc.adoc[Change Data Capture] strategy, `neo4j.cdc.topic.{NAME}.key-strategy` controls how the Kafka message key is serialized.
-This setting affects both connector overhead and how messages are distributed across topic partitions, so the default is rarely the best choice.
+For the xref:source/cdc.adoc[Change Data Capture] strategy, `neo4j.cdc.topic.\{NAME}.key-strategy` controls how the Kafka message key is serialized.
+This setting affects both connector overhead and how messages are distributed across topic partitions, so it is worth choosing the key strategy deliberately.
 
 The default value, `WHOLE_VALUE`, serializes the entire change event into the message key in addition to the message value.
-This means every change event is serialized and deserialized twice, which adds overhead without providing a useful key for partitioning.
-We recommend moving off the default and choosing a strategy based on whether you need ordering guarantees:
+This makes each message self-contained, but means every change event is serialized and deserialized twice, which adds overhead without providing a useful key for partitioning.
+Consider the following when deciding whether to change it, based on whether you need ordering guarantees:
 
 [%width="100%",cols="m,a",opts=header]
 |===
@@ -50,9 +50,10 @@ The entity's key properties are used as the message key, so all changes to the s
 The element ID is used as the message key, with the same partitioning and ordering behavior as `ENTITY_KEYS`.
 
 | WHOLE_VALUE
-| *The default — not recommended.*
+| *The default — most complete, but lower throughput.*
 
-It incurs double serialization without grouping changes by entity.
+The entire change event is serialized into the message key as well as the value, so the message is self-contained without relying on key properties or element IDs.
+This completeness comes at the cost of double serialization without grouping changes by entity, so prefer one of the other strategies when throughput is the priority.
 |===
 
 [IMPORTANT]

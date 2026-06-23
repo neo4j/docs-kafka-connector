@@ -6,7 +6,7 @@ To mitigate conflicts, it's crucial to establish a structured approach to schema
 
 [TIP]
 Beyond schema enforcement, using a compact binary format such as Avro also improves connector throughput compared to JSON.
-See xref:source/best-practices.adoc#serialization-format[Source connector best practices] for details.
+See xref:best-practices/source.adoc#serialization-format[Best practices for Source connector] for details.
 
 == Enforcing Structure
 
