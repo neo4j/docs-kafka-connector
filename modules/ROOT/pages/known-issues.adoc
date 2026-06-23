@@ -9,4 +9,4 @@ CDC change identifiers can become invalid after operations such as restoring a b
 They can also become unusable when the transaction log no longer contains the transaction referenced by the identifier.
 
 For CDC-specific behavior and error codes, see link:{page-canonical-root}/cdc/current/known-issues/[Change Data Capture > Known Issues] and link:{page-canonical-root}/cdc/current/troubleshooting/[Change Data Capture > Troubleshooting].
-For source connector recovery steps, see xref:source/operational-best-practices.adoc#source-cdc-cursor-recovery[Operating the source: CDC cursor recovery].
+For source connector recovery steps, see xref:best-practices/source.adoc#source-cdc-cursor-recovery[CDC cursor recovery].

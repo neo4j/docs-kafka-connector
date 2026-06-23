@@ -1,9 +1,10 @@
 = Best practices for Source connector
 
-This page describes operational practices for running source connector instances.
+This page collects recommendations and operational practices for running the Source connector.
+Each recommendation explains the trade-offs so you can decide whether it applies to your use case.
 
 [#source-cdc-cursor-recovery]
-== Operating the source: CDC cursor recovery
+== CDC cursor recovery
 
 The CDC source connector stores the Neo4j CDC change identifier in source connector memory while it is running.
 If the database invalidates CDC change identifiers, the connector can keep retrying with a change identifier that the database can no longer resolve.
@@ -12,19 +13,23 @@ CDC change identifiers can become invalid after database operations that change 
 They can also become unusable when the transaction log no longer contains the transaction referenced by the stored change identifier.
 For the underlying CDC behavior and error codes, see link:{page-canonical-root}/cdc/current/known-issues/[Change Data Capture > Known Issues] and link:{page-canonical-root}/cdc/current/troubleshooting/[Change Data Capture > Troubleshooting].
 
+Pausing and resuming a Neo4j Aura database can disable CDC by resetting txLogEnrichment to OFF. After resuming an Aura database,
+verify that CDC is enabled before restarting the source connector. If CDC is disabled, re-enable it using the Enable CDC on Neo4j
+Aura instructions, then restart the source connector so it can establish a valid CDC change identifier.
+
 To recover, restart the source connector so it can establish a new valid CDC change identifier from its configured initial offset.
 
 The `neo4j.start-from` setting controls the initial offset used when the source connector starts:
 
-`neo4j.start-from = NOW`::
+`NOW`::
 Start from the current end of the CDC stream.
 This skips changes between the invalidated offset and the restart point, but resumes ingestion from a valid change identifier.
 
-`neo4j.start-from = EARLIEST`::
+`EARLIEST`::
 Start from the earliest CDC change identifier that is still available for the database.
 When CDC has been enabled continuously, this resumes consumption from the change identifier created when CDC started.
 
-`neo4j.start-from = USER_PROVIDED`::
+`USER_PROVIDED`::
 Start from a specific CDC change identifier.
 Before restarting the source connector, refetch the starting offset and set `neo4j.start-from.value` to a valid change identifier obtained from the same database using the CDC procedures, for example `db.cdc.current` or `db.cdc.earliest`.
 You can also use a valid change identifier returned by `db.cdc.query`.

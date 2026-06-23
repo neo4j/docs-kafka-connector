@@ -13,7 +13,6 @@
 * xref::source.adoc[Configuration]
 ** xref:source/cdc.adoc[Change Data Capture]
 ** xref:source/query.adoc[Query]
-* xref:source/operational-best-practices.adoc[Best practices for Source connector]
 * xref:source/schema-registry.adoc[Schema Registry]
 * xref:source/configuration.adoc[Settings]
 * xref:source/monitoring.adoc[Monitoring]
@@ -30,6 +29,9 @@
 * xref:sink/error-handling.adoc[Error handling]
 * xref:sink/configuration.adoc[Settings]
 * xref:sink/monitoring.adoc[Monitoring]
+
+* *Best practices*
+* xref:best-practices/source.adoc[Source connector]
 
 * *Upgrades and migrations*
 * xref:migration/5.1/index.adoc[From 5.0 to 5.1+]

@@ -57,6 +57,13 @@ Usually will be the same as authenticated user, but could be different if impers
 [NOTE]
 Only `pattern` settings are mandatory in the above example, and others are optional and can be added based on your requirements.
 
+== Message ordering
+
+The CDC source connector publishes messages in the order of the change records returned by Neo4j CDC.
+Within a single Neo4j transaction, CDC provides a `seq` value for ordering the change records in the CDC output, but the order of those records is not guaranteed to match the order in which the operations were applied during the transaction.
+
+For more information, see link:{page-canonical-root}/cdc/current/procedures/output-schema/#order[Change Data Capture > Format of change events > Order of changes].
+
 == Exactly Once Semantics
 
 Starting from version 5.2.0, the CDC source connector declares itself as Exactly Once capable.
