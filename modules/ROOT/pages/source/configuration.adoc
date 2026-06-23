@@ -52,7 +52,7 @@ Default: `EXTENDED`. label:new[Introduced in 5.1.5]
 | Serialisation strategy for CDC topic key.
 One of `SKIP`, `ELEMENT_ID`, `ENTITY_KEYS`, `WHOLE_VALUE`.
 
-Default: `WHOLE_WALUE`
+Default: `WHOLE_VALUE`
 
 | neo4j.cdc.topic.\{NAME}.value-strategy
 | Serialisation strategy for CDC topic key.
