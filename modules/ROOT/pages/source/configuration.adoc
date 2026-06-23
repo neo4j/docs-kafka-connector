@@ -36,7 +36,7 @@ Default: `false`
 Default: `1000`
 
 | neo4j.payload-mode
-| Defines the structure of change messages. One of `COMPACT`, `EXTENDED`. `COMPACT` provides simpler messages but faces schema compatibility issues if property types change. `EXTENDED` includes type information to avoid such issues.
+| Defines the structure of change messages. One of `COMPACT`, `EXTENDED`, `RAW_JSON_STRING`. `COMPACT` provides simpler messages but faces schema compatibility issues if property types change. `EXTENDED` includes type information to avoid such issues. `RAW_JSON_STRING` produces a raw JSON string representation of the data.
 
 Default: `EXTENDED`. label:new[Introduced in 5.1.5]
 |===
@@ -55,7 +55,7 @@ One of `SKIP`, `ELEMENT_ID`, `ENTITY_KEYS`, `WHOLE_VALUE`.
 Default: `WHOLE_VALUE`
 
 | neo4j.cdc.topic.\{NAME}.value-strategy
-| Serialisation strategy for CDC topic key.
+| Serialisation strategy for CDC topic value.
 One of `CHANGE_EVENT`, `ENTITY_EVENT`.
 
 Default: `CHANGE_EVENT`
