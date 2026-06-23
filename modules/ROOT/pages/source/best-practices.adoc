@@ -1,0 +1,63 @@
+= Best practices for Source connector
+
+This page collects recommendations for getting the best throughput out of the Source connector.
+Each recommendation explains the trade-offs so you can decide whether it applies to your use case.
+
+[#serialization-format]
+== Prefer Avro over JSON
+
+The serialization format you choose for messages has a direct impact on connector throughput.
+Avro is a compact binary format whose schema is stored separately in Schema Registry, so each message carries only its values rather than repeating field names as text.
+Compared to JSON, this reduces payload size and the serialization and deserialization overhead the connector incurs for every change event, resulting in better throughput and lower memory pressure.
+
+For these reasons, Avro is the recommended format when your environment supports it.
+
+[NOTE]
+====
+Avro requires a Schema Registry to store and resolve schemas.
+Before adopting it, make sure the structure of your exported data is suitable for schema enforcement, and review the guidance in xref:source/schema-registry.adoc[Working with Schema Registry] — in particular the caveats around xref:source/schema-registry.adoc#handling-unstructured-graph-data[unstructured graph data], where a schema-less format may still be the right choice.
+====
+
+[#cdc-key-strategy]
+== Choose the CDC key strategy deliberately
+
+For the xref:source/cdc.adoc[Change Data Capture] strategy, `neo4j.cdc.topic.{NAME}.key-strategy` controls how the Kafka message key is serialized.
+This setting affects both connector overhead and how messages are distributed across topic partitions, so the default is rarely the best choice.
+
+The default value, `WHOLE_VALUE`, serializes the entire change event into the message key in addition to the message value.
+This means every change event is serialized and deserialized twice, which adds overhead without providing a useful key for partitioning.
+We recommend moving off the default and choosing a strategy based on whether you need ordering guarantees:
+
+[%width="100%",cols="m,a",opts=header]
+|===
+| Strategy
+| When to use it
+
+| SKIP
+| *Best for throughput.*
+
+No key is produced, so the connector avoids the cost of serializing the key and Kafka spreads messages across the topic's partitions without grouping them by entity.
+Use this when you do not need key-based routing or per-entity ordering.
+
+| ENTITY_KEYS
+| *Use when you need per-entity ordering.*
+
+The entity's key properties are used as the message key, so all changes to the same entity are routed to the same partition and their relative order is preserved.
+
+| ELEMENT_ID
+| *Use when you need per-entity ordering but no key properties are available.*
+
+The element ID is used as the message key, with the same partitioning and ordering behavior as `ENTITY_KEYS`.
+
+| WHOLE_VALUE
+| *The default — not recommended.*
+
+It incurs double serialization without grouping changes by entity.
+|===
+
+[IMPORTANT]
+====
+The key strategy determines which partition a change event is routed to, and Kafka only guarantees ordering within a single partition.
+With `SKIP`, changes to the same entity may be processed out of order, which can cause issues if your downstream consumers depend on the order of operations (for example, a creation followed by an update or deletion).
+Only use `SKIP` when your data model and consumers tolerate this.
+====

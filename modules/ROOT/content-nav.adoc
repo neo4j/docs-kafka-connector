@@ -17,6 +17,7 @@
 * xref:source/configuration.adoc[Settings]
 * xref:source/monitoring.adoc[Monitoring]
 * xref:source/payload-mode.adoc[Payload Mode]
+* xref:source/best-practices.adoc[Best practices]
 
 * *Sink connector*
 * xref::sink.adoc[Configuration]

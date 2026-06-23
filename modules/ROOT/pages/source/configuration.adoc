@@ -54,8 +54,10 @@ One of `SKIP`, `ELEMENT_ID`, `ENTITY_KEYS`, `WHOLE_VALUE`.
 
 Default: `WHOLE_VALUE`
 
+For guidance on choosing a strategy, see xref:source/best-practices.adoc#cdc-key-strategy[Source connector best practices].
+
 | neo4j.cdc.topic.\{NAME}.value-strategy
-| Serialisation strategy for CDC topic key.
+| Serialisation strategy for CDC topic value.
 One of `CHANGE_EVENT`, `ENTITY_EVENT`.
 
 Default: `CHANGE_EVENT`
