@@ -27,12 +27,13 @@ Because changes are buffered in Kafka from the moment the backup is taken, the s
 [#choose-strategy]
 == Choose a sink strategy
 
-The CDC sink connector can apply change events to the target using one of two sub-strategies, and *you must decide which one to use before taking the backup* in <<Step 2: Back up the source database, Step 2>>.
+The CDC sink connector can apply change events to the target using one of two sub-strategies, and *you must decide which one to use before taking the backup* in <<backup-source-db>>.
 The choice determines whether you need to prepare the source data first, because the Source ID strategy requires markers that have to be present in the backup itself.
 
 xref:sink/cdc.adoc#schema[Schema strategy]:: Merges nodes and relationships by the constraints declared on the source database. This preserves the source schema and adds nothing extra to your data, but it can only be used when the schema requirements below are met.
 xref:sink/cdc.adoc#source-id[Source ID strategy]:: Merges nodes and relationships by the source entity's `elementId`, stored as a property and marked with a dedicated label. It has no constraint requirements, but it adds a marker label and property to every node and relationship.
 
+[#schema-strategy-requirements]
 === Schema strategy requirements
 
 You can use the Schema strategy only if *both* of the following hold on the source database:
@@ -41,7 +42,7 @@ You can use the Schema strategy only if *both* of the following hold on the sour
 * There are no duplicate relationships of the same type between the same pair of nodes, *unless* those relationships have a *relationship key* constraint to tell them apart.
 
 If you can satisfy both requirements, continue with the Schema strategy.
-The migration steps that follow apply unchanged, and you skip the Source ID-specific source preparation in <<source-prep, Step 1>>.
+The migration steps that follow apply unchanged, and you skip the Source ID-specific source preparation in <<source-prep>>.
 
 === When to use Source ID
 
@@ -53,7 +54,7 @@ The Source ID strategy identifies each entity by the source `elementId`, stored 
 In a backup-based migration, the nodes and relationships restored from the backup must *already* carry these markers, otherwise change events for pre-existing entities will not match anything on the target and the sink will create duplicates.
 
 For this reason, you must add the marker label and property to *every node and relationship on the source database before taking the backup*.
-This is covered in <<source-prep, Step 1: Prepare the source data>>.
+This is covered in <<source-prep>>.
 ====
 
 [NOTE]
@@ -65,7 +66,7 @@ Wherever the configuration differs, a tabbed block shows the *Schema* and *Sourc
 [#source-prep]
 == Step 1: Prepare the source data
 
-What you need to do here depends on the strategy you chose in <<choose-strategy, Choose a sink strategy>>.
+What you need to do here depends on the strategy you chose in <<choose-strategy>>.
 
 [.tabbed-example]
 ====
@@ -73,7 +74,7 @@ What you need to do here depends on the strategy you chose in <<choose-strategy,
 [.include-with-Schema]
 =====
 No source data preparation is required for the Schema strategy.
-Confirm that the source database satisfies the <<Schema strategy requirements, Schema strategy requirements>>, then continue to <<Step 2: Enable CDC on the source database, Step 2>>.
+Confirm that the source database satisfies the <<schema-strategy-requirements>>, then continue to <<enable-cdc>>.
 =====
 
 [.include-with-Source-ID]
@@ -101,7 +102,7 @@ CALL (r) {
 ----
 
 <1> The label `SourceEvent` and property `sourceId` used here are the defaults.
-If you override them, they must match the `neo4j.cdc.source-id.label-name` and `neo4j.cdc.source-id.property-name` settings on the sink connector in <<Step 7: Configure the sink connector, Step 7>>.
+If you override them, they must match the `neo4j.cdc.source-id.label-name` and `neo4j.cdc.source-id.property-name` settings on the sink connector in <<setup-sink-connector>>.
 
 [NOTE]
 Run these statements from a client that allows implicit transactions, such as `cypher-shell`, and adjust the batch size to suit your database.
@@ -110,6 +111,7 @@ Run these statements from a client that allows implicit transactions, such as `c
 
 ====
 
+[#enable-cdc]
 == Step 2: Enable CDC on the source database
 
 Enable Change Data Capture on the source database before taking the backup, so that all changes committed from this point on are captured and can be replayed onto the target.
@@ -124,6 +126,7 @@ The change identifier the source connector resumes from must still be available 
 See link:https://neo4j.com/docs/cdc/current/get-started/self-managed/#log-retention[Change Data Capture -> Log retention] for more information.
 ====
 
+[#backup-source-db]
 == Step 3: Back up the source database
 
 Take a backup of the source database and note the *latest transaction ID* included in the backup.
@@ -137,6 +140,7 @@ The source database remains available for reads and writes during and after the 
 Any change committed after the backup is captured by CDC and replayed onto the target later in this guide.
 ====
 
+[#setup-source-connector]
 == Step 4: Configure the source connector
 
 The source connector must start streaming from the first change that occurred *after* the last transaction included in the backup.
@@ -144,7 +148,7 @@ Streaming from any earlier point would re-apply changes already present in the b
 
 === Identify the change identifier to resume from
 
-Run the following query against the source database, substituting `$lastTxIdFromBackup` with the latest transaction ID you noted in <<Step 3: Back up the source database, Step 3>>.
+Run the following query against the source database, substituting `$lastTxIdFromBackup` with the latest transaction ID you noted in <<backup-source-db>>.
 It returns the CDC change identifier corresponding to the last transaction captured in the backup:
 
 [source,cypher]
@@ -232,12 +236,14 @@ This requires *exactly-once source support to be enabled on the Kafka Connect wo
 
 See xref:source/cdc.adoc#_exactly_once_semantics[Source -> Exactly Once Semantics] for more information.
 
+[#provision-aura-db]
 == Step 5: Provision the target Aura instance
 
-Upload the backup taken in <<Step 3: Back up the source database, Step 3>> and provision the target Aura database from it.
+Upload the backup taken in <<backup-source-db>> and provision the target Aura database from it.
 
 For details on importing a backup into Aura, see link:{page-canonical-root}/aura/managing-instances/importing-data/[Aura -> Import data].
 
+[#prepare-target-schema]
 == Step 6: Prepare the target schema
 
 === Strategy-specific schema
@@ -288,10 +294,11 @@ REQUIRE (n.strategy, n.topic, n.partition) IS KEY
 
 The label used here `__KafkaOffset` must match the `neo4j.eos-offset-label` setting configured on the sink connector in the next step.
 
+[#setup-sink-connector]
 == Step 7: Configure the sink connector
 
 Configure a xref:sink/cdc.adoc[CDC sink connector] to consume change events from the dedicated migration topic and apply them to the target Aura instance, with exactly-once semantics enabled.
-Use the configuration matching the strategy you chose in <<choose-strategy, Choose a sink strategy>>:
+Use the configuration matching the strategy you chose in <<choose-strategy>>:
 
 [.tabbed-example]
 ====
@@ -319,7 +326,7 @@ Use the configuration matching the strategy you chose in <<choose-strategy, Choo
 ----
 
 <1> Use the xref:sink/cdc.adoc#schema[CDC Schema sub-strategy] to merge nodes and relationships by the constraints defined in the source database, preserving the source schema.
-<2> Enable exactly-once semantics by tracking the last processed offset in a node with the `__KafkaOffset` label. This must match the label used in the constraint created in <<Step 6: Prepare the target schema, Step 6>>.
+<2> Enable exactly-once semantics by tracking the last processed offset in a node with the `__KafkaOffset` label. This must match the label used in the constraint created in <<prepare-target-schema>>.
 <3> The maximum number of change events the connector applies to the target in a single batch. A larger batch improves throughput during the catch-up phase.
 <4> The maximum number of records the consumer fetches in a single poll. Keep it aligned with `neo4j.batch-size` so each poll fills a batch.
 <5> The maximum time allowed between consumer polls. This *must be set above the time it takes to apply a full batch of changes to the target instance*, otherwise the consumer is considered failed, dropped from the group, and the batch is reprocessed. The required value depends on your target database sizing and change volume — increase it if applying a batch takes longer.
@@ -353,17 +360,18 @@ Use the configuration matching the strategy you chose in <<choose-strategy, Choo
 <1> Use the xref:sink/cdc.adoc#source-id[CDC Source ID sub-strategy] to merge nodes and relationships by the source `elementId`.
 <2> The marker label, which *must match* the label added to the source data in <<source-prep, Step 1>>.
 <3> The marker property, which *must match* the property added to the source data in <<source-prep, Step 1>>.
-<4> Enable exactly-once semantics by tracking the last processed offset in a node with the `__KafkaOffset` label. This must match the label used in the constraint created in <<Step 6: Prepare the target schema, Step 6>>.
+<4> Enable exactly-once semantics by tracking the last processed offset in a node with the `__KafkaOffset` label. This must match the label used in the constraint created in <<prepare-target-schema>>.
 <5> The maximum number of change events the connector applies to the target in a single batch. A larger batch improves throughput during the catch-up phase.
 <6> The maximum number of records the consumer fetches in a single poll. Keep it aligned with `neo4j.batch-size` so each poll fills a batch.
 <7> The maximum time allowed between consumer polls. This *must be set above the time it takes to apply a full batch of changes to the target instance*, otherwise the consumer is considered failed, dropped from the group, and the batch is reprocessed. The required value depends on your target database sizing and change volume — increase it if applying a batch takes longer.
 =====
 ====
 
-The key and value converters on the sink connector *must match* those configured on the source connector in <<Step 4: Configure the source connector, Step 4>>, so that the sink can deserialize the change events.
+The key and value converters on the sink connector *must match* those configured on the source connector in <<setup-source-connector>>, so that the sink can deserialize the change events.
 
 See xref:sink/cdc.adoc#_exactly_once_semantics[Sink -> Exactly-once semantics] for more information.
 
+[#cutover]
 == Cutover
 
 Once the sink connector has caught up and the target Aura instance is in sync with the source, you can switch your applications over to Aura.
@@ -374,16 +382,17 @@ Once the sink connector has caught up and the target Aura instance is in sync wi
 . Redirect your applications to the target Aura instance.
 . Decommission the migration source and sink connectors and remove the dedicated migration topic.
 
+[#cleanup]
 == Clean up
 
 Once the migration is complete and verified, remove the artifacts the connectors created on the target so the graph matches the source exactly.
-What needs cleaning up depends on the strategy you chose in <<choose-strategy, Choose a sink strategy>>.
+What needs cleaning up depends on the strategy you chose in <<choose-strategy>>.
 
 [.tabbed-example]
 ====
 [.include-with-Schema]
 =====
-The Schema strategy adds no markers to your data, so the only artifact to remove is the exactly-once offset tracking created in <<Step 6: Prepare the target schema, Step 6>>.
+The Schema strategy adds no markers to your data, so the only artifact to remove is the exactly-once offset tracking created in <<prepare-target-schema>>.
 
 Remove the offset tracking nodes and drop the supporting constraint, as they are no longer needed:
 
@@ -396,7 +405,7 @@ DROP CONSTRAINT kafka_offset_key IF EXISTS;
 
 [.include-with-Source-ID]
 =====
-The Source ID strategy stores the migration markers (`SourceEvent` label and `sourceId` property) on the target nodes and relationships, in addition to the exactly-once offset tracking created in <<Step 6: Prepare the target schema, Step 6>>.
+The Source ID strategy stores the migration markers (`SourceEvent` label and `sourceId` property) on the target nodes and relationships, in addition to the exactly-once offset tracking created in <<prepare-target-schema>>.
 
 Remove the marker label and property from all nodes:
 
