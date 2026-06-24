@@ -1,0 +1,443 @@
+[[zero-downtime-aura-migration]]
+= Zero downtime migration to Aura
+
+This guide describes how to migrate a self-managed Neo4j database to Neo4j Aura without downtime, using the {product-name} to keep the target Aura instance in sync with the source database.
+
+The approach relies on link:{page-canonical-root}/cdc/current[Change Data Capture] (CDC) to replay every change committed to the source database after the backup was taken, so that no write is lost during the cutover.
+Both the source and sink connectors are configured for exactly-once semantics to guarantee that each change is applied to the target exactly once.
+
+[TIP]
+====
+At a high level, the migration works as follows:
+
+. A backup captures the source database up to a known transaction.
+. The source connector starts streaming changes from the exact point the backup ended, into a dedicated topic.
+. The backup is restored into a new Aura instance.
+. The sink connector applies the buffered changes to Aura, catching it up to the source.
+
+Because changes are buffered in Kafka from the moment the backup is taken, the source database can keep serving writes throughout the migration.
+====
+
+== Prerequisites
+
+* A Neo4j Enterprise 5 source database with link:{page-canonical-root}/cdc/current[Change Data Capture] support.
+* A running Kafka Connect cluster that supports link:https://cwiki.apache.org/confluence/display/KAFKA/KIP-618%3A+Exactly-Once+Support+for+Source+Connectors[KIP-618] (Apache Kafka 3.3.0 and later) with exactly-once source support enabled on the workers.
+* Network connectivity from the Kafka Connect cluster to both the source database and the target Aura instance.
+
+[#choose-strategy]
+== Choose a sink strategy
+
+The CDC sink connector can apply change events to the target using one of two sub-strategies, and *you must decide which one to use before taking the backup* in <<backup-source-db>>.
+The choice determines whether you need to prepare the source data first, because the Source ID strategy requires markers that have to be present in the backup itself.
+
+xref:sink/cdc.adoc#schema[Schema strategy]:: Merges nodes and relationships by the constraints declared on the source database. This preserves the source schema and adds nothing extra to your data, but it can only be used when the schema requirements below are met.
+xref:sink/cdc.adoc#source-id[Source ID strategy]:: Merges nodes and relationships by the source entity's `elementId`, stored as a property and marked with a dedicated label. It has no constraint requirements, but it adds a marker label and property to every node and relationship.
+
+[#schema-strategy-requirements]
+=== Schema strategy requirements
+
+You can use the Schema strategy only if *both* of the following hold on the source database:
+
+* Every node label that participates in the migration has a *node key* constraint (or a combination of *uniqueness + existence* constraints) covering its key properties, so each node can be identified from the change event alone.
+* There are no duplicate relationships of the same type between the same pair of nodes, *unless* those relationships have a *relationship key* constraint to tell them apart.
+
+If you can satisfy both requirements, continue with the Schema strategy.
+The migration steps that follow apply unchanged, and you skip the Source ID-specific source preparation in <<source-prep>>.
+
+=== When to use Source ID
+
+If you *cannot* satisfy the Schema requirements — for example, some labels have no usable key, or duplicate relationships exist without a relationship key — use the Source ID strategy instead.
+
+[IMPORTANT]
+====
+The Source ID strategy identifies each entity by the source `elementId`, stored as a property (default `sourceId`) on a marked node (default label `SourceEvent`).
+In a backup-based migration, the nodes and relationships restored from the backup must *already* carry these markers, otherwise change events for pre-existing entities will not match anything on the target and the sink will create duplicates.
+
+For this reason, you must add the marker label and property to *every node and relationship on the source database before taking the backup*.
+This is covered in <<source-prep>>.
+====
+
+[NOTE]
+====
+The remaining steps are presented for both strategies.
+Wherever the configuration differs, a tabbed block shows the *Schema* and *Source ID* variants side by side — follow the tab matching the strategy you chose here.
+====
+
+[#source-prep]
+== Step 1: Prepare the source data
+
+What you need to do here depends on the strategy you chose in <<choose-strategy>>.
+
+[.tabbed-example]
+====
+
+[.include-with-Schema]
+=====
+No source data preparation is required for the Schema strategy.
+Confirm that the source database satisfies the <<schema-strategy-requirements>>, then continue to <<enable-cdc>>.
+=====
+
+[.include-with-Source-ID]
+=====
+The Source ID strategy requires every node and relationship to carry the source `elementId` as a marker property, and every node to carry the marker label, so these markers are included in the backup.
+
+Add the marker label and property to all nodes:
+
+[source,cypher]
+----
+MATCH (n)
+CALL (n) {
+  SET n:SourceEvent, n.sourceId = elementId(n) //<1>
+} IN TRANSACTIONS OF 10000 ROWS
+----
+
+Add the marker property to all relationships:
+
+[source,cypher]
+----
+MATCH ()-[r]->()
+CALL (r) {
+  SET r.sourceId = elementId(r) //<1>
+} IN TRANSACTIONS OF 10000 ROWS
+----
+
+<1> The label `SourceEvent` and property `sourceId` used here are the defaults.
+If you override them, they must match the `neo4j.cdc.source-id.label-name` and `neo4j.cdc.source-id.property-name` settings on the sink connector in <<setup-sink-connector>>.
+
+[NOTE]
+Run these statements from a client that allows implicit transactions, such as `cypher-shell`, and adjust the batch size to suit your database.
+
+=====
+
+====
+
+[#enable-cdc]
+== Step 2: Enable CDC on the source database
+
+Enable Change Data Capture on the source database before taking the backup, so that all changes committed from this point on are captured and can be replayed onto the target.
+
+Follow link:{page-canonical-root}/cdc/current/getting-started[Change Data Capture -> Getting Started] to enable the CDC mode on the database.
+Make sure CDC is enabled and active before proceeding, otherwise the changes committed after the backup will not be captured.
+
+[IMPORTANT]
+====
+Configure the database with an adequate transaction log retention period, set *above the expected backup time*.
+The change identifier the source connector resumes from must still be available once the backup completes and source connector starts, so changes committed during the backup must not be purged before the connector can stream them.
+See link:https://neo4j.com/docs/cdc/current/get-started/self-managed/#log-retention[Change Data Capture -> Log retention] for more information.
+====
+
+[#backup-source-db]
+== Step 3: Back up the source database
+
+Take a backup of the source database and note the *latest transaction ID* included in the backup.
+You need this transaction ID in the next step to determine the exact change to resume the source connector from.
+
+For details on producing a backup, see link:{page-canonical-root}/operations-manual/current/backup-restore/[Backup and restore].
+
+[NOTE]
+====
+The source database remains available for reads and writes during and after the backup.
+Any change committed after the backup is captured by CDC and replayed onto the target later in this guide.
+====
+
+[#setup-source-connector]
+== Step 4: Configure the source connector
+
+The source connector must start streaming from the first change that occurred *after* the last transaction included in the backup.
+Streaming from any earlier point would re-apply changes already present in the backup, and starting later would lose changes.
+
+=== Identify the change identifier to resume from
+
+Run the following query against the source database, substituting `$lastTxIdFromBackup` with the latest transaction ID you noted in <<backup-source-db>>.
+It returns the CDC change identifier corresponding to the last transaction captured in the backup:
+
+[source,cypher]
+----
+CALL db.cdc.earliest() YIELD id AS startId
+CALL db.cdc.query(startId) YIELD id, txId, seq
+WHERE txId = $lastTxIdFromBackup
+ORDER BY seq DESC
+RETURN id, txId, seq
+LIMIT 1
+----
+
+Note the returned `id` value: this is the change identifier the source connector resumes from.
+
+=== Create the dedicated migration topic
+
+Create a *new, dedicated topic* used only for this migration, and make sure it has *exactly one partition*.
+
+[IMPORTANT]
+====
+The migration topic *must* have a single partition.
+Kafka only guarantees ordering within a partition, and the sink connector must apply the change events in the exact order they were published.
+Spreading change events across multiple partitions would allow them to be applied out of order, corrupting the target graph.
+====
+
+=== Create the source connector instance
+
+Configure a xref:source/cdc.adoc[CDC source connector] that resumes from the identified change and publishes change events to the dedicated migration topic:
+
+[source,json,subs="verbatim,attributes"]
+----
+{
+  "name": "neo4j-aura-migration-source",
+  "config": {
+    "connector.class": "org.neo4j.connectors.kafka.source.Neo4jConnector",
+    "neo4j.uri": "<SOURCE_DATABASE_URI>",
+    "neo4j.authentication.basic.username": "<SOURCE_USERNAME>",
+    "neo4j.authentication.basic.password": "<SOURCE_PASSWORD>",
+    "neo4j.source-strategy": "CDC",
+    "neo4j.start-from": "USER_PROVIDED", //<1>
+    "neo4j.start-from.value": "<CHANGE_IDENTIFIER_FROM_QUERY>", //<2>
+    "neo4j.cdc.topic.migration.patterns": "(),()-[]->()", //<3>
+    "neo4j.cdc.topic.migration.key-strategy": "SKIP", //<4>
+    "exactly.once.support": "required", //<5>
+    "transaction.boundary": "poll", //<6>
+    "producer.override.acks": "all", //<7>
+    "producer.override.enable.idempotence": "true", //<8>
+    "key.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter": "io.confluent.connect.avro.AvroConverter"
+  }
+}
+----
+
+<1> Use `USER_PROVIDED` so the connector starts from a specific change identifier rather than `EARLIEST` or `NOW`.
+<2> The change identifier (`id`) returned by the query above.
+<3> Capture all node and relationship changes into the dedicated `migration` topic. Adjust the patterns if you only need to migrate a subset of the graph. See xref:source/cdc.adoc#patterns[Patterns] for details.
+<4> Set the key strategy to `SKIP` so change events are produced without a record key, reducing the overall message size. Combined with the single-partition migration topic, this keeps all change events on the one partition and preserves their order.
+<5> Require exactly-once support, so the connector fails to start rather than silently falling back to at-least-once delivery if the worker is not configured for it.
+<6> Define transactions on each poll, so every batch of change events is committed to the topic as a single Kafka transaction.
+<7> Require acknowledgement from all in-sync replicas before a write is considered successful, so no published change event can be lost.
+<8> Enable the idempotent producer to prevent duplicate change events from producer retries.
+
+[IMPORTANT]
+====
+The CDC strategy requires a key and value converter that supports schemas.
+
+The examples above use `io.confluent.connect.avro.AvroConverter`, which is the preferred converter and stores schemas in a Schema Registry, keeping messages compact.
+You can use other schema-aware converters instead, such as `org.apache.kafka.connect.json.JsonConverter`, which by default embeds the schema in every message at the cost of a larger message size.
+
+When you use a converter backed by a Schema Registry (such as `AvroConverter` or `ProtobufConverter`), you must *disable schema compatibility checks* for the migration topic subjects by setting the compatibility mode to `NONE`.
+CDC change events evolve their schema as different entity shapes flow through the topic, and the default compatibility mode would reject these schema changes and fail the connector.
+====
+
+[IMPORTANT]
+====
+Exactly-once delivery on the source side is *essential* for a correct migration.
+It guarantees that every change committed on the source is published to the migration topic *exactly once* — no change is lost, and no change is duplicated — even across connector restarts, rebalances, or transient failures.
+Without it, the target graph could end up missing writes or replaying them twice, silently diverging from the source.
+
+The CDC source connector declares itself exactly-once capable, and from version 5.2.0 takes advantage of link:https://cwiki.apache.org/confluence/display/KAFKA/KIP-618%3A+Exactly-Once+Support+for+Source+Connectors[KIP-618] on workers that support it.
+To make this a hard requirement for the migration, the configuration above sets `exactly.once.support` to `required` together with the supporting producer settings, so the connector refuses to start unless exactly-once delivery is actually available.
+
+This requires *exactly-once source support to be enabled on the Kafka Connect workers themselves* (`exactly.once.source.support=enabled` in the worker configuration), which cannot be set per connector.
+====
+
+See xref:source/cdc.adoc#_exactly_once_semantics[Source -> Exactly Once Semantics] for more information.
+
+[#provision-aura-db]
+== Step 5: Provision the target Aura instance
+
+Upload the backup taken in <<backup-source-db>> and provision the target Aura database from it.
+
+For details on importing a backup into Aura, see link:{page-canonical-root}/aura/managing-instances/importing-data/[Aura -> Import data].
+
+[#prepare-target-schema]
+== Step 6: Prepare the target schema
+
+=== Strategy-specific schema
+
+[.tabbed-example]
+====
+[.include-with-Schema]
+=====
+Make sure that *all constraints present on the source database are also defined on the target Aura instance*.
+The Schema strategy merges nodes and relationships using the node key, relationship key, and uniqueness/existence constraints declared in the change events, so the corresponding constraints must exist on the target for changes to be applied correctly.
+
+List the constraints on the source database with:
+
+[source,cypher]
+----
+SHOW CONSTRAINTS
+----
+
+Recreate each of them on the target Aura instance.
+=====
+
+[.include-with-Source-ID]
+=====
+The Source ID strategy does not rely on the source constraints to identify entities, so they are not required on the target.
+Instead, create a uniqueness constraint on the marker property so that each source entity maps to exactly one target node and lookups by the marker are backed by an index:
+
+[source,cypher]
+----
+CREATE CONSTRAINT source_event_source_id IF NOT EXISTS
+FOR (n:SourceEvent) REQUIRE n.sourceId IS UNIQUE
+----
+
+Use the label and property you configured for the strategy if you overrode the defaults.
+=====
+====
+
+=== Create the exactly-once offset constraint
+
+Regardless of the strategy, enable exactly-once semantics on the sink connector by creating the following constraint on the target Aura instance.
+This constraint backs the offset-tracking node the connector uses to record the last successfully processed message:
+
+[source,cypher]
+----
+CREATE CONSTRAINT kafka_offset_key IF NOT EXISTS
+FOR (n:__KafkaOffset)
+REQUIRE (n.strategy, n.topic, n.partition) IS KEY
+----
+
+The label used here `__KafkaOffset` must match the `neo4j.eos-offset-label` setting configured on the sink connector in the next step.
+
+[#setup-sink-connector]
+== Step 7: Configure the sink connector
+
+Configure a xref:sink/cdc.adoc[CDC sink connector] to consume change events from the dedicated migration topic and apply them to the target Aura instance, with exactly-once semantics enabled.
+Use the configuration matching the strategy you chose in <<choose-strategy>>:
+
+[.tabbed-example]
+====
+[.include-with-Schema]
+=====
+[source,json,subs="verbatim,attributes"]
+----
+{
+  "name": "neo4j-aura-migration-sink",
+  "config": {
+    "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",
+    "topics": "migration",
+    "neo4j.uri": "<AURA_DATABASE_URI>",
+    "neo4j.authentication.basic.username": "<AURA_USERNAME>",
+    "neo4j.authentication.basic.password": "<AURA_PASSWORD>",
+    "neo4j.cdc.schema.topics": "migration", //<1>
+    "neo4j.eos-offset-label": "__KafkaOffset", //<2>
+    "neo4j.batch-size": "10000", //<3>
+    "consumer.override.max.poll.records": "10000", //<4>
+    "consumer.override.max.poll.interval.ms": "1200000", //<5>
+    "key.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter": "io.confluent.connect.avro.AvroConverter"
+  }
+}
+----
+
+<1> Use the xref:sink/cdc.adoc#schema[CDC Schema sub-strategy] to merge nodes and relationships by the constraints defined in the source database, preserving the source schema.
+<2> Enable exactly-once semantics by tracking the last processed offset in a node with the `__KafkaOffset` label. This must match the label used in the constraint created in <<prepare-target-schema>>.
+<3> The maximum number of change events the connector applies to the target in a single batch. A larger batch improves throughput during the catch-up phase.
+<4> The maximum number of records the consumer fetches in a single poll. Keep it aligned with `neo4j.batch-size` so each poll fills a batch.
+<5> The maximum time allowed between consumer polls. This *must be set above the time it takes to apply a full batch of changes to the target instance*, otherwise the consumer is considered failed, dropped from the group, and the batch is reprocessed. The required value depends on your target database sizing and change volume — increase it if applying a batch takes longer.
+=====
+
+[.include-with-Source-ID]
+=====
+[source,json,subs="verbatim,attributes"]
+----
+{
+  "name": "neo4j-aura-migration-sink",
+  "config": {
+    "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",
+    "topics": "migration",
+    "neo4j.uri": "<AURA_DATABASE_URI>",
+    "neo4j.authentication.basic.username": "<AURA_USERNAME>",
+    "neo4j.authentication.basic.password": "<AURA_PASSWORD>",
+    "neo4j.cdc.source-id.topics": "migration", //<1>
+    "neo4j.cdc.source-id.label-name": "SourceEvent", //<2>
+    "neo4j.cdc.source-id.property-name": "sourceId", //<3>
+    "neo4j.eos-offset-label": "__KafkaOffset", //<4>
+    "neo4j.batch-size": "10000", //<5>
+    "consumer.override.max.poll.records": "10000", //<6>
+    "consumer.override.max.poll.interval.ms": "1200000", //<7>
+    "key.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter": "io.confluent.connect.avro.AvroConverter"
+  }
+}
+----
+
+<1> Use the xref:sink/cdc.adoc#source-id[CDC Source ID sub-strategy] to merge nodes and relationships by the source `elementId`.
+<2> The marker label, which *must match* the label added to the source data in <<source-prep, Step 1>>.
+<3> The marker property, which *must match* the property added to the source data in <<source-prep, Step 1>>.
+<4> Enable exactly-once semantics by tracking the last processed offset in a node with the `__KafkaOffset` label. This must match the label used in the constraint created in <<prepare-target-schema>>.
+<5> The maximum number of change events the connector applies to the target in a single batch. A larger batch improves throughput during the catch-up phase.
+<6> The maximum number of records the consumer fetches in a single poll. Keep it aligned with `neo4j.batch-size` so each poll fills a batch.
+<7> The maximum time allowed between consumer polls. This *must be set above the time it takes to apply a full batch of changes to the target instance*, otherwise the consumer is considered failed, dropped from the group, and the batch is reprocessed. The required value depends on your target database sizing and change volume — increase it if applying a batch takes longer.
+=====
+====
+
+The key and value converters on the sink connector *must match* those configured on the source connector in <<setup-source-connector>>, so that the sink can deserialize the change events.
+
+See xref:sink/cdc.adoc#_exactly_once_semantics[Sink -> Exactly-once semantics] for more information.
+
+[#cutover]
+== Cutover
+
+Once the sink connector has caught up and the target Aura instance is in sync with the source, you can switch your applications over to Aura.
+
+. Confirm the sink connector has no lag, meaning all buffered changes have been applied to Aura.
+. Stop writes to the source database.
+. Allow the connectors to drain any remaining changes.
+. Redirect your applications to the target Aura instance.
+. Decommission the migration source and sink connectors and remove the dedicated migration topic.
+
+[#cleanup]
+== Clean up
+
+Once the migration is complete and verified, remove the artifacts the connectors created on the target so the graph matches the source exactly.
+What needs cleaning up depends on the strategy you chose in <<choose-strategy>>.
+
+[.tabbed-example]
+====
+[.include-with-Schema]
+=====
+The Schema strategy adds no markers to your data, so the only artifact to remove is the exactly-once offset tracking created in <<prepare-target-schema>>.
+
+Remove the offset tracking nodes and drop the supporting constraint, as they are no longer needed:
+
+[source,cypher]
+----
+MATCH (n:__KafkaOffset) DELETE n;
+DROP CONSTRAINT kafka_offset_key IF EXISTS;
+----
+=====
+
+[.include-with-Source-ID]
+=====
+The Source ID strategy stores the migration markers (`SourceEvent` label and `sourceId` property) on the target nodes and relationships, in addition to the exactly-once offset tracking created in <<prepare-target-schema>>.
+
+Remove the marker label and property from all nodes:
+
+[source,cypher]
+----
+MATCH (n:SourceEvent)
+CALL (n) {
+  REMOVE n:SourceEvent, n.sourceId
+} IN TRANSACTIONS OF 10000 ROWS
+----
+
+Remove the marker property from all relationships:
+
+[source,cypher]
+----
+MATCH ()-[r]->()
+WHERE r.sourceId IS NOT NULL
+CALL (r) {
+  REMOVE r.sourceId
+} IN TRANSACTIONS OF 10000 ROWS
+----
+
+Remove the offset tracking nodes and drop the supporting constraints, as they are no longer needed:
+
+[source,cypher]
+----
+MATCH (n:__KafkaOffset) DELETE n;
+DROP CONSTRAINT source_event_source_id IF EXISTS;
+DROP CONSTRAINT kafka_offset_key IF EXISTS;
+----
+
+[NOTE]
+Use the label and property you configured for the strategy if you overrode the defaults.
+=====
+====
