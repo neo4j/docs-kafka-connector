@@ -74,7 +74,6 @@ connect             "bash -c '# confluen…"   connect             running      
 control-center      "/etc/confluent/dock…"   control-center      running             0.0.0.0:9021->9021/tcp
 neo4j               "tini -g -- /startup…"   neo4j               running             0.0.0.0:7474->7474/tcp, 7473/tcp, 0.0.0.0:7687->7687/tcp
 schema-registry     "/etc/confluent/dock…"   schema-registry     running             0.0.0.0:8081->8081/tcp
-zookeeper           "/etc/confluent/dock…"   zookeeper           running             2888/tcp, 0.0.0.0:2181->2181/tcp, 3888/tcp
 ----
 
 Now you can access your Neo4j instance under: \http://localhost:7474, log in with `neo4j` as username and `password` as password (Update `NEO4J_AUTH` environment variable in the Docker Compose file to change it).
