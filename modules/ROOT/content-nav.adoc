@@ -17,6 +17,7 @@
 * xref:source/configuration.adoc[Settings]
 * xref:source/monitoring.adoc[Monitoring]
 * xref:source/payload-mode.adoc[Payload Mode]
+* xref:source/best-practices.adoc[Best practices]
 
 * *Sink connector*
 * xref::sink.adoc[Configuration]
@@ -28,9 +29,6 @@
 * xref:sink/error-handling.adoc[Error handling]
 * xref:sink/configuration.adoc[Settings]
 * xref:sink/monitoring.adoc[Monitoring]
-
-* *Best practices*
-* xref:best-practices/source.adoc[Source connector]
 
 * *Upgrades and migrations*
 * xref:migration/5.1/index.adoc[From 5.0 to 5.1]
