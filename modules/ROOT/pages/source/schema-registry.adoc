@@ -4,7 +4,13 @@ Neo4j is a schema-less database, which poses challenges when messages need to be
 Schema conflicts may arise due to the flexible nature of the graph data.
 To mitigate conflicts, it's crucial to establish a structured approach to schema enforcement and validation.
 
-== Enforcing Structure
+[TIP]
+====
+Beyond schema enforcement, using a compact binary format such as Avro also improves connector throughput compared to JSON.
+See xref:source/best-practices.adoc#serialization-format[Best practices for Source connector] for more details.
+====
+
+== Enforcing structure
 
 When using schema formats like Avro, Protobuf, or JSON Schema with Neo4j, it's recommended to invest efforts in enforcing structure within the data.
 This includes:
@@ -22,7 +28,8 @@ However, deletions or type changes should be approached cautiously, as they can 
 Depending on specific requirements and data structure, changing the compatibility mode, even up to NONE, may be necessary.
 However, it's important to thoroughly test compatibility changes before implementing.
 
-== Handling Unstructured Graph Data
+[#handling-unstructured-graph-data]
+== Handling unstructured graph data
 
 In scenarios where graph data is challenging to structure or evolve, it's advisable to explore whether you can relax compatibility mode and manage schema changes on consumer side.
 If it's not feasible, employing a schema-less message format is recommended.
