@@ -1,6 +1,6 @@
 = What's New?
 
-{product-name} {connector-version} introduces several improvements and some breaking changes over the previous minor version.
+{product-name} 5.1 introduced several improvements and some breaking changes over the 5.0 version.
 
 == Configuration
 

@@ -38,7 +38,7 @@ Could be one of;
 Required when a schema registry is required by the configured `value.converter`.
 
 | value.converter.optional.for.nullables
-| Should be set to `true` when `key.converter` is `io.confluent.connect.protobuf.ProtobufConverter`.
+| Should be set to `true` when `value.converter` is `io.confluent.connect.protobuf.ProtobufConverter`.
 
 |===
 

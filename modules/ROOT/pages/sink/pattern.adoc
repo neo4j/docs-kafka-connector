@@ -11,7 +11,7 @@ To configure a pattern strategy for a desired topic, you must follow the followi
 "neo4j.pattern.topic.<YOUR_TOPIC>": "<PATTERN>"
 ----
 
-For instance, given the following message published to the `user` and `lives_in` topics:
+For instance, given the following message published to the `user` and `lives-in` topics:
 
 [source,json]
 ----
@@ -29,7 +29,7 @@ You can also provide relationship patterns to transform it into a path, like `(n
 
 [source,json,subs="verbatim"]
 ----
-"neo4j.pattern.topic.lives_in": "(:User{!id: userId})-[:LIVES_IN{since}]->(:City{!name: address.city, !country: address.country})"
+"neo4j.pattern.topic.lives-in": "(:User{!id: userId})-[:LIVES_IN{since}]->(:City{!name: address.city, !country: address.country})"
 ----
 
 [NOTE]
