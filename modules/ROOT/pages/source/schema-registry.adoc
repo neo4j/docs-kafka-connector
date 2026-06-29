@@ -5,8 +5,10 @@ Schema conflicts may arise due to the flexible nature of the graph data.
 To mitigate conflicts, it's crucial to establish a structured approach to schema enforcement and validation.
 
 [TIP]
+====
 Beyond schema enforcement, using a compact binary format such as Avro also improves connector throughput compared to JSON.
-See xref:source/best-practices.adoc#serialization-format[Best practices for Source connector] for details.
+See xref:source/best-practices.adoc#serialization-format[Best practices for Source connector] for more details.
+====
 
 == Enforcing Structure
 

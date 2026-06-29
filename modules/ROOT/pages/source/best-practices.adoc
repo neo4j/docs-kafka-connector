@@ -26,12 +26,13 @@ This setting affects both connector overhead and how messages are distributed ac
 
 The default value, `WHOLE_VALUE`, serializes the entire change event into the message key in addition to the message value.
 This makes each message self-contained, but means every change event is serialized and deserialized twice, which adds overhead without providing a useful key for partitioning.
-Consider the following when deciding whether to change it, based on whether you need ordering guarantees:
 
-[%width="100%",cols="m,a",opts=header]
+Use the following table as a guidance to determine the best strategy.
+
+[%width="100%",cols="1m,2a",opts=header]
 |===
 | Strategy
-| When to use it
+| Use case
 
 | SKIP
 | *Best for throughput.*
