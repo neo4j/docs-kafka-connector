@@ -10,7 +10,7 @@ Beyond schema enforcement, using a compact binary format such as Avro also impro
 See xref:source/best-practices.adoc#serialization-format[Best practices for Source connector] for more details.
 ====
 
-== Enforcing Structure
+== Enforcing structure
 
 When using schema formats like Avro, Protobuf, or JSON Schema with Neo4j, it's recommended to invest efforts in enforcing structure within the data.
 This includes:
