@@ -29,7 +29,7 @@ Depending on specific requirements and data structure, changing the compatibilit
 However, it's important to thoroughly test compatibility changes before implementing.
 
 [#handling-unstructured-graph-data]
-== Handling Unstructured Graph Data
+== Handling unstructured graph data
 
 In scenarios where graph data is challenging to structure or evolve, it's advisable to explore whether you can relax compatibility mode and manage schema changes on consumer side.
 If it's not feasible, employing a schema-less message format is recommended.
