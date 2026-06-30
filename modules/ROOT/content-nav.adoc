@@ -30,9 +30,6 @@
 * xref:sink/configuration.adoc[Settings]
 * xref:sink/monitoring.adoc[Monitoring]
 
-* *Best practices*
-* xref:best-practices/source.adoc[Source connector]
-
 * *Upgrades and migrations*
 * xref:migration/5.1/index.adoc[From 5.0 to 5.1+]
 ** xref:migration/5.1/migration-docker.adoc[Confluent Platform]
