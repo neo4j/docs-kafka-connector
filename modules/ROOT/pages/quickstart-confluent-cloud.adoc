@@ -14,7 +14,7 @@ Follow link:{page-canonical-root}/cdc/current/get-started/aura[Enable CDC on Neo
 +
 [NOTE]
 If an AuraDB instance is paused and resumed, CDC can be disabled by resetting `txLogEnrichment` to `OFF`.
-Verify that CDC is enabled again before starting or restarting the source connector.
+Ensure that CDC is enabled again and follow xref:source/best-practices.adoc#source-cdc-cursor-recovery[CDC cursor recovery] steps before (re)starting the source connector.
 
 * An environment and a running cluster must be available at link:{url-confluent-cloud}[Confluent Cloud], similar to what's shown in <<running-cluster>>.
 

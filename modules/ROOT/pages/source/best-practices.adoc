@@ -67,11 +67,11 @@ Only use `SKIP` when your data model and consumers tolerate this.
 [#source-cdc-cursor-recovery]
 == CDC cursor recovery
 
-The CDC source connector stores the Neo4j CDC change identifier in source connector memory while it is running.
-If the database invalidates CDC change identifiers, the connector can keep retrying with a change identifier that the database can no longer resolve.
+While the CDC source connector tracks CDC change identifier in Kafka Connect managed offset storage, it also keeps the offset in memory while it is up and running.
+If the database invalidates CDC change identifiers, the connector can keep retrying with a change identifier that the database can no longer resolve and will eventually fail, which needs to be recovered manually.
 
 CDC change identifiers can become invalid after database operations that change data outside the transaction layer, such as restoring a backup, restoring from a snapshot, copying the database, importing data through CLI commands, or pausing and resuming a Neo4j Aura database.
-They can also become unusable when the transaction log no longer contains the transaction referenced by the stored change identifier.
+They can also become invalid when the transaction log gets truncated and no longer contains the transaction referenced by the stored change identifier.
 For the underlying CDC behavior and error codes, see link:{page-canonical-root}/cdc/current/known-issues/[Change Data Capture > Known Issues] and link:{page-canonical-root}/cdc/current/troubleshooting/[Change Data Capture > Troubleshooting].
 
 Pausing and resuming a Neo4j Aura database can disable CDC by resetting txLogEnrichment to OFF. After resuming an Aura database,
@@ -88,7 +88,7 @@ This skips changes between the invalidated offset and the restart point, but res
 
 `EARLIEST`::
 Start from the earliest CDC change identifier that is still available for the database.
-When CDC has been enabled continuously, this resumes consumption from the change identifier created when CDC started.
+When CDC has been enabled continuously, this resumes consumption from the earliest transaction that has not been truncated by the database.
 
 `USER_PROVIDED`::
 Start from a specific CDC change identifier.

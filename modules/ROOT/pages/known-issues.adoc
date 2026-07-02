@@ -6,7 +6,7 @@
 
 The Kafka source connector CDC strategy depends on Neo4j Change Data Capture identifiers.
 CDC change identifiers can become invalid after operations such as restoring a backup, restoring from a snapshot, copying a database, importing data through CLI commands, or pausing and resuming a Neo4j Aura database.
-They can also become unusable when the transaction log no longer contains the transaction referenced by the identifier.
+They can also become invalid when the transaction log gets truncated and no longer contains the transaction referenced by the stored change identifier.
 
 For CDC-specific behavior and error codes, see link:{page-canonical-root}/cdc/current/known-issues/[Change Data Capture > Known Issues] and link:{page-canonical-root}/cdc/current/troubleshooting/[Change Data Capture > Troubleshooting].
 For source connector recovery steps, see xref:source/best-practices.adoc#source-cdc-cursor-recovery[CDC cursor recovery].
