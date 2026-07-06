@@ -29,7 +29,7 @@ Default: `50`
 
 [NOTE]
 ====
-This setting is applicable to the CDC, CUD, pattern, and Cypher sink strategies, and is ignored when the APOC Core based batching strategy is used.
+This setting is ignored when the APOC Core based batching strategy is used.
 ====
 
 | `neo4j.eos-offset-label` label:new[5.3.0]
