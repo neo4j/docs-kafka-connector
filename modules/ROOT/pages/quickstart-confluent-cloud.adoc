@@ -11,6 +11,10 @@ For customers wishing to use Aura/Neo4j as a source, Neo4j supports running the 
 
 * An AuraDB Enterprise or a Neo4j Enterprise on-prem deployment, with CDC enabled, which is accessible through public internet.
 Follow link:{page-canonical-root}/cdc/current/get-started/aura[Enable CDC on Neo4j Aura] or link:{page-canonical-root}/cdc/current/get-started/self-managed[Enable CDC on Neo4j DBMS] for instructions.
++
+[NOTE]
+If an AuraDB instance is paused and resumed, CDC can be disabled by resetting `txLogEnrichment` to `OFF`.
+Ensure that CDC is enabled again and follow xref:source/best-practices.adoc#source-cdc-cursor-recovery[CDC cursor recovery] steps before (re)starting the source connector.
 
 * An environment and a running cluster must be available at link:{url-confluent-cloud}[Confluent Cloud], similar to what's shown in <<running-cluster>>.
 
@@ -197,6 +201,7 @@ Typically, our connector is used as either a sink when pulling data from other d
 == Troubleshooting
 
 - Make sure you have CDC enabled on your database.
+- If you use AuraDB, make sure CDC is still enabled after every pause and resume cycle.
 - Make sure you have set the connection endpoints correctly as specified above.
 - Check logs for the connector.
 
