@@ -97,18 +97,13 @@ where `$events` is a batch of change events.
 
 == Batching of Cypher events
 
-Starting from version 5.4.2, batched sink handlers are available for the Cypher strategy to provide better throughput when processing messages.
-These handlers process messages in batches and apply them to the database more efficiently.
+Starting from version 5.4.2, the Cypher strategy processes messages in batches for better throughput.
+The configured Cypher statement is applied once per message, but the connector executes a whole batch together:
 
-There are currently two batching strategies used by the Cypher sink handlers:
+* When APOC Core is available, batches run via the `apoc.cypher.doIt` procedure.
+* Otherwise, the connector falls back to combining up to `neo4j.max-batched-queries` messages (default `50`) into a single query using subqueries.
 
-. APOC Core strategy: This strategy uses the `apoc.cypher.doIt` procedure to execute batches of the configured Cypher statement, one invocation per message in the batch.
-. Native strategy: This strategy generates a single Cypher statement containing multiple subqueries for each message in the batch, and executes it using the standard Cypher execution engine.
-The maximum number of subqueries included in a single batch when using the native strategy can be configured using the `neo4j.max-batched-queries` setting, which defaults to `50`.
-
-The connector defaults to the APOC Core batching strategy when available, falling back to the native strategy when APOC Core is not available on the target database.
-
-Batch size, which applies to both batching strategies, can be configured using the `neo4j.batch-size` setting, which defaults to `1000`.
+Batch size can be configured using the `neo4j.batch-size` setting, which defaults to `1000`.
 
 == Exactly-once semantics
 
