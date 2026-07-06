@@ -128,7 +128,7 @@ Although the generated message will look exactly the same as the `COMPACT` mode,
 
 == Exactly Once Semantics
 
-The query strategy declares itself as *not* Exactly Once capable, and provides at-least-once delivery guarantees.
+The query strategy is *not* Exactly Once capable, and provides at-least-once delivery guarantees.
 Because messages are derived from a user-provided Cypher query rather than from the transaction log, the connector cannot guarantee that each record is delivered exactly once across connector restarts or failures, so duplicate records are possible.
 
 If you require exactly-once delivery on the source side, use the xref:source/cdc.adoc[CDC source strategy] instead, which declares itself Exactly Once capable on Kafka Connect clusters that support link:https://cwiki.apache.org/confluence/display/KAFKA/KIP-618%3A+Exactly-Once+Support+for+Source+Connectors[KIP-618].
