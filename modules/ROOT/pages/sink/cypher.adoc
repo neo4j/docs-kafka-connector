@@ -97,11 +97,10 @@ where `$events` is a batch of change events.
 
 == Batching of Cypher events
 
-Starting from version 5.4.2, the Cypher strategy processes messages in batches for better throughput.
-The configured Cypher statement is applied once per message, but the connector executes a whole batch together:
+The Cypher strategy processes messages in batches for better throughput.
 
 * When APOC Core is available, batches run via the `apoc.cypher.doIt` procedure.
-* Otherwise, the connector falls back to combining up to `neo4j.max-batched-queries` messages (default `50`) into a single query using subqueries.
+* Otherwise, the connector embeds the provided statement into a subquery and executes the batch with this generated statement.
 
 Batch size can be configured using the `neo4j.batch-size` setting, which defaults to `1000`.
 
