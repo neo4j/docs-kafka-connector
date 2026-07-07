@@ -13,7 +13,7 @@ label:feature[]
 label:new[]
 
 Cypher sink strategy now supports Exactly Once semantics and batched processing.
-| The Cypher sink strategy has been re-implemented on top of the shared sink action abstraction, so it now supports Exactly Once offset tracking and benefits from the batched processing strategies (APOC Core and native) introduced for CDC sink handlers.
+| The Cypher sink strategy has been re-implemented on top of the shared sink action abstraction, so it now supports Exactly Once offset tracking and benefits from the batched processing strategies (APOC Core and native) previously introduced for CDC sink handlers.
 |===
 
 == Version 5.4.0
