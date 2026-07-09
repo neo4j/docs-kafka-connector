@@ -7,7 +7,7 @@ site:
 content:
   sources:
   - url: ./
-    branches: ['5.0', '5.1', '5.2', '5.3', 'HEAD']
+    branches: ['5.0', '5.1', '5.2', '5.3', '5.4', 'HEAD']
     exclude:
     - '!**/_includes/*'
     - '!**/readme.adoc'
@@ -38,7 +38,7 @@ asciidoc:
     page-search-site: Reference Docs
     page-canonical-root: /docs
     page-pagination: true
-    page-no-canonical: true 
+    page-no-canonical: true
     page-origin-private: true
     page-hide-toc: false
     page-mixpanel: 4bfb2414ab973c741b6f067bf06d5575
