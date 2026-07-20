@@ -119,6 +119,17 @@ Enable Change Data Capture on the source database before taking the backup, so t
 Follow link:{page-canonical-root}/cdc/current/getting-started[Change Data Capture -> Getting Started] to enable the CDC mode on the database.
 Make sure CDC is enabled and active before proceeding, otherwise the changes committed after the backup will not be captured.
 
+Once CDC is active, record the *current change identifier*:
+
+[source,cypher]
+----
+CALL db.cdc.current() YIELD id
+RETURN id
+----
+
+Note the returned `id` value: it marks the point in the change stream from which you search for the backup's last transaction in <<setup-source-connector, Step 4>>.
+Starting that search from this identifier, rather than from the earliest available change, lets it scan only the changes committed from this point on instead of reading through the entire available transaction log.
+
 [IMPORTANT]
 ====
 Configure the database with an adequate transaction log retention period, set *above the expected backup time*.
@@ -148,20 +159,29 @@ Streaming from any earlier point would re-apply changes already present in the b
 
 === Identify the change identifier to resume from
 
-Run the following query against the source database, substituting `$lastTxIdFromBackup` with the latest transaction ID you noted in <<backup-source-db>>.
-It returns the CDC change identifier corresponding to the last transaction captured in the backup:
+Run the following query against the source database to find the CDC change identifier that corresponds to the last transaction captured in the backup. Substitute:
+
+* `$changeIdAfterCdcEnabled` with the current change identifier you recorded in <<enable-cdc, Step 2>>.
+* `$lastTxIdFromBackup` with the latest transaction ID you noted in <<backup-source-db, Step 3>>.
 
 [source,cypher]
 ----
-CALL db.cdc.earliest() YIELD id AS startId
-CALL db.cdc.query(startId) YIELD id, txId, seq
+CALL db.cdc.query($changeIdAfterCdcEnabled) YIELD id, txId, seq
 WHERE txId = $lastTxIdFromBackup
 ORDER BY seq DESC
 RETURN id, txId, seq
 LIMIT 1
 ----
 
-Note the returned `id` value: this is the change identifier the source connector resumes from.
+Starting the search from the change identifier recorded right after CDC was enabled — rather than from `db.cdc.earliest()` — keeps the query fast: it scans only the changes committed between enabling CDC and the backup, instead of reading through the entire available transaction log.
+
+If the query returns a row, note the returned `id` value: this is the change identifier the source connector resumes from.
+
+[NOTE]
+====
+If the query returns *no rows*, it means no transactions were committed between the moment you recorded the current change identifier in <<enable-cdc, Step 2>> and the last transaction included in the backup.
+In that case, use the change identifier you recorded in <<enable-cdc, Step 2>> as the change identifier the source connector resumes from.
+====
 
 === Create the dedicated migration topic
 
