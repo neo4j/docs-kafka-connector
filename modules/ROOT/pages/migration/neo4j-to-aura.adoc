@@ -3,6 +3,9 @@
 
 This guide describes how to migrate a self-managed Neo4j database to Neo4j Aura without downtime, using the {product-name} to keep the target Aura instance in sync with the source database.
 
+Throughout the migration, the source database stays online for both reads and writes.
+The only interruption is a short write freeze during <<cutover>>, while the last in-flight changes drain before applications are redirected to Aura; reads are never interrupted.
+
 The approach relies on link:{page-canonical-root}/cdc/current[Change Data Capture] (CDC) to replay every change committed to the source database after the backup was taken, so that no write is lost during the cutover.
 Both the source and sink connectors are configured for exactly-once semantics to guarantee that each change is applied to the target exactly once.
 
@@ -20,7 +23,8 @@ Because changes are buffered in Kafka from the moment the backup is taken, the s
 
 == Prerequisites
 
-* A Neo4j Enterprise 5 source database with link:{page-canonical-root}/cdc/current[Change Data Capture] support.
+* A Neo4j Enterprise 5 or later source database with link:{page-canonical-root}/cdc/current[Change Data Capture] support.
+* Privileges to execute `db.cdc.query` and `db.cdc.current` on the source database, for both the source connector's database user and whoever runs the change-identifier lookup in <<setup-source-connector, Step 4>>. This requires admin privileges, or explicit grants of both `EXECUTE PROCEDURE db.cdc.query` and `EXECUTE BOOSTED PROCEDURE db.cdc.query`. See link:{page-canonical-root}/cdc/current/get-started/self-managed/[Change Data Capture -> Getting started].
 * A running Kafka Connect cluster that supports link:https://cwiki.apache.org/confluence/display/KAFKA/KIP-618%3A+Exactly-Once+Support+for+Source+Connectors[KIP-618] (Apache Kafka 3.3.0 and later) with exactly-once source support enabled on the workers.
 * Network connectivity from the Kafka Connect cluster to both the source database and the target Aura instance.
 
@@ -31,14 +35,18 @@ The CDC sink connector can apply change events to the target using one of two su
 The choice determines whether you need to prepare the source data first, because the Source ID strategy requires markers that have to be present in the backup itself.
 
 xref:sink/cdc.adoc#schema[Schema strategy]:: Merges nodes and relationships by the constraints declared on the source database. This preserves the source schema and adds nothing extra to your data, but it can only be used when the schema requirements below are met.
-xref:sink/cdc.adoc#source-id[Source ID strategy]:: Merges nodes and relationships by the source entity's `elementId`, stored as a property and marked with a dedicated label. It has no constraint requirements, but it adds a marker label and property to every node and relationship.
+xref:sink/cdc.adoc#source-id[Source ID strategy]:: Merges nodes and relationships by the source entity's `elementId`, stored as a property and marked with a dedicated label. It has no constraint requirements on the source database (a uniqueness constraint on the marker is still created on the target in <<prepare-target-schema>>), but it adds a marker label and property to every node and relationship.
+
+*The Schema strategy is the preferred choice whenever the source schema allows it.*
+It adds nothing to your data and preserves the source schema.
+Use the Source ID strategy only as a fallback for databases that cannot meet the Schema requirements below: it works without constraints, but marking every entity in the source is a substantial preparation step with the trade-offs called out in <<source-prep, Step 1>>.
 
 [#schema-strategy-requirements]
 === Schema strategy requirements
 
 You can use the Schema strategy only if *both* of the following hold on the source database:
 
-* Every node label that participates in the migration has a *node key* constraint (or a combination of *uniqueness + existence* constraints) covering its key properties, so each node can be identified from the change event alone.
+* Every node that participates in the migration has at least one label with a *node key* constraint (or a combination of *uniqueness + existence* constraints) covering its key properties, so each node can be identified from the change event alone.
 * There are no duplicate relationships of the same type between the same pair of nodes, *unless* those relationships have a *relationship key* constraint to tell them apart.
 
 If you can satisfy both requirements, continue with the Schema strategy.
@@ -46,7 +54,7 @@ The migration steps that follow apply unchanged, and you skip the Source ID-spec
 
 === When to use Source ID
 
-If you *cannot* satisfy the Schema requirements — for example, some labels have no usable key, or duplicate relationships exist without a relationship key — use the Source ID strategy instead.
+If you *cannot* satisfy the Schema requirements — for example, some nodes have no label with a usable key, or duplicate relationships exist without a relationship key — use the Source ID strategy instead.
 
 [IMPORTANT]
 ====
@@ -55,6 +63,13 @@ In a backup-based migration, the nodes and relationships restored from the backu
 
 For this reason, you must add the marker label and property to *every node and relationship on the source database before taking the backup*.
 This is covered in <<source-prep>>.
+====
+
+[WARNING]
+====
+On a large database, this preparation is a *full-graph update*: it writes a new label and property to every node and a new property to every relationship, generating substantial transaction log volume and — if the source keeps taking writes — lock contention.
+The uniqueness constraint created on the target in <<prepare-target-schema, Step 6>> is likewise a full-graph index build.
+On databases with billions of entities this step can be prohibitively expensive, so account for it before committing to the Source ID strategy.
 ====
 
 [NOTE]
@@ -107,6 +122,21 @@ If you override them, they must match the `neo4j.cdc.source-id.label-name` and `
 [NOTE]
 Run these statements from a client that allows implicit transactions, such as `cypher-shell`, and adjust the batch size to suit your database.
 
+To catch entities that are missing the marker before you take the backup, add an existence constraint on the marker property:
+
+[source,cypher]
+----
+CREATE CONSTRAINT source_event_source_id_exists IF NOT EXISTS
+FOR (n:SourceEvent) REQUIRE n.sourceId IS NOT NULL
+----
+
+[WARNING]
+======
+This constraint catches nodes that carry the marker label but are missing the `sourceId` property; it *cannot* catch entities created without the marker label at all.
+If the source keeps taking writes while you prepare it, any entity created after the stamping queries finish but before the backup is taken lands in the backup unmarked, and its later change events will not match on the target.
+To close this gap, either configure ongoing ingestion to write the markers itself, or re-run the stamping queries immediately before taking the backup.
+======
+
 =====
 
 ====
@@ -116,7 +146,10 @@ Run these statements from a client that allows implicit transactions, such as `c
 
 Enable Change Data Capture on the source database before taking the backup, so that all changes committed from this point on are captured and can be replayed onto the target.
 
-Follow link:{page-canonical-root}/cdc/current/getting-started[Change Data Capture -> Getting Started] to enable the CDC mode on the database.
+Follow link:{page-canonical-root}/cdc/current/getting-started[Change Data Capture -> Getting Started] to enable CDC on the database, and enable it in `DIFF` mode.
+`DIFF` mode records only the properties that changed, producing smaller change-event payloads than `FULL` mode.
+This reduces the volume streamed through Kafka and helps the sink connector keep up with the source change rate during catch-up.
+Both sink strategies apply `DIFF` change events correctly.
 Make sure CDC is enabled and active before proceeding, otherwise the changes committed after the backup will not be captured.
 
 Once CDC is active, record the *current change identifier*:
@@ -142,6 +175,21 @@ See link:https://neo4j.com/docs/cdc/current/get-started/self-managed/#log-retent
 
 Take a backup of the source database and note the *latest transaction ID* included in the backup.
 You need this transaction ID in the next step to determine the exact change to resume the source connector from.
+
+Inspect the backup metadata and take the *highest* transaction ID it reports.
+On Neo4j 2025.01.0 and later:
+
+[source,shell]
+----
+bin/neo4j-admin database backup --inspect-path=<path-to-backup>
+----
+
+On Neo4j 5.x:
+
+[source,shell]
+----
+bin/neo4j-admin backup inspect --show-metadata <path-to-backup-directory>
+----
 
 For details on producing a backup, see link:{page-canonical-root}/operations-manual/current/backup-restore/[Backup and restore].
 
@@ -176,6 +224,7 @@ LIMIT 1
 Starting the search from the change identifier recorded right after CDC was enabled — rather than from `db.cdc.earliest()` — keeps the query fast: it scans only the changes committed between enabling CDC and the backup, instead of reading through the entire available transaction log.
 
 If the query returns a row, note the returned `id` value: this is the change identifier the source connector resumes from.
+The connector resumes from the *first change after* this identifier (exclusive): the change returned by the query is the last transaction already included in the backup, so it is applied only once — from the backup — and is never replayed onto the target.
 
 [NOTE]
 ====
@@ -261,6 +310,16 @@ See xref:source/cdc.adoc#_exactly_once_semantics[Source -> Exactly Once Semantic
 
 Upload the backup taken in <<backup-source-db>> and provision the target Aura database from it.
 
+[TIP]
+====
+Before uploading, this is the last practical opportunity to compact the store using link:{page-canonical-root}/operations-manual/current/tools/neo4j-admin/copy-database/[`neo4j-admin database copy`] — store copy is not available once the database is in Aura.
+It runs offline against the restored backup, so it adds no source downtime.
+Two caveats:
+
+* `neo4j-admin database copy` discards indexes and constraints, but <<prepare-target-schema, Step 6>> recreates them anyway.
+* It reassigns internal entity IDs. This breaks neither strategy: the Schema strategy matches by key properties, and the Source ID strategy matches by the stored `sourceId` property values, which are copied along with the data.
+====
+
 For details on importing a backup into Aura, see link:{page-canonical-root}/aura/managing-instances/importing-data/[Aura -> Import data].
 
 [#prepare-target-schema]
@@ -272,23 +331,12 @@ For details on importing a backup into Aura, see link:{page-canonical-root}/aura
 ====
 [.include-with-Schema]
 =====
-Make sure that *all constraints present on the source database are also defined on the target Aura instance*.
-The Schema strategy merges nodes and relationships using the node key, relationship key, and uniqueness/existence constraints declared in the change events, so the corresponding constraints must exist on the target for changes to be applied correctly.
-
-List the constraints on the source database with:
-
-[source,cypher]
-----
-SHOW CONSTRAINTS
-----
-
-Recreate each of them on the target Aura instance.
+No strategy specific schema is required for the Schema strategy.
 =====
 
 [.include-with-Source-ID]
 =====
-The Source ID strategy does not rely on the source constraints to identify entities, so they are not required on the target.
-Instead, create a uniqueness constraint on the marker property so that each source entity maps to exactly one target node and lookups by the marker are backed by an index:
+Create a uniqueness constraint on the marker property so that each source entity maps to exactly one target node and lookups by the marker are backed by an index:
 
 [source,cypher]
 ----
@@ -297,8 +345,25 @@ FOR (n:SourceEvent) REQUIRE n.sourceId IS UNIQUE
 ----
 
 Use the label and property you configured for the strategy if you overrode the defaults.
+
 =====
 ====
+
+=== Ensure constraints and indexes are present
+
+Regardless of the strategy, list the constraints and indexes on the source database with:
+
+[source,cypher]
+----
+SHOW CONSTRAINTS
+----
+
+[source,cypher]
+----
+SHOW INDEXES
+----
+
+and make sure each of them are also available on the target Aura instance.
 
 === Create the exactly-once offset constraint
 
@@ -395,6 +460,7 @@ See xref:sink/cdc.adoc#_exactly_once_semantics[Sink -> Exactly-once semantics] f
 == Cutover
 
 Once the sink connector has caught up and the target Aura instance is in sync with the source, you can switch your applications over to Aura.
+This is the only point in the migration where writes are paused: reads on the source are never interrupted, and the write freeze lasts only as long as it takes the connectors to drain the final in-flight changes (steps 2 and 3 below).
 
 . Confirm the sink connector has no lag, meaning all buffered changes have been applied to Aura.
 . Stop writes to the source database.
