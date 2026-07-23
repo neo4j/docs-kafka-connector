@@ -4,13 +4,11 @@
 This guide describes how to migrate a self-managed Neo4j database to Neo4j Aura without downtime, using the {product-name} to keep the target Aura instance in sync with the source database.
 
 Throughout the migration, the source database stays online for both reads and writes.
-The only interruption is a short write freeze during <<cutover>>, while the last in-flight changes drain before applications are redirected to Aura; reads are never interrupted.
+The only interruption is a short write freeze during <<cutover>>, while the last in-flight changes drain before applications are redirected to Aura; reads are not interrupted.
 
 The approach relies on link:{page-canonical-root}/cdc/current[Change Data Capture] (CDC) to replay every change committed to the source database after the backup was taken, so that no write is lost during the cutover.
 Both the source and sink connectors are configured for exactly-once semantics to guarantee that each change is applied to the target exactly once.
 
-[TIP]
-====
 At a high level, the migration works as follows:
 
 . A backup captures the source database up to a known transaction.
@@ -19,7 +17,6 @@ At a high level, the migration works as follows:
 . The sink connector applies the buffered changes to Aura, catching it up to the source.
 
 Because changes are buffered in Kafka from the moment the backup is taken, the source database can keep serving writes throughout the migration.
-====
 
 == Prerequisites
 
@@ -44,7 +41,7 @@ Use the Source ID strategy only as a fallback for databases that cannot meet the
 [#schema-strategy-requirements]
 === Schema strategy requirements
 
-You can use the Schema strategy only if *both* of the following hold on the source database:
+You can use the Schema strategy only if the source database meets *both* of the following requirements:
 
 * Every node that participates in the migration has at least one label with a *node key* constraint (or a combination of *uniqueness + existence* constraints) covering its key properties, so each node can be identified from the change event alone.
 * There are no duplicate relationships of the same type between the same pair of nodes, *unless* those relationships have a *relationship key* constraint to tell them apart.
@@ -56,14 +53,9 @@ The migration steps that follow apply unchanged, and you skip the Source ID-spec
 
 If you *cannot* satisfy the Schema requirements — for example, some nodes have no label with a usable key, or duplicate relationships exist without a relationship key — use the Source ID strategy instead.
 
-[IMPORTANT]
-====
 The Source ID strategy identifies each entity by the source `elementId`, stored as a property (default `sourceId`) on a marked node (default label `SourceEvent`).
 In a backup-based migration, the nodes and relationships restored from the backup must *already* carry these markers, otherwise change events for pre-existing entities will not match anything on the target and the sink will create duplicates.
-
-For this reason, you must add the marker label and property to *every node and relationship on the source database before taking the backup*.
-This is covered in <<source-prep>>.
-====
+For this reason, you must add the marker label and property to *every node and relationship on the source database before taking the backup*, as covered in <<source-prep>>.
 
 [WARNING]
 ====
@@ -72,11 +64,8 @@ The uniqueness constraint created on the target in <<prepare-target-schema, Step
 On databases with billions of entities this step can be prohibitively expensive, so account for it before committing to the Source ID strategy.
 ====
 
-[NOTE]
-====
 The remaining steps are presented for both strategies.
 Wherever the configuration differs, a tabbed block shows the *Schema* and *Source ID* variants side by side — follow the tab matching the strategy you chose here.
-====
 
 [#source-prep]
 == Step 1: Prepare the source data
@@ -280,28 +269,20 @@ Configure a xref:source/cdc.adoc[CDC source connector] that resumes from the ide
 <7> Require acknowledgement from all in-sync replicas before a write is considered successful, so no published change event can be lost.
 <8> Enable the idempotent producer to prevent duplicate change events from producer retries.
 
-[IMPORTANT]
-====
 The CDC strategy requires a key and value converter that supports schemas.
-
 The examples above use `io.confluent.connect.avro.AvroConverter`, which is the preferred converter and stores schemas in a Schema Registry, keeping messages compact.
 You can use other schema-aware converters instead, such as `org.apache.kafka.connect.json.JsonConverter`, which by default embeds the schema in every message at the cost of a larger message size.
 
 When you use a converter backed by a Schema Registry (such as `AvroConverter` or `ProtobufConverter`), you must *disable schema compatibility checks* for the migration topic subjects by setting the compatibility mode to `NONE`.
 CDC change events evolve their schema as different entity shapes flow through the topic, and the default compatibility mode would reject these schema changes and fail the connector.
-====
 
-[IMPORTANT]
-====
 Exactly-once delivery on the source side is *essential* for a correct migration.
 It guarantees that every change committed on the source is published to the migration topic *exactly once* — no change is lost, and no change is duplicated — even across connector restarts, rebalances, or transient failures.
 Without it, the target graph could end up missing writes or replaying them twice, silently diverging from the source.
 
 The CDC source connector declares itself exactly-once capable, and from version 5.2.0 takes advantage of link:https://cwiki.apache.org/confluence/display/KAFKA/KIP-618%3A+Exactly-Once+Support+for+Source+Connectors[KIP-618] on workers that support it.
 To make this a hard requirement for the migration, the configuration above sets `exactly.once.support` to `required` together with the supporting producer settings, so the connector refuses to start unless exactly-once delivery is actually available.
-
 This requires *exactly-once source support to be enabled on the Kafka Connect workers themselves* (`exactly.once.source.support=enabled` in the worker configuration), which cannot be set per connector.
-====
 
 See xref:source/cdc.adoc#_exactly_once_semantics[Source -> Exactly Once Semantics] for more information.
 
@@ -310,15 +291,12 @@ See xref:source/cdc.adoc#_exactly_once_semantics[Source -> Exactly Once Semantic
 
 Upload the backup taken in <<backup-source-db>> and provision the target Aura database from it.
 
-[TIP]
-====
 Before uploading, this is the last practical opportunity to compact the store using link:{page-canonical-root}/operations-manual/current/tools/neo4j-admin/copy-database/[`neo4j-admin database copy`] — store copy is not available once the database is in Aura.
 It runs offline against the restored backup, so it adds no source downtime.
-Two caveats:
+Two caveats apply:
 
 * `neo4j-admin database copy` discards indexes and constraints, but <<prepare-target-schema, Step 6>> recreates them anyway.
 * It reassigns internal entity IDs. This breaks neither strategy: the Schema strategy matches by key properties, and the Source ID strategy matches by the stored `sourceId` property values, which are copied along with the data.
-====
 
 For details on importing a backup into Aura, see link:{page-canonical-root}/aura/managing-instances/importing-data/[Aura -> Import data].
 
@@ -363,7 +341,7 @@ SHOW CONSTRAINTS
 SHOW INDEXES
 ----
 
-and make sure each of them are also available on the target Aura instance.
+Make sure each of them are also available on the target Aura instance.
 
 === Create the exactly-once offset constraint
 
@@ -524,6 +502,8 @@ DROP CONSTRAINT kafka_offset_key IF EXISTS;
 ----
 
 [NOTE]
+======
 Use the label and property you configured for the strategy if you overrode the defaults.
+======
 =====
 ====
