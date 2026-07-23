@@ -291,7 +291,8 @@ See xref:source/cdc.adoc#_exactly_once_semantics[Source -> Exactly Once Semantic
 
 Upload the backup taken in <<backup-source-db>> and provision the target Aura database from it.
 
-Before uploading, this is the last practical opportunity to compact the store using link:{page-canonical-root}/operations-manual/current/tools/neo4j-admin/copy-database/[`neo4j-admin database copy`] — store copy is not available once the database is in Aura.
+If you want to compact the store — reclaiming the space left by deleted nodes and relationships and reducing the store size before it is uploaded — using link:{page-canonical-root}/operations-manual/current/tools/neo4j-admin/copy-database/[`neo4j-admin database copy`] before you upload the database to Aura, you can do so at this point.
+This step is *optional*, but once the database is in Aura, this command is not supported.
 It runs offline against the restored backup, so it adds no source downtime.
 Two caveats apply:
 
