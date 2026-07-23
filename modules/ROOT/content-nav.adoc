@@ -9,7 +9,7 @@
 ** xref::quickstart-confluent-cloud.adoc[Confluent Cloud]
 // * xref::amazon-msk.adoc[Amazon MSK quickstart]
 
-* *Guides*
+* *Use cases*
 * xref:migration/neo4j-to-aura.adoc[Zero downtime migration to Aura]
 
 * *Source connector*
