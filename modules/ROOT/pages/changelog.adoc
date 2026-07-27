@@ -12,10 +12,10 @@ a|
 label:bug[]
 label:fixed[]
 
-Disable MATCH use with dynamic node labels and relationship types in sink connectors.
-| Sink connector was designed to utilize entity lookups with dynamic node labels and relationship types when the feature is available in the target database.
-However, it is found out that Cypher planner could pick a much slower plan when relationship match clauses have several properties on them.
-Dynamic labels use have been disabled until we have a more consistent behaviour.
+Support for dynamic labels and relationship types in a `MATCH` clause removed from Sink connectors.
+| The Sink connector uses entity lookups with dynamic node labels and relationship types when the feature is available in the target database.
+However, the Cypher planner can potentially produce a slow plan when the matched relationships include several properties.
+The support for dynamic labels and relationship types in a `MATCH` clause has been removed until a more consistent behaviour can be guaranteed.
 |===
 
 
