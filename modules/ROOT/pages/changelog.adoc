@@ -2,6 +2,24 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.5.1
+
+[cols="1,2",options="header"]
+|===
+| Feature | Details
+
+a|
+label:bug[]
+label:fixed[]
+
+Support for dynamic labels and relationship types in a `MATCH` clause removed from Sink connectors.
+| The Sink connector uses entity lookups with dynamic node labels and relationship types when the feature is available in the target database.
+However, the Cypher planner can potentially produce a slow plan when the matched relationships include several properties.
+The support for dynamic labels and relationship types in a `MATCH` clause has been removed until a more consistent behaviour can be guaranteed.
+|===
+
+
+
 == Version 5.5.0
 
 [cols="1,2",options="header"]
