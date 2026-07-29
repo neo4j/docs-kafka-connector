@@ -32,6 +32,7 @@
 * xref:sink/error-handling.adoc[Error handling]
 * xref:sink/configuration.adoc[Settings]
 * xref:sink/monitoring.adoc[Monitoring]
+* xref:sink/best-practices.adoc[Best practices]
 
 * *Upgrades and migrations*
 * xref:migration/5.1/index.adoc[From 5.0 to 5.1+]

@@ -33,7 +33,11 @@ You can also provide relationship patterns to transform it into a path, like `(n
 ----
 
 [NOTE]
-Relationship key properties can only be used with Neo4j Enterprise Edition 5.7 and above, and AuraDB 5.
+====
+The Sink connector accepts relationship key properties (prefixed with `!`) on any Neo4j edition and merges relationships using them.
+However, an actual `RELATIONSHIP KEY` constraint, which enforces uniqueness on those properties, can only be created on Neo4j Enterprise Edition 5.7 and above, and AuraDB 5.
+On Community Edition, or without a matching constraint, writes still succeed but there is no uniqueness guarantee for the relationship key.
+====
 
 == Creating Sink instance
 

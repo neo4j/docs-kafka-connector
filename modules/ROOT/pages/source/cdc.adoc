@@ -57,6 +57,34 @@ Usually will be the same as authenticated user, but could be different if impers
 [NOTE]
 Only `pattern` settings are mandatory in the above example, and others are optional and can be added based on your requirements.
 
+[#choosing-pattern-form]
+=== Choosing between the list and indexed forms
+
+[%width="100%",cols="1,2",opts=header]
+|===
+| Form
+| When to use it
+
+| Comma-separated list (`neo4j.cdc.topic.\{NAME}.patterns`)
+| One value holds every pattern for the topic, with optional inline `{+prop}`/`{-prop}` property filters. Use this while your patterns only need to select entities and filter properties. It's the more concise of the two forms.
+
+| Indexed (`neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.pattern` and related keys)
+| Required as soon as a pattern also needs an `operation`, `changesTo`, or `metadata.*` selector, none of which are expressible in the list form. More verbose, but it's the only way to filter beyond entity shape and properties.
+|===
+
+The two forms aren't combined for the same topic. As soon as one pattern for a topic needs the indexed form, define all of that topic's patterns using the indexed form.
+
+[#property-filter-guidance]
+==== Choosing between include and exclude property filters
+
+Both forms support prefixing properties with `+` (include) or `-` (exclude) to control which properties appear in the change event.
+Prefer whichever list is shorter to write for your current schema, but consider how the label evolves over time:
+
+* An exclude list (for example `{-lastLogin}`) stays attached to the label as new properties are added. Any property added to the label later is included in the change event automatically.
+* An include list (for example `{+name,+email}`) only ever contains what's listed. A property added to the label later is excluded from the change event until you update the pattern.
+
+For a label with 6 properties where you want 5 of them, excluding the one you don't want is shorter to write than including the other five, but it also means a 7th property added later shows up unannounced. If you need new properties to stay excluded by default, use the include list even though it's longer.
+
 == Message ordering
 
 The CDC source connector publishes messages in the order of the change records returned by Neo4j CDC.

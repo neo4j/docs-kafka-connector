@@ -111,3 +111,19 @@ Then update the source connector configuration with the refreshed starting offse
 "neo4j.start-from": "USER_PROVIDED",
 "neo4j.start-from.value": "<change identifier from db.cdc.current>"
 ----
+
+[#cdc-use-leader]
+== Decide whether to pin CDC queries to the leader
+
+CDC queries are read operations, so by default (`neo4j.cdc.use-leader` set to `false`), the connector can run them against any cluster member.
+This spreads the read load across followers, which is fine for most workloads.
+
+Under a write heavy workload, followers can lag slightly behind the leader.
+Since the connector may be reading from a follower, this means the CDC events it publishes to Kafka can trail the true state of the database by that same lag.
+
+Set `neo4j.cdc.use-leader` to `true` to always run CDC queries against the leader instead, removing that lag.
+This comes at a cost, all CDC read traffic then competes with the leader's write traffic on the same instance instead of being spread across followers, so it doesn't scale with the cluster the way the default does.
+Reserve `true` for cases where staleness itself is unacceptable, such as high availability setups where downstream consumers must reflect the latest committed change, rather than enabling it by default.
+
+Leadership changes are handled transparently regardless of this setting.
+When the leader changes, the connector's CDC query adapts to the new leader automatically, with no extra configuration or manual restart needed.

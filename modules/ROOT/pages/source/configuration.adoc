@@ -79,6 +79,8 @@ Default: `1s`
 Example setting: `"neo4j.cdc.topic.my-topic.patterns": "(:Person {+name}),(:Person)-[:WORKS_FOR]->(:Company),(:Company {-id})"`.
 The change event for `Company` nodes will not include the `id` property.
 
+For guidance on choosing between this form and the indexed form below, see xref:source/cdc.adoc#choosing-pattern-form[Choosing between the list and indexed forms].
+
 | neo4j.cdc.topic.\{NAME}.patterns.\{INDEX}.pattern
 | Indexed graph pattern, with optional event property filters (prefixed with `+` or `-` for inclusion or exclusion respectively).
 
@@ -125,7 +127,9 @@ Default: `false` label:new[Introduced in 5.3.0]
 Default: `30s` label:new[Introduced in 5.3.0]
 
 | neo4j.cdc.use-leader
-| Whether to use the leader instance of the database for CDC queries.
+| Whether to always run CDC queries against the leader instance of the database, instead of any cluster member.
+
+For guidance on choosing between the two, see xref:source/best-practices.adoc#cdc-use-leader[Decide whether to pin CDC queries to the leader].
 
 Default: `false` label:new[Introduced in 5.3.0]
 
