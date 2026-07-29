@@ -16,4 +16,4 @@ Use a Cypher-like pattern syntax to transform incoming Kafka messages into Cyphe
 xref:sink/cud.adoc[Create Update Delete (CUD) File]::
 Transform incoming CUD-formatted messages into Cypher write queries.
 
-Not sure which one fits your use case? See xref:sink/best-practices.adoc#choosing-a-strategy[Choosing a sink strategy].
+See xref:sink/best-practices.adoc#choosing-a-strategy[Choosing a sink strategy] for advice on choosing the best strategy for your use case.

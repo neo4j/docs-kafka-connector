@@ -18,8 +18,10 @@ The `Schema` strategy merges nodes and relationships using the constraints decla
 
 [IMPORTANT]
 ====
-The change event only carries the *names* of the key properties used by the constraint on the source database, not the constraint itself.
-The Sink connector uses these key properties to build its `MERGE` statements regardless of whether an equivalent constraint exists on the target database. If one is missing, writes still succeed, but without the uniqueness guarantee and index-backed lookups that a matching constraint would provide.
+The change event only carries the _names_ of the key properties used by the constraint on the source database, not the constraint itself.
+The Sink connector uses these key properties to build its `MERGE` statements regardless of whether an equivalent constraint exists on the target database.
+If one is missing, writes still succeed, but without the uniqueness guarantee and index-backed lookups that a matching constraint would provide.
+
 Make sure the corresponding node key, relationship key, or property uniqueness/existence constraints are created on the *target* database before running this strategy in production.
 ====
 
