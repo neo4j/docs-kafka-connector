@@ -61,39 +61,7 @@ See <<other-formats>> for Avro, Protobuf and JSON Schema.
 
 === Start the environment
 
-Copy the following Docker Compose file into a new directory.
-
-.docker-compose.yml
-[source,yaml]
-----
-include::example$docker-data/docker-compose.yml[]
-----
-
-Copy the {product-name} JAR into a directory named `plugins` next to your `docker-compose.yml`:
-
-[source,text,subs="attributes+"]
-----
-quickstart/
-├─ plugins/
-│  ├─ neo4j-kafka-connect-{exact-connector-version}.jar
-├─ docker-compose.yml
-----
-
-[source,bash]
-----
-docker compose up -d
-docker compose ps
-----
-
-Wait until every service reports healthy — 90-120 seconds on a first run.
-Then confirm the plugin loaded:
-
-[source,bash]
-----
-curl -s http://localhost:8083/connector-plugins | grep -o 'sink.Neo4jConnector'
-----
-
-You can log in to Neo4j Browser at \http://localhost:7474 with `neo4j` / `password`.
+include::partial$quickstart-environment.adoc[]
 
 [TIP]
 The Pattern strategy does not require Change Data Capture, so there is nothing to enable on the

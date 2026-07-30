@@ -52,29 +52,7 @@ Community Edition is fine — this strategy needs neither CDC nor Enterprise fea
 
 === Start the environment
 
-Copy the following Docker Compose file into a new directory.
-
-.docker-compose.yml
-[source,yaml]
-----
-include::example$docker-data/docker-compose.yml[]
-----
-
-Copy the {product-name} JAR into a directory named `plugins` next to your `docker-compose.yml`:
-
-[source,text,subs="attributes+"]
-----
-quickstart/
-├─ plugins/
-│  ├─ neo4j-kafka-connect-{exact-connector-version}.jar
-├─ docker-compose.yml
-----
-
-[source,bash]
-----
-docker compose up -d
-docker compose ps
-----
+include::partial$quickstart-environment.adoc[]
 
 [NOTE]
 ====

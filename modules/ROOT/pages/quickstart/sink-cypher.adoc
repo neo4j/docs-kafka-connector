@@ -53,41 +53,7 @@ See <<other-formats>> for Avro, Protobuf and JSON Schema.
 
 === Start the environment
 
-Copy the following Docker Compose file into a new directory.
-
-.docker-compose.yml
-[source,yaml]
-----
-include::example$docker-data/docker-compose.yml[]
-----
-
-Copy the {product-name} JAR into a directory named `plugins` next to your `docker-compose.yml`,
-so that the directory looks like this:
-
-[source,text,subs="attributes+"]
-----
-quickstart/
-├─ plugins/
-│  ├─ neo4j-kafka-connect-{exact-connector-version}.jar
-├─ docker-compose.yml
-----
-
-Start the stack:
-
-[source,bash]
-----
-docker compose up -d
-----
-
-Wait until every service reports as healthy — this takes 90-120 seconds on a first run:
-
-[source,bash]
-----
-docker compose ps
-----
-
-You can now log in to Neo4j Browser at \http://localhost:7474 with the username `neo4j` and the
-password `password`.
+include::partial$quickstart-environment.adoc[]
 
 [TIP]
 The Cypher strategy does not require Change Data Capture, so there is nothing to enable on the
