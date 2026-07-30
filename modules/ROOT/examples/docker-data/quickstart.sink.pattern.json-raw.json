@@ -1,0 +1,17 @@
+{
+  "name": "Neo4jSinkPatternQuickstart",
+  "config": {
+    "topics": "users,purchases",
+    "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": false,
+    "neo4j.uri": "neo4j://neo4j:7687",
+    "neo4j.authentication.type": "BASIC",
+    "neo4j.authentication.basic.username": "neo4j",
+    "neo4j.authentication.basic.password": "password",
+    "neo4j.pattern.merge-node-properties": true,
+    "neo4j.pattern.topic.users": "(:User{!userId, name, surname})",
+    "neo4j.pattern.topic.purchases": "(:User{!userId})-[:BOUGHT{price, currency}]->(:Product{!productId, name: productName})"
+  }
+}

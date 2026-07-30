@@ -1,0 +1,255 @@
+= Quickstart: Sink with Cypher
+:xrefstyle: full
+
+ifdef::env-docs[]
+[abstract]
+--
+Load messages from a Kafka topic into Neo4j using your own Cypher query.
+--
+endif::env-docs[]
+
+== When to use the Cypher strategy
+
+Use the xref:sink/cypher.adoc[Cypher strategy] when you consume messages from a Kafka topic and
+want **full control** over the write query that applies them to Neo4j.
+Each message is passed to a Cypher statement you provide, as a parameter.
+
+Pick it when you need to:
+
+* compute or derive property values, rather than copy fields verbatim;
+* write conditional logic, run multiple `MERGE` clauses, or touch several labels per message;
+* map one message onto a subgraph whose shape does not follow directly from the message fields.
+
+Consider a different strategy if:
+
+xref:sink/pattern.adoc[Pattern]:: Your messages map field-for-field onto nodes and relationships,
+and you would rather declare that mapping than write Cypher.
+xref:sink/cud.adoc[CUD]:: Your producer already emits explicit create, update and delete
+instructions.
+xref:sink/cdc.adoc[Change Data Capture]:: Your messages were produced by a Neo4j source connector
+or Neo4j Streams, and you are replicating one Neo4j database into another.
+
+== What you will build
+
+A single sink connector that consumes JSON messages from a topic named `people`, and for each
+message merges a `Person` node, a `City` node and a `LIVES_IN` relationship between them.
+
+[source,text]
+----
+people topic ──> Sink connector ──> (:Person)-[:LIVES_IN]->(:City)
+----
+
+This guide does not use a source connector — messages are produced by hand, the way an external
+system would produce them.
+
+[NOTE]
+This guide uses plain JSON messages, so no Schema Registry is required.
+See <<other-formats>> for Avro, Protobuf and JSON Schema.
+
+== Prerequisites
+
+* Docker Compose v2.20.3 or later.
+* The {product-name} archive, unpacked as described in xref:installation.adoc[].
+
+=== Start the environment
+
+Copy the following Docker Compose file into a new directory.
+
+.docker-compose.yml
+[source,yaml]
+----
+include::example$docker-data/docker-compose.yml[]
+----
+
+Copy the {product-name} JAR into a directory named `plugins` next to your `docker-compose.yml`,
+so that the directory looks like this:
+
+[source,text,subs="attributes+"]
+----
+quickstart/
+├─ plugins/
+│  ├─ neo4j-kafka-connect-{exact-connector-version}.jar
+├─ docker-compose.yml
+----
+
+Start the stack:
+
+[source,bash]
+----
+docker compose up -d
+----
+
+Wait until every service reports as healthy — this takes 90-120 seconds on a first run:
+
+[source,bash]
+----
+docker compose ps
+----
+
+You can now log in to Neo4j Browser at \http://localhost:7474 with the username `neo4j` and the
+password `password`.
+
+[TIP]
+The Cypher strategy does not require Change Data Capture, so there is nothing to enable on the
+database.
+
+== Step 1: Create the topic
+
+[source,bash]
+----
+docker compose exec broker kafka-topics \
+  --bootstrap-server broker:29092 \
+  --create --topic people --partitions 1 --replication-factor 1
+----
+
+== Step 2: Create the sink connector
+
+Save the following as `sink.cypher.neo4j.json`:
+
+ifdef::backend-pdf[]
+.quickstart.sink.cypher.json-raw.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.sink.cypher.json-raw.json[]
+----
+
+The `neo4j.cypher.topic.people` setting is the whole strategy: it names the topic
+(`neo4j.cypher.topic.<topic>`) and gives the Cypher statement to run for its messages.
+Written out, that statement is:
+
+[source,cypher]
+----
+WITH __value AS person
+MERGE (p:Person {name: person.name, surname: person.surname})
+SET p.fullName = person.name + ' ' + person.surname
+MERGE (c:City {name: person.city})
+MERGE (p)-[:LIVES_IN]->(c)
+----
+
+`+__value+` is the message value, bound automatically for every message.
+The header, key and timestamp are available as `+__header+`, `+__key+` and `+__timestamp+`.
+See xref:sink/configuration.adoc#cypher_strategy_settings[Cypher strategy settings] to rename
+these.
+
+Note the `SET p.fullName = ...` clause — deriving a value like this is the kind of thing that
+makes Cypher the right strategy rather than xref:sink/pattern.adoc[Pattern].
+
+Register the connector:
+
+[source,bash]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H 'Content-Type:application/json' \
+  -H 'Accept:application/json' \
+  -d @sink.cypher.neo4j.json
+----
+
+Confirm it is running:
+
+[source,bash]
+----
+curl -s http://localhost:8083/connectors/Neo4jSinkCypherQuickstart/status
+----
+
+Both the connector and its task should report `RUNNING`.
+
+== Step 3: Produce messages
+
+Create the connector before producing, so that no message is missed.
+
+[source,bash]
+----
+docker compose exec -T broker kafka-console-producer \
+  --bootstrap-server broker:29092 \
+  --topic people <<'EOF'
+{"name": "Jane", "surname": "Doe", "city": "London"}
+{"name": "John", "surname": "Doe", "city": "London"}
+{"name": "Mary", "surname": "Smith", "city": "Berlin"}
+EOF
+----
+
+== Step 4: Verify the result
+
+In Neo4j Browser at \http://localhost:7474/browser/, run:
+
+[source,cypher]
+----
+MATCH (p:Person)-[:LIVES_IN]->(c:City) RETURN p.fullName AS person, c.name AS city ORDER BY person
+----
+
+You should get three rows, and two `City` nodes — `Jane` and `John` both merged onto the same
+`London` node:
+
+[source,text]
+----
+person       city
+"Jane Doe"   "London"
+"John Doe"   "London"
+"Mary Smith" "Berlin"
+----
+
+Produce another message to see it applied:
+
+[source,bash]
+----
+docker compose exec -T broker kafka-console-producer \
+  --bootstrap-server broker:29092 \
+  --topic people <<'EOF'
+{"name": "Ann", "surname": "Bolin", "city": "Berlin"}
+EOF
+----
+
+Re-run the query — `Ann Bolin` is added and attached to the existing `Berlin` node.
+
+[[other-formats]]
+== Using Avro, Protobuf or JSON Schema
+
+The strategy is identical for schema-carrying formats; only the converters change.
+Replace the `value.converter` lines in the connector configuration with one of the following and
+point them at the Schema Registry included in the Compose stack:
+
+[source,json]
+----
+  "value.converter": "io.confluent.connect.avro.AvroConverter",
+  "value.converter.schema.registry.url": "http://schema-registry:8081"
+----
+
+You then need a schema-aware producer, such as `kafka-avro-console-producer`, in place of
+`kafka-console-producer`.
+See xref:sink/cypher.adoc[Cypher strategy] for configuration examples in each format, and
+xref:sink/connect-types.adoc[Type support] for how Kafka Connect types map onto Neo4j types.
+
+== Troubleshooting
+
+Check the connector status first — a failed task reports its exception here:
+
+[source,bash]
+----
+curl -s http://localhost:8083/connectors/Neo4jSinkCypherQuickstart/status
+----
+
+Then check the worker log:
+
+[source,bash]
+----
+docker compose logs connect
+----
+
+No nodes created:: Confirm the topic name in `topics` matches the suffix of
+`neo4j.cypher.topic.<topic>`. A mismatch means the connector consumes the topic but has no
+statement for it.
+Task failed with a Cypher error:: The statement is executed as written. Test it in Neo4j Browser
+with a sample parameter before configuring it.
+Messages produced before the connector existed:: Sink connectors start from the earliest
+available offset by default, but if you have already consumed them, produce them again.
+
+To route failing messages to a dead letter queue instead of stopping the task, see
+xref:sink/error-handling.adoc[Error handling].
+
+== Next steps
+
+* xref:sink/cypher.adoc[Cypher strategy] — full reference, including `+__key+` and `+__header+` binding.
+* xref:sink/configuration.adoc[Sink settings] — batching, retries and connection options.
+* xref:sink/error-handling.adoc[Error handling] — dead letter queues and error tolerance.
+* xref:sink/monitoring.adoc[Monitoring] — JMX metrics exposed by the sink connector.
