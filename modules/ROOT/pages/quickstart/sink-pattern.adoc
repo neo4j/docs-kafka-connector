@@ -266,7 +266,9 @@ Confirm the merge behaviour — two users, two products, three relationships:
 
 [source,cypher]
 ----
-MATCH (n) RETURN labels(n) AS label, count(*) AS count
+MATCH (n) RETURN labels(n) AS item, count(*) AS count
+UNION ALL
+MATCH ()-[r]->() RETURN [type(r)] AS item, count(*) AS count
 ----
 
 Now re-send one of the purchase messages:
