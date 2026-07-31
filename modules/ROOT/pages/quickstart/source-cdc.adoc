@@ -21,12 +21,6 @@ Pick it when:
 * you do not want to add tracking properties to your data;
 * you need before-and-after state for updates.
 
-Consider the other source strategy if:
-
-xref:source/query.adoc[Query]:: You only want a specific slice of the graph, you are on Community
-Edition, or you cannot enable CDC. See xref:quickstart/source-query.adoc[Quickstart: Source with
-Query].
-
 [NOTE]
 ====
 Sending these events into **another Neo4j database** is a separate exercise, because the sink side

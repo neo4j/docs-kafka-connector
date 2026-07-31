@@ -20,15 +20,6 @@ Pick it when:
 * the properties you want are already fields on the message, possibly renamed or nested;
 * you want key-based upserts without hand-writing `MERGE` clauses.
 
-Consider a different strategy if:
-
-xref:sink/cypher.adoc[Cypher]:: You need derived values, conditional logic, or more than one
-graph element per message. Patterns cannot compute — they only map.
-xref:sink/cud.adoc[CUD]:: Your producer already emits explicit create, update and delete
-instructions.
-xref:sink/cdc.adoc[Change Data Capture]:: Your messages came from a Neo4j source connector or
-Neo4j Streams.
-
 [IMPORTANT]
 One topic carries exactly one pattern.
 You cannot extract two node types, or a node *and* a relationship, from the same topic — use a

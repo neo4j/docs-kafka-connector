@@ -22,15 +22,6 @@ Pick it when you are:
 * migrating between instances with Kafka in the middle;
 * fanning one database out to several downstream Neo4j instances.
 
-Consider a different strategy if:
-
-xref:sink/cypher.adoc[Cypher]:: Your messages come from anywhere other than Neo4j, or you want to
-reshape them on the way in.
-xref:sink/pattern.adoc[Pattern]:: Your messages are ordinary business events that map onto nodes
-and relationships.
-xref:sink/cud.adoc[CUD]:: Your producer emits its own explicit create, update and delete
-instructions.
-
 [IMPORTANT]
 ====
 Unlike the other sink strategies, **this one cannot be driven by hand-written messages.**
@@ -90,7 +81,6 @@ ALTER DATABASE source SET OPTION txLogEnrichment 'FULL';
 ----
 
 Leave `target` alone.
-CDC stays off there, which is what breaks the replication loop.
 
 For more on enabling CDC, see
 link:{page-canonical-root}/cdc/current/get-started/self-managed[Change Data Capture > Enable CDC >
@@ -288,10 +278,6 @@ converter on both connectors:
 Avro and Protobuf also preserve temporal and numeric types more faithfully than embedded-schema
 JSON. See xref:source/schema-registry.adoc[Schema Registry] and
 xref:sink/connect-types.adoc[Type support].
-
-[IMPORTANT]
-The source and sink connectors must run the **same version** of the {product-name}, and use
-matching converters. A mismatch shows up as deserialization failures on the sink.
 
 == Troubleshooting
 

@@ -20,15 +20,6 @@ Pick it when you need to:
 * write conditional logic, run multiple `MERGE` clauses, or touch several labels per message;
 * map one message onto a subgraph whose shape does not follow directly from the message fields.
 
-Consider a different strategy if:
-
-xref:sink/pattern.adoc[Pattern]:: Your messages map field-for-field onto nodes and relationships,
-and you would rather declare that mapping than write Cypher.
-xref:sink/cud.adoc[CUD]:: Your producer already emits explicit create, update and delete
-instructions.
-xref:sink/cdc.adoc[Change Data Capture]:: Your messages were produced by a Neo4j source connector
-or Neo4j Streams, and you are replicating one Neo4j database into another.
-
 == What you will build
 
 A single sink connector that consumes JSON messages from a topic named `people`, and for each

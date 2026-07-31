@@ -21,11 +21,6 @@ Pick it when:
 * you want to shape the message in the query — aggregate, join, rename, filter;
 * your data already has a monotonically increasing tracking property.
 
-Consider the other source strategy if:
-
-xref:source/cdc.adoc[Change Data Capture]:: You need deletes, or you cannot add a tracking property
-to your model. See xref:quickstart/source-cdc.adoc[Quickstart: Source with Change Data Capture].
-
 [IMPORTANT]
 ====
 **This strategy cannot detect deletes.** A query only returns rows that exist, so a deleted node

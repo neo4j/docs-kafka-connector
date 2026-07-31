@@ -21,15 +21,6 @@ Pick it when:
 * one topic must carry operations on several different labels and relationship types;
 * you want a single stream to drive a full entity lifecycle.
 
-Consider a different strategy if:
-
-xref:sink/pattern.adoc[Pattern]:: Every message is an upsert of the same shape. Patterns are much
-less verbose when the operation never varies.
-xref:sink/cypher.adoc[Cypher]:: You need derived values or logic the CUD format cannot express.
-CUD is a fixed vocabulary, not a query language.
-xref:sink/cdc.adoc[Change Data Capture]:: Your messages came from a Neo4j source connector or
-Neo4j Streams. CDC already encodes operations in its own format.
-
 [TIP]
 Unlike xref:sink/pattern.adoc[Pattern], CUD has no one-mapping-per-topic restriction — a single
 topic can carry nodes and relationships of any label. This guide uses one topic for everything.
@@ -62,10 +53,6 @@ See <<other-formats>> for Avro, Protobuf and JSON Schema.
 === Start the environment
 
 include::partial$quickstart-environment.adoc[]
-
-[TIP]
-The CUD strategy does not require Change Data Capture, so there is nothing to enable on the
-database.
 
 == Step 1: Create the topic
 
