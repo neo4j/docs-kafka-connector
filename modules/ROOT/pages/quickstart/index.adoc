@@ -1,0 +1,119 @@
+= Quickstart: choose a strategy
+:xrefstyle: full
+
+ifdef::env-docs[]
+[abstract]
+--
+Pick the strategy that matches what you are trying to do, then follow its guide end to end.
+--
+endif::env-docs[]
+
+The {product-name} does not have a single mode of operation.
+Which component you use — and which **strategy** within it — depends on the direction your data
+flows and the shape of your messages.
+Each quickstart below is self-contained and runnable on a local Docker stack.
+
+== Which direction?
+
+Sink:: Kafka **into** Neo4j. Something else produces messages; you want them in the graph.
+Source:: Neo4j **out to** Kafka. The database is the producer; something else consumes.
+
+Both at once is possible — the xref:quickstart/sink-cdc.adoc[Sink with CDC] guide does exactly that
+to replicate one Neo4j database into another.
+
+== Sink: getting Kafka messages into Neo4j
+
+[cols="1,2,1",opts=header]
+|===
+| Your situation | Strategy | Quickstart
+
+| You control the target graph model and need real write logic — derived values, conditionals,
+several clauses per message.
+| xref:sink/cypher.adoc[Cypher] — your Cypher statement, run per message.
+| xref:quickstart/sink-cypher.adoc[Sink with Cypher]
+
+| Your messages map onto nodes and relationships field-for-field, and you would rather declare the
+mapping than write a query.
+| xref:sink/pattern.adoc[Pattern] — a Cypher-like pattern per topic; the connector generates the
+`MERGE`.
+| xref:quickstart/sink-pattern.adoc[Sink with Pattern]
+
+| Each message already states its own intent, and deletes are part of the stream.
+| xref:sink/cud.adoc[CUD] — every message carries an `op` field.
+| xref:quickstart/sink-cud.adoc[Sink with CUD]
+
+| The messages were produced by Neo4j — a source connector or Neo4j Streams — and you are
+replicating into another database.
+| xref:sink/cdc.adoc[Change Data Capture] — change events reapplied to the target.
+| xref:quickstart/sink-cdc.adoc[Sink with CDC]
+|===
+
+If two of those look plausible, the tie-breakers are usually:
+
+* **Pattern vs Cypher** — can you express the mapping without computing anything? Pattern only maps;
+  it cannot derive a value or branch.
+* **CUD vs Pattern** — does the operation vary per message? Pattern always upserts. Pattern is also
+  limited to one mapping per topic, whereas CUD carries any label or relationship type on one topic.
+* **CDC vs anything else** — did the messages come from Neo4j? If not, CDC is the wrong answer; it
+  expects a specific event format and header.
+
+== Source: getting Neo4j changes into Kafka
+
+[cols="1,2,1",opts=header]
+|===
+| Your situation | Strategy | Quickstart
+
+| You need every change, including deletes, in near real time, without changing your graph model.
+| xref:source/cdc.adoc[Change Data Capture] — Neo4j's own change feed.
+| xref:quickstart/source-cdc.adoc[Source with CDC]
+
+| You want a specific projection, you are on Community Edition, or you cannot enable CDC.
+| xref:source/query.adoc[Query] — your Cypher query, polled on an interval.
+| xref:quickstart/source-query.adoc[Source with Query]
+|===
+
+Two differences decide it in most cases:
+
+* **Deletes.** A polling query cannot see a node that no longer exists. Only CDC reports deletes,
+  unless you adopt soft deletes.
+* **Edition.** CDC needs Enterprise Edition or Aura Enterprise. Query works anywhere.
+
+== What every quickstart assumes
+
+All of them run the same local stack — Neo4j, a Kafka broker, Kafka Connect and Schema Registry via
+Docker Compose — and differ only in connector configuration and message shape.
+So it is reasonable to work through one, then swap the connector to try another.
+
+Serialization differs by strategy, and it is the detail most likely to trip you up:
+
+[cols="1,2",opts=header]
+|===
+| Strategy | Serialization
+
+| Sink — Cypher, Pattern, CUD
+| Plain JSON works, so no Schema Registry is needed and messages can be produced by hand with
+`kafka-console-producer`.
+
+| Sink — CDC
+| Needs a schema-carrying converter **and** messages produced by a real source connector. Change
+events cannot be written by hand.
+
+| Source — CDC, Query
+| Always produces messages with schemas. A schemaless converter will not work.
+|===
+
+Where a schema is required, these guides use `JsonConverter` with `schemas.enable=true`, which
+embeds the schema in each message and needs no Schema Registry.
+Avro and Protobuf are covered on each page, and in xref:source/schema-registry.adoc[Schema Registry].
+
+== Deploying somewhere other than Docker
+
+The strategy guides use a local Docker Compose stack so they can be run start to finish.
+The strategy configuration is identical wherever you deploy it — only installation and connection
+details change:
+
+* xref:installation.adoc[Installation] — Confluent Platform, Confluent Hub, standalone Kafka Connect.
+* xref:quickstart-confluent-cloud.adoc[Quickstart for Confluent Cloud] — custom connectors, endpoints
+  and API keys.
+* xref:quickstart-docker.adoc[Quickstart for Confluent Platform] — a combined source-and-sink
+  walkthrough on one database.

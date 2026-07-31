@@ -1,0 +1,304 @@
+= Quickstart: Sink with Pattern
+:xrefstyle: full
+
+ifdef::env-docs[]
+[abstract]
+--
+Map Kafka messages onto nodes and relationships declaratively, without writing Cypher.
+--
+endif::env-docs[]
+
+== When to use the Pattern strategy
+
+Use the xref:sink/pattern.adoc[Pattern strategy] when your messages map onto graph elements
+field-for-field, and you would rather **declare** that mapping than write a query.
+You give a Cypher-like pattern per topic; the connector generates the `MERGE` for you.
+
+Pick it when:
+
+* each message describes one node, or one relationship with its two endpoints;
+* the properties you want are already fields on the message, possibly renamed or nested;
+* you want key-based upserts without hand-writing `MERGE` clauses.
+
+[IMPORTANT]
+One topic carries exactly one pattern.
+You cannot extract two node types, or a node *and* a relationship, from the same topic — use a
+separate topic per pattern.
+This guide therefore uses two topics.
+
+== What you will build
+
+Two connectors' worth of mapping in a single connector instance: a node pattern on one topic and
+a relationship pattern on another.
+
+[source,text]
+----
+users topic     ──>  (:User {userId, name, surname})
+
+purchases topic ──>  (:User {userId})-[:BOUGHT {price, currency}]->(:Product {productId, name})
+----
+
+No source connector is involved — messages are produced by hand, the way an external system
+would produce them.
+
+[NOTE]
+This guide uses plain JSON messages, so no Schema Registry is required.
+See <<other-formats>> for Avro, Protobuf and JSON Schema.
+
+== Prerequisites
+
+* Docker Compose v2.20.3 or later.
+* The {product-name} archive, unpacked as described in xref:installation.adoc[].
+
+=== Start the environment
+
+include::partial$quickstart-environment.adoc[]
+
+[TIP]
+The Pattern strategy does not require Change Data Capture, so there is nothing to enable on the
+database.
+
+== Step 1: Create key constraints
+
+Patterns upsert on their key properties — the fields marked with `!`.
+Create a matching node key constraint for each, in Neo4j Browser:
+
+[source,cypher]
+----
+CREATE CONSTRAINT user_id IF NOT EXISTS FOR (u:User) REQUIRE u.userId IS NODE KEY;
+CREATE CONSTRAINT product_id IF NOT EXISTS FOR (p:Product) REQUIRE p.productId IS NODE KEY;
+----
+
+This step is optional but recommended.
+Without it the connector still works, but it logs a warning per pattern —
+`Label 'User' does not match the key(s) defined by the pattern ...` — and every upsert falls back
+to an unindexed scan.
+
+[NOTE]
+Node key constraints require Neo4j Enterprise Edition or Aura.
+On Community Edition, use `REQUIRE u.userId IS UNIQUE` instead.
+
+== Step 2: Create the topics
+
+One topic per pattern:
+
+[source,bash]
+----
+docker compose exec broker kafka-topics \
+  --bootstrap-server broker:29092 \
+  --create --topic users --partitions 1 --replication-factor 1
+
+docker compose exec broker kafka-topics \
+  --bootstrap-server broker:29092 \
+  --create --topic purchases --partitions 1 --replication-factor 1
+----
+
+== Step 3: Create the sink connector
+
+Save the following as `sink.pattern.neo4j.json`:
+
+ifdef::backend-pdf[]
+.quickstart.sink.pattern.json-raw.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.sink.pattern.json-raw.json[]
+----
+
+Register it:
+
+[source,bash]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H 'Content-Type:application/json' \
+  -H 'Accept:application/json' \
+  -d @sink.pattern.neo4j.json
+----
+
+Confirm it is running:
+
+[source,bash]
+----
+curl -s http://localhost:8083/connectors/Neo4jSinkPatternQuickstart/status
+----
+
+Both the connector and its task should report `RUNNING`.
+
+=== Reading the two patterns
+
+The node pattern on the `users` topic:
+
+[source]
+----
+(:User{!userId, name, surname})
+----
+
+* `:User` — the label to merge on.
+* `!userId` — a **key** property. `MERGE` matches on it, so re-sending the same `userId` updates
+  the existing node rather than creating a second one. At least one key property is required.
+* `name, surname` — the only other properties copied onto the node. Any other field in the
+  message is ignored.
+
+The relationship pattern on the `purchases` topic:
+
+[source]
+----
+(:User{!userId})-[:BOUGHT{price, currency}]->(:Product{!productId, name: productName})
+----
+
+* both endpoints are merged on their key properties, then `:BOUGHT` is merged between them;
+* `{price, currency}` are copied onto the relationship;
+* `name: productName` renames a message field on the way in — the `productName` field becomes the
+  `name` property on `:Product`.
+
+Two shorthands worth knowing: `{!userId, *}` (or just `{!userId}`) copies **all** message fields,
+and `{!userId, -address}` copies all **except** `address`. You cannot mix inclusion and exclusion
+in one pattern. Full syntax is in xref:sink/pattern.adoc[Pattern strategy].
+
+[IMPORTANT]
+====
+Note `"neo4j.pattern.merge-node-properties": true` in the configuration.
+It is required here, and this is the setting most likely to surprise you.
+
+Both topics write to the same `:User` nodes. On a relationship pattern, an endpoint like
+`(:User{!userId})` contributes no value properties — wildcards are not allowed on endpoints — so
+with the default `false` the connector issues the equivalent of `SET u = {}` before re-applying the
+key. That **erases** the `name` and `surname` written by the `users` topic, and the node is left
+holding only `userId`.
+
+Set it to `true` and the connector uses `SET u += ...` instead, leaving properties written by other
+topics intact.
+As a rule: whenever more than one topic writes to the same node, you want this enabled.
+`neo4j.pattern.merge-relationship-properties` does the same for relationship properties.
+====
+
+== Step 4: Produce messages
+
+Create the connector before producing, so nothing is missed.
+Users first:
+
+[source,bash]
+----
+docker compose exec -T broker kafka-console-producer \
+  --bootstrap-server broker:29092 \
+  --topic users <<'EOF'
+{"userId": 1, "name": "John", "surname": "Doe"}
+{"userId": 2, "name": "Mary", "surname": "Smith"}
+EOF
+----
+
+Then purchases:
+
+[source,bash]
+----
+docker compose exec -T broker kafka-console-producer \
+  --bootstrap-server broker:29092 \
+  --topic purchases <<'EOF'
+{"userId": 1, "productId": 100, "productName": "Laptop", "price": 999.99, "currency": "USD"}
+{"userId": 2, "productId": 100, "productName": "Laptop", "price": 949.00, "currency": "USD"}
+{"userId": 2, "productId": 200, "productName": "Keyboard", "price": 49.99, "currency": "USD"}
+EOF
+----
+
+Note that `productId: 100` appears twice.
+Because `productId` is a key property, both messages merge onto the *same* `:Product` node.
+
+== Step 5: Verify the result
+
+In Neo4j Browser at \http://localhost:7474/browser/:
+
+[source,cypher]
+----
+MATCH (u:User)-[b:BOUGHT]->(p:Product)
+RETURN u.name AS user, p.name AS product, b.price AS price ORDER BY user, product
+----
+
+[source,text]
+----
+user     product      price
+"John"   "Laptop"     999.99
+"Mary"   "Keyboard"   49.99
+"Mary"   "Laptop"     949.0
+----
+
+Confirm the merge behaviour — two users, two products, three relationships:
+
+[source,cypher]
+----
+MATCH (n) RETURN labels(n) AS item, count(*) AS count
+UNION ALL
+MATCH ()-[r]->() RETURN [type(r)] AS item, count(*) AS count
+----
+
+Now re-send one of the purchase messages:
+
+[source,bash]
+----
+docker compose exec -T broker kafka-console-producer \
+  --bootstrap-server broker:29092 \
+  --topic purchases <<'EOF'
+{"userId": 1, "productId": 100, "productName": "Laptop", "price": 899.00, "currency": "USD"}
+EOF
+----
+
+Re-run the first query. John's `:BOUGHT` price is updated to `899.0` and **no** new node or
+relationship is created — that is the key properties doing their work.
+
+== Deleting with tombstones
+
+The Pattern strategy also handles
+https://en.wikipedia.org/wiki/Tombstone_(data_store)[tombstone records]: a message whose key
+carries the pattern's key properties and whose value is `null` deletes the matching element.
+This needs a producer that can emit a null value and a structured key, so it is not shown here —
+see xref:sink/pattern.adoc#_tombstone_records[Tombstone records].
+
+[[other-formats]]
+== Using Avro, Protobuf or JSON Schema
+
+Patterns are unchanged across formats; only the converters differ.
+Replace the `value.converter` lines with, for example:
+
+[source,json]
+----
+  "value.converter": "io.confluent.connect.avro.AvroConverter",
+  "value.converter.schema.registry.url": "http://schema-registry:8081"
+----
+
+You then need a schema-aware producer such as `kafka-avro-console-producer`.
+Schema-carrying formats also preserve Kafka Connect logical types — with plain JSON, a date
+arrives as a string, whereas Avro and Protobuf map it onto a Neo4j temporal type.
+See xref:sink/connect-types.adoc[Type support].
+
+== Troubleshooting
+
+[source,bash]
+----
+curl -s http://localhost:8083/connectors/Neo4jSinkPatternQuickstart/status
+docker compose logs connect
+----
+
+`Message value must be convertible to a Map`:: The Pattern strategy requires an object-shaped
+message value. A bare scalar or array will not work — unlike the Cypher strategy, which can bind
+any value.
+Task fails with a pattern parse error:: The pattern is validated at startup. Check that every
+node pattern has at least one `!` key property, and that inclusion and exclusion properties are
+not mixed.
+`Label 'X' does not match the key(s) defined by the pattern`:: A warning, not an error. Create the
+node key constraint from <<_step_1_create_key_constraints,Step 1>>.
+Nodes created but properties missing:: The pattern lists properties explicitly. A field absent
+from the pattern is not copied — use `{!key, *}` to copy everything.
+A node's properties vanish after a second topic writes to it:: `neo4j.pattern.merge-node-properties`
+defaults to `false`, which makes the connector *replace* a node's whole property map rather than
+add to it. A relationship endpoint contributes no value properties, so it replaces them with
+nothing. Set the option to `true`. Diagnose it with
+`MATCH (n:User) RETURN n.userId, keys(n)` — you will see only the key property left.
+Nothing at all happens:: Confirm each topic in `topics` has a matching
+`neo4j.pattern.topic.<topic>` entry. A topic with no pattern is consumed and silently ignored.
+
+== Next steps
+
+* xref:sink/pattern.adoc[Pattern strategy] — full pattern grammar, tombstones, batching and
+  exactly-once semantics.
+* xref:sink/configuration.adoc[Sink settings] — `neo4j.pattern.bind-*`, batching, retries.
+* xref:sink/error-handling.adoc[Error handling] — dead letter queues and error tolerance.
+* xref:sink/monitoring.adoc[Monitoring] — JMX metrics exposed by the sink connector.

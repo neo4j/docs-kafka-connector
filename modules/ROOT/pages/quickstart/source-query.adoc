@@ -1,0 +1,245 @@
+= Quickstart: Source with Query
+:xrefstyle: full
+
+ifdef::env-docs[]
+[abstract]
+--
+Publish the results of your own Cypher query to Kafka on a polling interval.
+--
+endif::env-docs[]
+
+== When to use the Query strategy
+
+Use the xref:source/query.adoc[Query strategy] when you want to publish a **specific slice** of the
+graph and you can express "what changed since last time" as a Cypher query.
+The connector runs your query on an interval, passing in a cursor as `$lastCheck`.
+
+Pick it when:
+
+* you are on **Community Edition**, or cannot enable Change Data Capture;
+* you only want a narrow projection, not every change to the data;
+* you want to shape the message in the query — aggregate, join, rename, filter;
+* your data already has a monotonically increasing tracking property.
+
+[IMPORTANT]
+====
+**This strategy cannot detect deletes.** A query only returns rows that exist, so a deleted node
+simply stops appearing — there is no event for it.
+If you need deletes, either use CDC or adopt soft deletes: keep the node, set a `deleted` flag, and
+bump the tracking property so the query picks up the change.
+====
+
+== What you will build
+
+One source connector polling a query and publishing each returned row to a topic:
+
+[source,text]
+----
+(:Reading) nodes ──every 1s──> MATCH ... WHERE r.timestamp > $lastCheck ──> readings topic
+----
+
+== Prerequisites
+
+* Docker Compose v2.20.3 or later.
+* The {product-name} archive, unpacked as described in xref:installation.adoc[].
+
+Community Edition is fine — this strategy needs neither CDC nor Enterprise features.
+
+=== Start the environment
+
+include::partial$quickstart-environment.adoc[]
+
+[NOTE]
+====
+The source connector **always** produces messages with schemas, so a schemaless converter will not
+work.
+This guide uses `JsonConverter` with `schemas.enable=true`, which embeds the schema in each message
+and needs no Schema Registry.
+====
+
+== Step 1: Index the tracking property
+
+[source,cypher]
+----
+CREATE INDEX reading_timestamp IF NOT EXISTS FOR (r:Reading) ON (r.timestamp);
+----
+
+The connector filters on this property every poll.
+Without an index that is a full label scan on each cycle, which gets slower as the data grows.
+
+== Step 2: Create the topic
+
+[source,bash]
+----
+docker compose exec broker kafka-topics --bootstrap-server broker:29092 --create --topic readings --partitions 1 --replication-factor 1
+----
+
+== Step 3: Create the source connector
+
+Save the following as `source.query.neo4j.json`:
+
+ifdef::backend-pdf[]
+.quickstart.source.query.json-embedded.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.source.query.json-embedded.json[]
+----
+
+[source,bash]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H 'Content-Type:application/json' \
+  -H 'Accept:application/json' \
+  -d @source.query.neo4j.json
+----
+
+[source,bash]
+----
+curl -s http://localhost:8083/connectors/Neo4jSourceQueryQuickstart/status
+----
+
+=== How the query works
+
+[source,cypher]
+----
+MATCH (r:Reading)
+WHERE r.timestamp > $lastCheck
+RETURN r.sensor AS sensor, r.celsius AS celsius, r.timestamp AS timestamp
+ORDER BY r.timestamp
+----
+
+`$lastCheck`:: Supplied by the connector on every poll. It starts from `neo4j.start-from` and then
+advances to the tracking property of the **last row** of each batch.
+`neo4j.query.streaming-property`:: Names the returned field used as the cursor — `timestamp` here.
+It must be part of the `RETURN`, or the connector cannot advance.
+`ORDER BY`:: Not optional in practice. The connector takes the cursor from the last row it received,
+so if rows come back unordered it can jump past values it never published.
+
+[IMPORTANT]
+====
+**The tracking property must be an integer**, not a `datetime`.
+The cursor is handled internally as a long — `neo4j.start-from: NOW` seeds it with
+`System.currentTimeMillis()` — so the property should hold epoch milliseconds, which is what
+Cypher's `timestamp()` returns.
+Returning a `DATETIME` instead fails with
+`Returned record does not contain a valid field timestamp ... expected a long value`.
+====
+
+Note also that the comparison is `>`, strictly greater than.
+Two rows sharing a timestamp value can mean the second is never published, so a tracking property
+with sufficient resolution matters. Milliseconds is usually enough; seconds often is not.
+
+=== Where polling starts
+
+`neo4j.start-from` is `EARLIEST` in this configuration, which seeds the cursor with `-1` so
+**existing** rows are published on the first poll. That makes the walkthrough below easy to follow.
+
+For a real deployment `NOW` is usually what you want — it seeds the cursor with the current
+timestamp, so only new rows are published. `USER_PROVIDED` takes an explicit value in
+`neo4j.start-from.value`.
+All three apply only on first run; once Kafka Connect has stored an offset, the setting is ignored
+unless you set `neo4j.ignore-stored-offset`.
+
+== Step 4: Insert some data
+
+[source,cypher]
+----
+CREATE (:Reading {sensor: 'kitchen', celsius: 21.5, timestamp: timestamp()});
+CREATE (:Reading {sensor: 'garage', celsius: 8.0, timestamp: timestamp()});
+----
+
+`timestamp()` returns the current time in epoch milliseconds as an integer, which is exactly what
+the cursor expects.
+
+== Step 5: Read the messages
+
+[source,bash]
+----
+docker compose exec broker kafka-console-consumer --bootstrap-server broker:29092 --topic readings --from-beginning --max-messages 2 --timeout-ms 15000
+----
+
+Each message is a `{"schema": ..., "payload": ...}` envelope, and each `payload` is one row of your
+query — the aliases in the `RETURN` become the field names:
+
+[source,json]
+----
+{"sensor": "kitchen", "celsius": 21.5, "timestamp": 1730000000000}
+----
+
+Now add another row and watch it arrive within a poll interval:
+
+[source,cypher]
+----
+CREATE (:Reading {sensor: 'attic', celsius: 15.25, timestamp: timestamp()});
+----
+
+[source,bash]
+----
+docker compose exec broker kafka-console-consumer --bootstrap-server broker:29092 --topic readings --from-beginning --max-messages 3 --timeout-ms 15000
+----
+
+Then confirm the cursor is doing its job — update an existing row **without** touching its
+timestamp:
+
+[source,cypher]
+----
+MATCH (r:Reading {sensor: 'kitchen'}) SET r.celsius = 30.0;
+----
+
+Nothing new is published. The query only sees rows whose `timestamp` exceeds the cursor, so a change
+that does not bump the tracking property is invisible.
+Bump it and the row is published again:
+
+[source,cypher]
+----
+MATCH (r:Reading {sensor: 'kitchen'}) SET r.celsius = 30.0, r.timestamp = timestamp();
+----
+
+That is the discipline this strategy requires: **every write that should be published must advance
+the tracking property.** It is the main reason to prefer CDC when it is available.
+
+== Message shape and types
+
+xref:source/payload-mode.adoc[Payload Mode] controls how values are represented:
+
+[cols="1,3",opts=header]
+|===
+| `neo4j.payload-mode` | Effect
+
+| `EXTENDED` | Default. Rich type information preserved, at the cost of a more nested message.
+| `COMPACT` | Simpler messages, some type fidelity lost.
+| `RAW_JSON_STRING` | The whole payload as a single JSON string, for consumers that parse it themselves.
+|===
+
+Returning whole nodes rather than properties also works — `RETURN r` — but the message then carries
+Neo4j-specific structure. Projecting explicit fields, as above, keeps consumers independent of your
+graph model.
+
+== Troubleshooting
+
+[source,bash]
+----
+curl -s http://localhost:8083/connectors/Neo4jSourceQueryQuickstart/status
+docker compose logs connect
+----
+
+`Returned record does not contain a valid field <prop> ... expected a long value`:: The tracking
+property is not an integer, or is missing from the `RETURN`. Use `timestamp()`, not `datetime()`.
+Topic stays empty:: With `neo4j.start-from: NOW` only rows created after startup qualify. Check
+whether your rows predate the connector, and that their `timestamp` really exceeds the cursor.
+Rows published repeatedly:: The query returns rows whose tracking property does not advance past the
+cursor. Confirm the `WHERE` uses `$lastCheck` and that `neo4j.query.streaming-property` names a
+returned field.
+Some rows never appear:: Either two rows share a tracking value — the comparison is strictly `>` —
+or the query has no `ORDER BY` on the tracking property, so the cursor skipped ahead.
+Deletes not appearing:: Expected. This strategy cannot see deletes; use soft deletes or CDC.
+Polling gets slower over time:: The tracking property is not indexed. See Step 1.
+
+== Next steps
+
+* xref:source/query.adoc[Source Query strategy] — full reference.
+* xref:quickstart/source-cdc.adoc[Quickstart: Source with CDC] — the alternative, when you need deletes.
+* xref:source/payload-mode.adoc[Payload Mode] — message representation.
+* xref:source/configuration.adoc[Source settings] — batching, polling, offsets.
+* xref:source/monitoring.adoc[Monitoring] — JMX metrics exposed by the source connector.

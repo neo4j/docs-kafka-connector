@@ -4,7 +4,13 @@
 
 * *Getting started*
 * xref::installation.adoc[]
-* Quickstart
+* xref:quickstart/index.adoc[Quickstart]
+** xref:quickstart/sink-cypher.adoc[Sink with Cypher]
+** xref:quickstart/sink-pattern.adoc[Sink with Pattern]
+** xref:quickstart/sink-cud.adoc[Sink with CUD]
+** xref:quickstart/sink-cdc.adoc[Sink with Change Data Capture]
+** xref:quickstart/source-cdc.adoc[Source with Change Data Capture]
+** xref:quickstart/source-query.adoc[Source with Query]
 ** xref::quickstart-docker.adoc[Confluent Platform]
 ** xref::quickstart-confluent-cloud.adoc[Confluent Cloud]
 // * xref::amazon-msk.adoc[Amazon MSK quickstart]

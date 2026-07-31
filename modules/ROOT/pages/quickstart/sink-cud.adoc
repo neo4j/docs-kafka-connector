@@ -1,0 +1,316 @@
+= Quickstart: Sink with CUD
+:xrefstyle: full
+
+ifdef::env-docs[]
+[abstract]
+--
+Apply create, update, merge and delete operations carried inside the Kafka messages themselves.
+--
+endif::env-docs[]
+
+== When to use the CUD strategy
+
+Use the xref:sink/cud.adoc[CUD strategy] when each message **states its own operation**.
+Instead of you declaring a mapping once in the connector configuration, every message carries an
+`op` field telling the connector whether to create, update, merge or delete — and the connector
+generates the matching Cypher.
+
+Pick it when:
+
+* the producer already knows the intent of each change, and deletes are part of the stream;
+* one topic must carry operations on several different labels and relationship types;
+* you want a single stream to drive a full entity lifecycle.
+
+[TIP]
+Unlike xref:sink/pattern.adoc[Pattern], CUD has no one-mapping-per-topic restriction — a single
+topic can carry nodes and relationships of any label. This guide uses one topic for everything.
+
+== What you will build
+
+One connector consuming a `crm` topic, driving a full lifecycle:
+
+[source,text]
+----
+crm topic ──> create  (:Customer), (:Product)
+              create  (:Customer)-[:PURCHASED]->(:Product)
+              update  (:Customer)
+              merge   (:Customer)
+              delete  (:Customer)
+----
+
+No source connector is involved — messages are produced by hand, the way an external system
+would produce them.
+
+[NOTE]
+This guide uses plain JSON messages, so no Schema Registry is required.
+See <<other-formats>> for Avro, Protobuf and JSON Schema.
+
+== Prerequisites
+
+* Docker Compose v2.20.3 or later.
+* The {product-name} archive, unpacked as described in xref:installation.adoc[].
+
+=== Start the environment
+
+include::partial$quickstart-environment.adoc[]
+
+== Step 1: Create the topic
+
+[source,bash]
+----
+docker compose exec broker kafka-topics \
+  --bootstrap-server broker:29092 \
+  --create --topic crm --partitions 1 --replication-factor 1
+----
+
+== Step 2: Create the sink connector
+
+Save the following as `sink.cud.neo4j.json`:
+
+ifdef::backend-pdf[]
+.quickstart.sink.cud.json-raw.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.sink.cud.json-raw.json[]
+----
+
+Two settings name the same topic, and both are required:
+
+* `topics` — the Kafka Connect subscription, telling the worker which topics to consume.
+* `neo4j.cud.topics` — telling the connector to interpret those topics as CUD messages.
+
+A topic listed in `topics` but missing from `neo4j.cud.topics` is consumed and silently ignored.
+
+Register the connector:
+
+[source,bash]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H 'Content-Type:application/json' \
+  -H 'Accept:application/json' \
+  -d @sink.cud.neo4j.json
+----
+
+[source,bash]
+----
+curl -s http://localhost:8083/connectors/Neo4jSinkCudQuickstart/status
+----
+
+Both the connector and its task should report `RUNNING`.
+
+== The CUD message format
+
+Every message is a JSON object. `type` and `op` are always required; the rest depends on them.
+
+.Node messages
+[cols="1,1,3",opts=header]
+|===
+| Field | Required | Meaning
+
+| `type` | yes | `node`
+| `op` | yes | `create`, `update`, `merge` or `delete`
+| `labels` | no | labels to apply, as an array
+| `properties` | except for `delete` | the properties to set
+| `ids` | except for `create` | the lookup key, as an object
+| `detach` | no | on `delete`, also remove attached relationships. Defaults to `false`
+|===
+
+.Relationship messages
+[cols="1,1,3",opts=header]
+|===
+| Field | Required | Meaning
+
+| `type` | yes | `relationship`
+| `op` | yes | `create`, `update`, `merge` or `delete`
+| `rel_type` | yes | the relationship type
+| `from` / `to` | yes | endpoint objects, each with `labels`, `ids` and an optional `op`
+| `properties` | no | the properties to set on the relationship
+| `ids` | no | lookup key for the relationship itself
+|===
+
+`op` and `type` are case-insensitive. Inside `from` and `to`, `op` accepts only `match` (the
+default) or `merge` — it decides whether a missing endpoint is created.
+
+[IMPORTANT]
+====
+`kafka-console-producer` reads **one message per line**, so each CUD object must be on a single
+line when produced this way.
+The examples in xref:sink/cud.adoc[CUD File Format Strategy] are pretty-printed for readability;
+the commands below are the same objects flattened.
+====
+
+== Step 3: Create nodes
+
+[source,bash]
+----
+docker compose exec -T broker kafka-console-producer \
+  --bootstrap-server broker:29092 \
+  --topic crm <<'EOF'
+{"type":"node","op":"create","labels":["Customer"],"properties":{"id":1,"name":"John Doe","tier":"standard"}}
+{"type":"node","op":"create","labels":["Customer"],"properties":{"id":2,"name":"Mary Smith","tier":"standard"}}
+{"type":"node","op":"create","labels":["Product"],"properties":{"id":100,"name":"Laptop"}}
+EOF
+----
+
+Each of these becomes `CREATE (n:Customer) SET n = $properties`.
+
+Verify in Neo4j Browser at \http://localhost:7474/browser/:
+
+[source,cypher]
+----
+MATCH (n) RETURN labels(n) AS labels, n.id AS id, n.name AS name ORDER BY id
+----
+
+== Step 4: Create a relationship
+
+The endpoints are looked up by their `ids`, so they must already exist:
+
+[source,bash]
+----
+docker compose exec -T broker kafka-console-producer \
+  --bootstrap-server broker:29092 \
+  --topic crm <<'EOF'
+{"type":"relationship","op":"create","rel_type":"PURCHASED","from":{"labels":["Customer"],"ids":{"id":1}},"to":{"labels":["Product"],"ids":{"id":100}},"properties":{"price":999.99,"currency":"USD"}}
+EOF
+----
+
+This becomes:
+
+[source,cypher]
+----
+MATCH (start:Customer {id: $from.ids.id}) WITH start
+MATCH (end:Product {id: $to.ids.id}) WITH start, end
+CREATE (start)-[r:PURCHASED]->(end)
+SET r = $properties
+----
+
+Because both endpoints default to `match`, a missing endpoint means the `MATCH` finds nothing and
+**no relationship is created — without an error**. To create endpoints on demand, set `op` on them:
+
+[source,bash]
+----
+docker compose exec -T broker kafka-console-producer \
+  --bootstrap-server broker:29092 \
+  --topic crm <<'EOF'
+{"type":"relationship","op":"create","rel_type":"PURCHASED","from":{"labels":["Customer"],"ids":{"id":2},"op":"merge"},"to":{"labels":["Product"],"ids":{"id":200},"op":"merge"},"properties":{"price":49.99,"currency":"USD"}}
+EOF
+----
+
+Product `200` did not exist and is created by the `merge`.
+
+[source,cypher]
+----
+MATCH (c:Customer)-[r:PURCHASED]->(p:Product)
+RETURN c.name AS customer, p.id AS product, r.price AS price ORDER BY customer
+----
+
+== Step 5: Update and merge
+
+`update` sets properties on an existing node, leaving others intact (`SET n += $properties`):
+
+[source,bash]
+----
+docker compose exec -T broker kafka-console-producer \
+  --bootstrap-server broker:29092 \
+  --topic crm <<'EOF'
+{"type":"node","op":"update","labels":["Customer"],"ids":{"id":1},"properties":{"tier":"gold"}}
+EOF
+----
+
+Customer 1's `tier` becomes `gold` and `name` is untouched.
+
+`merge` creates the node if the `ids` do not match anything, and updates it if they do:
+
+[source,bash]
+----
+docker compose exec -T broker kafka-console-producer \
+  --bootstrap-server broker:29092 \
+  --topic crm <<'EOF'
+{"type":"node","op":"merge","labels":["Customer"],"ids":{"id":3},"properties":{"name":"Ann Bolin","tier":"standard"}}
+{"type":"node","op":"merge","labels":["Customer"],"ids":{"id":3},"properties":{"tier":"gold"}}
+EOF
+----
+
+Customer 3 is created by the first message and updated by the second — one node, not two.
+
+[source,cypher]
+----
+MATCH (c:Customer) RETURN c.id AS id, c.name AS name, c.tier AS tier ORDER BY id
+----
+
+== Step 6: Delete
+
+A `delete` needs only `ids`. Deleting a node that still has relationships fails unless you ask for
+a detach delete:
+
+[source,bash]
+----
+docker compose exec -T broker kafka-console-producer \
+  --bootstrap-server broker:29092 \
+  --topic crm <<'EOF'
+{"type":"node","op":"delete","labels":["Customer"],"ids":{"id":3}}
+{"type":"node","op":"delete","labels":["Customer"],"ids":{"id":2},"detach":true}
+EOF
+----
+
+Customer 3 has no relationships, so a plain delete works. Customer 2 bought product 200, so it
+needs `"detach": true`.
+
+[source,cypher]
+----
+MATCH (c:Customer) RETURN c.id AS id, c.name AS name ORDER BY id
+----
+
+Only customer 1 is left, confirming both deletes applied.
+
+[NOTE]
+`delete` is for individual entities identified by `ids`. It is not a way to run arbitrary
+Cypher deletes from JSON.
+
+[[other-formats]]
+== Using Avro, Protobuf or JSON Schema
+
+The CUD format is unchanged across serialization formats; only the converters differ:
+
+[source,json]
+----
+  "value.converter": "io.confluent.connect.avro.AvroConverter",
+  "value.converter.schema.registry.url": "http://schema-registry:8081"
+----
+
+You then need a schema-aware producer such as `kafka-avro-console-producer`.
+Note that CUD messages are deeply nested and loosely typed by nature, which makes them awkward to
+express as a strict Avro or Protobuf schema — plain JSON is often the more natural fit for this
+strategy.
+See xref:sink/connect-types.adoc[Type support].
+
+== Troubleshooting
+
+[source,bash]
+----
+curl -s http://localhost:8083/connectors/Neo4jSinkCudQuickstart/status
+docker compose logs connect
+----
+
+`Message value must be convertible to a Map`:: The message was not a JSON object — check for a
+stray blank line or a pretty-printed object split across several lines, since
+`kafka-console-producer` treats each line as its own message.
+`Failed to transform message`:: The object parsed but is not a valid operation. Check that `type`
+is `node` or `relationship`, that `op` is one of `create`, `update`, `merge`, `delete`, and that
+`ids` is present for everything except `create`.
+Relationship silently not created:: The endpoints default to `op: match`. Either create the
+endpoint nodes first, or set `"op": "merge"` inside `from` and `to`.
+Delete appears to do nothing:: `ids` did not match any entity. Confirm the property name and the
+value type — `{"id": 1}` and `{"id": "1"}` are different lookups.
+Task fails on a node delete:: The node still has relationships. Add `"detach": true`.
+Nothing happens at all:: The topic is in `topics` but missing from `neo4j.cud.topics`.
+
+== Next steps
+
+* xref:sink/cud.adoc[CUD File Format Strategy] — every field, every operation, and the exact
+  Cypher each one generates, including `_id` and `_elementId` lookups.
+* xref:sink/configuration.adoc[Sink settings] — batching, retries and connection options.
+* xref:sink/error-handling.adoc[Error handling] — dead letter queues, useful here since a
+  malformed operation is a per-message failure.
+* xref:sink/monitoring.adoc[Monitoring] — JMX metrics exposed by the sink connector.

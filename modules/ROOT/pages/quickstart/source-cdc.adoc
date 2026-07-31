@@ -1,0 +1,301 @@
+= Quickstart: Source with Change Data Capture
+:xrefstyle: full
+
+ifdef::env-docs[]
+[abstract]
+--
+Publish every change in a Neo4j database to Kafka topics, in real time.
+--
+endif::env-docs[]
+
+== When to use the CDC strategy
+
+Use the xref:source/cdc.adoc[Change Data Capture strategy] when you want Kafka to receive
+**every** change to the data you care about — creates, updates and deletes — as it happens, without
+modifying your graph model to support it.
+
+Pick it when:
+
+* you need deletes. This is the big one: a polling query cannot see a node that is gone.
+* you want changes in near real time rather than on a polling interval;
+* you do not want to add tracking properties to your data;
+* you need before-and-after state for updates.
+
+[NOTE]
+====
+Sending these events into **another Neo4j database** is a separate exercise, because the sink side
+needs its own configuration and a second database.
+See xref:quickstart/sink-cdc.adoc[Quickstart: Sink with Change Data Capture] for that.
+This page stops at Kafka, where any consumer can read the events.
+====
+
+== What you will build
+
+One source connector, publishing changes to three topics split by operation:
+
+[source,text]
+----
+                          ┌──> creates topic
+(:Person) changes ──CDC──>├──> updates topic
+                          └──> deletes topic
+----
+
+Routing by operation is a configuration choice, not a requirement — one topic for everything is
+equally valid. Splitting them makes the event shapes easier to compare.
+
+== Prerequisites
+
+* Docker Compose v2.20.3 or later.
+* The {product-name} archive, unpacked as described in xref:installation.adoc[].
+* **Neo4j Enterprise Edition or Aura Enterprise.** CDC is not available in Community Edition.
+
+=== Start the environment
+
+include::partial$quickstart-environment.adoc[]
+
+[NOTE]
+====
+The source connector **always** produces messages with schemas, so a schemaless converter will not
+work.
+This guide uses `JsonConverter` with `schemas.enable=true`, which embeds the schema in each message
+and needs no Schema Registry.
+See <<other-formats>> for Avro and Protobuf.
+====
+
+== Step 1: Enable CDC
+
+Against the `system` database:
+
+[source,cypher]
+----
+ALTER DATABASE neo4j SET OPTION txLogEnrichment 'FULL';
+----
+
+Confirm it took effect:
+
+[source,cypher]
+----
+SHOW DATABASES YIELD name, options WHERE name = 'neo4j' RETURN name, options
+----
+
+For background, see
+link:{page-canonical-root}/cdc/current/get-started/self-managed[Change Data Capture > Enable CDC >
+Neo4j DBMS] for on-prem installations and
+link:{page-canonical-root}/cdc/current/get-started/aura[Change Data Capture > Enable CDC > Aura]
+for Aura.
+
+[NOTE]
+On Aura, CDC resets to `OFF` whenever an instance is paused and resumed.
+Re-enable it and follow xref:source/best-practices.adoc#source-cdc-cursor-recovery[CDC cursor
+recovery] before restarting the connector.
+
+== Step 2: Add a key constraint
+
+[source,cypher]
+----
+CREATE CONSTRAINT person_name IF NOT EXISTS
+FOR (p:Person) REQUIRE (p.first_name, p.last_name) IS NODE KEY;
+----
+
+This is optional for publishing, but it changes what the events contain: the constraint's properties
+are what populate each event's `keys` field, which is how a consumer identifies the entity without
+relying on Neo4j's internal ids.
+Any consumer doing upserts will want it.
+
+== Step 3: Create the topics
+
+[source,bash]
+----
+docker compose exec broker kafka-topics --bootstrap-server broker:29092 --create --topic creates --partitions 1 --replication-factor 1
+docker compose exec broker kafka-topics --bootstrap-server broker:29092 --create --topic updates --partitions 1 --replication-factor 1
+docker compose exec broker kafka-topics --bootstrap-server broker:29092 --create --topic deletes --partitions 1 --replication-factor 1
+----
+
+== Step 4: Create the source connector
+
+Save the following as `source.cdc.neo4j.json`:
+
+ifdef::backend-pdf[]
+.quickstart.source.cdc.operations.json-embedded.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.source.cdc.operations.json-embedded.json[]
+----
+
+Three settings deserve attention:
+
+`neo4j.cdc.topic.<topic>.patterns.N.pattern`:: What to capture, in Cypher-like pattern syntax.
+`(:Person)` means all changes to nodes with that label. The `N` is a 0-based index, so one topic can
+watch several patterns.
+`neo4j.cdc.topic.<topic>.patterns.N.operation`:: Narrows the pattern to `CREATE`, `UPDATE` or
+`DELETE`. Omit it to receive all three.
+`neo4j.start-from`:: `NOW` captures only changes made after the connector starts. `EARLIEST` starts
+from the beginning of the available change log, and `USER_PROVIDED` takes an explicit offset in
+`neo4j.start-from.value`. It applies only on first run — once an offset is stored in Kafka Connect,
+it is ignored.
+
+Register it:
+
+[source,bash]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H 'Content-Type:application/json' \
+  -H 'Accept:application/json' \
+  -d @source.cdc.neo4j.json
+----
+
+[source,bash]
+----
+curl -s http://localhost:8083/connectors/Neo4jSourceCdcOperationsQuickstart/status
+----
+
+Both the connector and its task must report `RUNNING` before the next step — with
+`neo4j.start-from: NOW`, anything written earlier is never captured.
+
+[NOTE]
+A source connector always runs a single task, so `tasks.max` above `1` has no effect.
+
+== Step 5: Make some changes
+
+Against the `neo4j` database:
+
+[source,cypher]
+----
+CREATE (:Person {first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com'});
+CREATE (:Person {first_name: 'Mary', last_name: 'Doe', email: 'mary.doe@example.com'});
+----
+
+[source,cypher]
+----
+MATCH (p:Person {first_name: 'John'}) SET p.email = 'john.doe@neo4j.com';
+----
+
+[source,cypher]
+----
+MATCH (p:Person {first_name: 'Mary'}) DELETE p;
+----
+
+== Step 6: Read the events
+
+Each topic should now hold exactly one kind of event:
+
+[source,bash]
+----
+docker compose exec broker kafka-console-consumer --bootstrap-server broker:29092 --topic creates --from-beginning --max-messages 2 --timeout-ms 15000
+----
+
+[source,bash]
+----
+docker compose exec broker kafka-console-consumer --bootstrap-server broker:29092 --topic updates --from-beginning --max-messages 1 --timeout-ms 15000
+----
+
+[source,bash]
+----
+docker compose exec broker kafka-console-consumer --bootstrap-server broker:29092 --topic deletes --from-beginning --max-messages 1 --timeout-ms 15000
+----
+
+With `schemas.enable=true` each message is a `{"schema": ..., "payload": ...}` envelope.
+The interesting half is the payload, whose shape is the
+link:{page-canonical-root}/cdc/current/procedures/output-schema/[CDC change event schema]:
+
+[source,json]
+----
+include::example$producer-data/node.created.cdc.json[]
+----
+
+The fields worth knowing:
+
+`event.operation`:: `c`, `u` or `d`.
+`event.eventType`:: `n` for a node, `r` for a relationship.
+`event.keys`:: the key properties, per label, taken from the constraint you created in Step 2.
+`event.state.before` / `event.state.after`:: the entity before and after the change. `before` is
+null for creates, `after` is null for deletes — which is what lets a consumer handle deletes at all.
+`txId` and `seq`:: transaction id and sequence within it, giving a total ordering.
+
+Each message also carries a `neo4j.source.cdc.id` Kafka **header**. The sink connector's CDC
+strategy uses that header to recognise change events, which is why hand-written messages cannot
+drive it.
+
+== Capturing relationships
+
+The pattern syntax covers relationships too. Add another pattern to any topic:
+
+[source,json]
+----
+  "neo4j.cdc.topic.creates.patterns.1.pattern": "(:Person)-[:KNOWS]->(:Person)",
+  "neo4j.cdc.topic.creates.patterns.1.operation": "CREATE"
+----
+
+Relationship events use `eventType: "r"` and carry `start` and `end` objects with the endpoint keys,
+rather than a `labels` field.
+
+Patterns can also filter on changed properties and transaction metadata — see
+xref:source/cdc.adoc[Change Data Capture strategy] for the full syntax.
+
+== Choosing what goes in the message key
+
+By default the whole change event is used as the message key, which is rarely what you want.
+`neo4j.cdc.topic.<topic>.key-strategy` accepts:
+
+[cols="1,3",opts=header]
+|===
+| Value | Key becomes
+
+| `WHOLE_VALUE` | the entire change event. The default.
+| `ENTITY_KEYS` | the key properties from the event — usually the right choice for partitioning and log compaction.
+| `ELEMENT_ID` | the source database's internal element id.
+| `SKIP` | no key at all.
+|===
+
+`ENTITY_KEYS` is what you want if consumers need all changes to one entity on the same partition.
+See xref:source/best-practices.adoc#cdc-key-strategy[Best practices] for the trade-offs.
+
+[[other-formats]]
+== Using Avro or Protobuf
+
+The source connector always emits schemas, so the only question is which schema format.
+To use the Schema Registry included in the Compose stack:
+
+[source,json]
+----
+  "key.converter": "io.confluent.connect.avro.AvroConverter",
+  "key.converter.schema.registry.url": "http://schema-registry:8081",
+  "value.converter": "io.confluent.connect.avro.AvroConverter",
+  "value.converter.schema.registry.url": "http://schema-registry:8081"
+----
+
+Reading those topics then needs a schema-aware consumer such as `kafka-avro-console-consumer`.
+Avro and Protobuf also represent temporal and numeric types more precisely than embedded-schema
+JSON. See xref:source/schema-registry.adoc[Schema Registry] and
+xref:source/payload-mode.adoc[Payload Mode], which controls how property values are represented.
+
+== Troubleshooting
+
+[source,bash]
+----
+curl -s http://localhost:8083/connectors/Neo4jSourceCdcOperationsQuickstart/status
+docker compose logs connect
+----
+
+Topics stay empty:: Most often CDC is not enabled, or the changes predate the connector. Check
+`SHOW DATABASES YIELD name, options` for `txLogEnrichment: FULL`, and remember that
+`neo4j.start-from: NOW` ignores everything written before startup.
+Task fails on startup with a pattern error:: Patterns are validated when the connector starts.
+Indexes must begin at `0` and be contiguous, and you cannot mix
+`patterns.N.pattern` with the single-string `patterns` form for the same topic.
+Events appear in the wrong topic:: Each topic's patterns are independent. A pattern with no
+`operation` receives creates, updates and deletes.
+`keys` is empty in every event:: No constraint on the captured label. Add one as in Step 2.
+Connector runs but lags behind:: Raise `neo4j.batch-size`, or shorten `neo4j.cdc.poll-interval`.
+See xref:source/best-practices.adoc[Best practices].
+Everything replays after a restart:: Kafka Connect stores the CDC cursor as a source offset. If it
+is lost, `neo4j.start-from` applies again.
+
+== Next steps
+
+* xref:source/cdc.adoc[Source CDC strategy] — full pattern syntax, operations, metadata filters.
+* xref:quickstart/sink-cdc.adoc[Quickstart: Sink with CDC] — apply these events to another Neo4j database.
+* xref:source/best-practices.adoc[Best practices] — cursor recovery, sizing, key strategies.
+* xref:source/payload-mode.adoc[Payload Mode] — how property values are serialized.
+* xref:source/monitoring.adoc[Monitoring] — JMX metrics exposed by the source connector.
