@@ -9,6 +9,9 @@
 ** xref::quickstart-confluent-cloud.adoc[Confluent Cloud]
 // * xref::amazon-msk.adoc[Amazon MSK quickstart]
 
+* *Use cases*
+* xref:migration/neo4j-to-aura.adoc[Zero downtime migration to Aura]
+
 * *Source connector*
 * xref::source.adoc[Configuration]
 ** xref:source/cdc.adoc[Change Data Capture]
@@ -29,6 +32,7 @@
 * xref:sink/error-handling.adoc[Error handling]
 * xref:sink/configuration.adoc[Settings]
 * xref:sink/monitoring.adoc[Monitoring]
+* xref:sink/best-practices.adoc[Best practices]
 
 * *Upgrades and migrations*
 * xref:migration/5.1/index.adoc[From 5.0 to 5.1+]

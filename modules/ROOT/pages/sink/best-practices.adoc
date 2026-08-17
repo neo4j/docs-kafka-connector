@@ -1,0 +1,38 @@
+= Best practices for Sink connector
+
+This page collects recommendations and operational practices for running the Sink connector.
+Each recommendation explains the trade-offs so you can decide whether it applies to your use case.
+
+[#choosing-a-strategy]
+== Choosing a sink strategy
+
+The Sink connector supports four strategies for turning incoming Kafka messages into writes to Neo4j: xref:sink/cdc.adoc[Change Data Capture], xref:sink/pattern.adoc[Pattern], xref:sink/cud.adoc[CUD], and xref:sink/cypher.adoc[Cypher].
+Use the following decision guide to pick between them.
+
+[%width="100%",cols="1,2a",opts=header]
+|===
+| Strategy
+| Use it when
+
+| xref:sink/cdc.adoc[Change Data Capture]
+| The messages are produced by a Neo4j xref:source/cdc.adoc[Source connector] configured with the CDC strategy, or by the deprecated link:{page-canonical-root}/kafka-streams[Neo4j Streams] plugin.
+This is the strategy to reach for when you're replicating one Neo4j database into another and don't control the message format yourself, since it's generated for you.
+
+| xref:sink/pattern.adoc[Pattern]
+| The messages come from an arbitrary producer, but each topic's messages consistently map to one node or relationship shape.
+A declarative Cypher-like pattern is enough to extract that shape, without writing any Cypher yourself.
+This is a good default for straightforward event-to-graph mappings.
+
+| xref:sink/cud.adoc[CUD]
+| The messages come from an arbitrary producer that can emit explicit `create`/`update`/`merge`/`delete` JSON commands, or you need more than one operation type multiplexed onto the same topic.
+Prefer this over Pattern when a single topic needs to express more than one kind of write.
+
+| xref:sink/cypher.adoc[Cypher]
+| The write logic doesn't fit the conventions of the other three strategies, for example conditional logic, multiple entities per message with custom relationships between them, or aggregation across message fields.
+This is the escape hatch: full control over the write, at the cost of writing and maintaining the Cypher yourself.
+|===
+
+[TIP]
+====
+Start with Pattern or CUD if your message format is flexible. Reach for Cypher only once you hit something those two conventions can't express, rather than starting there by default.
+====

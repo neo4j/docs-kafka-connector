@@ -108,20 +108,23 @@ curl -X POST http://localhost:8083/connectors \
 This will create a Kafka Connect source instance that will send change event messages derived by the provided query over to the `my-topic` topic, using your preferred serialization format.
 In Control Center, confirm that the Source connector has been created in the Connect tab, under connect-default.
 
-Generated change event messages in this case will have the following structure, which wraps each field into a dedicated structure which is type safe:
+Generated change event messages can be structured in two ways, controlled by the `neo4j.payload-mode` setting.
+The simpler structure, `COMPACT`, only includes the essential fields:
+
+[source,json]
+----
+include::example$producer-data/query.compact.json[]
+----
+
+`COMPACT` is easier to read and to deserialize on the consumer side, but it does not tolerate a property changing type in Neo4j over time.
+If your Cypher query returns properties whose type can change, configure `neo4j.payload-mode` as `EXTENDED` (the default) so that change event messages instead wrap each field into a dedicated, type-safe structure that stays forward compatible across property type changes:
 
 [source,json]
 ----
 include::example$producer-data/query.extended.json[]
 ----
 
-While the above serialized form of the change message is forward compatible in terms of property type changes, it might make the consumer side deserialization logic quite complex and not desired.
-In this case, you can configure `neo4j.payload-mode` setting as `COMPACT` so that change event messages will instead be structured as follows:
-
-[source,json]
-----
-include::example$producer-data/query.compact.json[]
-----
+The trade-off is that this structure is more verbose and can make consumer-side deserialization logic more complex, so reserve it for pipelines where type stability actually matters.
 
 In case you generate complex data structures as part of your Cypher query, you can also use the `RAW_JSON_STRING` payload mode which will produce a raw JSON string representation of the data without any schema compatibility guarantees.
 Although the generated message will look exactly the same as the `COMPACT` mode, it will be encoded as a `STRING` type.

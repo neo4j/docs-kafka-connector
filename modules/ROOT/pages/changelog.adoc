@@ -2,6 +2,48 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.5.2
+
+[cols="1,2",options="header"]
+|===
+| Feature | Details
+
+a|
+label:bug[]
+label:fixed[]
+
+Sink connectors now group messages by topic and partition.
+| Sink connectors grouped incoming messages by topic only, so a single batch could span multiple partitions of the same topic.
+Since the offset tracked for exactly-once semantics (xref:sink/configuration.adoc[`neo4j.eos-offset-label`]) is derived per topic and partition, batches spanning partitions could record an offset against the wrong partition, which in turn could cause messages to be skipped or applied more than once.
+Messages are now grouped by both topic and partition, and each partition maintains its own offset.
+
+a|
+label:bug[]
+label:fixed[]
+
+Message contents are no longer written to logs when a batch fails.
+| When a sink connector failed to process a batch, the first and last records of that batch were logged in full, including their keys and values.
+Only message metadata (topic, partition, offset, and timestamp) is now logged.
+|===
+
+== Version 5.5.1
+
+[cols="1,2",options="header"]
+|===
+| Feature | Details
+
+a|
+label:bug[]
+label:fixed[]
+
+Support for dynamic labels and relationship types in a `MATCH` clause removed from Sink connectors.
+| The Sink connector uses entity lookups with dynamic node labels and relationship types when the feature is available in the target database.
+However, the Cypher planner can potentially produce a slow plan when the matched relationships include several properties.
+The support for dynamic labels and relationship types in a `MATCH` clause has been removed until a more consistent behaviour can be guaranteed.
+|===
+
+
+
 == Version 5.5.0
 
 [cols="1,2",options="header"]
@@ -15,6 +57,10 @@ label:new[]
 Cypher sink strategy now supports Exactly Once semantics and batched processing.
 | The Cypher sink strategy has been re-implemented on top of the shared sink action abstraction, so it now supports Exactly Once offset tracking and benefits from the batched processing strategies (APOC Core and native) previously introduced for CDC sink handlers.
 |===
+
+== Version 5.4.1
+
+This is a maintenance release which provides updated dependencies.
 
 == Version 5.4.0
 
