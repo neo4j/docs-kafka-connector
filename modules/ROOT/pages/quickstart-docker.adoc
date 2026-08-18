@@ -44,7 +44,7 @@ The directory structure should look like;
 ----
 quickstart/
 ├─ plugins/
-│  ├─ neo4j-kafka-connect-{exact-connector-version}.jar
+│  ├─ neo4j-kafka-connect-neo4j-{exact-connector-version}.jar
 ├─ docker-compose.yml
 
 ----
