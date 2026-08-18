@@ -1,0 +1,41 @@
+= Quickstart: choose a source strategy
+:xrefstyle: full
+:quickstart-source:
+
+ifdef::env-docs[]
+[abstract]
+--
+Pick the source strategy that matches what you are trying to do, then follow its guide end to end.
+--
+endif::env-docs[]
+
+The source connector takes data **out of** Neo4j and publishes it to Kafka: the database is the
+producer, and something else consumes.
+Which **strategy** you use depends on whether you need every change or a specific projection.
+Each quickstart below is self-contained and runnable on a local Docker stack.
+
+If you want the other direction — Kafka messages written **into** Neo4j — see
+xref:sink/quickstart.adoc[Quickstart: choose a sink strategy].
+
+== Source: getting Neo4j changes into Kafka
+
+[cols="1,2,1",opts=header]
+|===
+| Your situation | Strategy | Quickstart
+
+| You need every change, including deletes, in near real time, without changing your graph model.
+| xref:source/cdc.adoc[Change Data Capture] — Neo4j's own change feed.
+| xref:source/quickstart-cdc.adoc[Source with CDC]
+
+| You want a specific projection, you are on Community Edition, or you cannot enable CDC.
+| xref:source/query.adoc[Query] — your Cypher query, polled on an interval.
+| xref:source/quickstart-query.adoc[Source with Query]
+|===
+
+Two differences decide it in most cases:
+
+* **Deletes.** A polling query cannot see a node that no longer exists. Only CDC reports deletes,
+  unless you adopt soft deletes.
+* **Edition.** CDC needs Enterprise Edition or Aura Enterprise. Query works anywhere.
+
+include::partial$quickstart-shared.adoc[]
