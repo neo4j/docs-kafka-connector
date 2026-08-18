@@ -4,7 +4,7 @@
 
 * *Getting started*
 * xref::installation.adoc[]
-* xref:quickstart/index.adoc[Quickstart]
+* Quickstart
 ** xref::quickstart-docker.adoc[Confluent Platform]
 ** xref::quickstart-confluent-cloud.adoc[Confluent Cloud]
 // * xref::amazon-msk.adoc[Amazon MSK quickstart]
