@@ -239,7 +239,7 @@ Polling gets slower over time:: The tracking property is not indexed. See Step 1
 == Next steps
 
 * xref:source/query.adoc[Source Query strategy] — full reference.
-* xref:quickstart/source-cdc.adoc[Quickstart: Source with CDC] — the alternative, when you need deletes.
+* xref:source/quickstart-cdc.adoc[Quickstart: Source with CDC] — the alternative, when you need deletes.
 * xref:source/payload-mode.adoc[Payload Mode] — message representation.
 * xref:source/configuration.adoc[Source settings] — batching, polling, offsets.
 * xref:source/monitoring.adoc[Monitoring] — JMX metrics exposed by the source connector.

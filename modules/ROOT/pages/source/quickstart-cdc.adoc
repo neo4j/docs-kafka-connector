@@ -25,7 +25,7 @@ Pick it when:
 ====
 Sending these events into **another Neo4j database** is a separate exercise, because the sink side
 needs its own configuration and a second database.
-See xref:quickstart/sink-cdc.adoc[Quickstart: Sink with Change Data Capture] for that.
+See xref:sink/quickstart-cdc.adoc[Quickstart: Sink with Change Data Capture] for that.
 This page stops at Kafka, where any consumer can read the events.
 ====
 
@@ -295,7 +295,7 @@ is lost, `neo4j.start-from` applies again.
 == Next steps
 
 * xref:source/cdc.adoc[Source CDC strategy] — full pattern syntax, operations, metadata filters.
-* xref:quickstart/sink-cdc.adoc[Quickstart: Sink with CDC] — apply these events to another Neo4j database.
+* xref:sink/quickstart-cdc.adoc[Quickstart: Sink with CDC] — apply these events to another Neo4j database.
 * xref:source/best-practices.adoc[Best practices] — cursor recovery, sizing, key strategies.
 * xref:source/payload-mode.adoc[Payload Mode] — how property values are serialized.
 * xref:source/monitoring.adoc[Monitoring] — JMX metrics exposed by the source connector.
