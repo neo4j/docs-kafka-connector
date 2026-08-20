@@ -1,0 +1,42 @@
+== What every quickstart assumes
+
+All of them run the same local stack — Neo4j, a Kafka broker, Kafka Connect and Schema Registry via
+Docker Compose — and differ only in connector configuration and message shape.
+So it is reasonable to work through one, then swap the connector to try another.
+
+Serialization differs by strategy, and it is the detail most likely to trip you up:
+
+[cols="1,2",opts=header]
+|===
+| Strategy | Serialization
+
+ifdef::quickstart-sink[]
+| Cypher, Pattern, CUD
+| Plain JSON works, so no Schema Registry is needed and messages can be produced by hand with
+`kafka-console-producer`.
+
+| Change Data Capture
+| Needs a schema-carrying converter **and** messages produced by a real source connector. Change
+events cannot be written by hand.
+endif::quickstart-sink[]
+ifdef::quickstart-source[]
+| Change Data Capture, Query
+| Always produces messages with schemas. A schemaless converter will not work.
+endif::quickstart-source[]
+|===
+
+Where a schema is required, these guides use `JsonConverter` with `schemas.enable=true`, which
+embeds the schema in each message and needs no Schema Registry.
+Avro and Protobuf are covered on each page, and in xref:source/schema-registry.adoc[Schema Registry].
+
+== Deploying somewhere other than Docker
+
+The strategy guides use a local Docker Compose stack so they can be run start to finish.
+The strategy configuration is identical wherever you deploy it — only installation and connection
+details change:
+
+* xref:installation.adoc[Installation] — Confluent Platform, Confluent Hub, standalone Kafka Connect.
+* xref:quickstart-confluent-cloud.adoc[Quickstart for Confluent Cloud] — custom connectors, endpoints
+  and API keys.
+* xref:quickstart-docker.adoc[Quickstart for Confluent Platform] — a combined source-and-sink
+  walkthrough on one database.

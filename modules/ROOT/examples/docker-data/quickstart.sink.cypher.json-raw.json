@@ -1,0 +1,15 @@
+{
+  "name": "Neo4jSinkCypherQuickstart",
+  "config": {
+    "topics": "people",
+    "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": false,
+    "neo4j.uri": "neo4j://neo4j:7687",
+    "neo4j.authentication.type": "BASIC",
+    "neo4j.authentication.basic.username": "neo4j",
+    "neo4j.authentication.basic.password": "password",
+    "neo4j.cypher.topic.people": "WITH __value AS person MERGE (p:Person {name: person.name, surname: person.surname}) SET p.fullName = person.name + ' ' + person.surname MERGE (c:City {name: person.city}) MERGE (p)-[:LIVES_IN]->(c)"
+  }
+}

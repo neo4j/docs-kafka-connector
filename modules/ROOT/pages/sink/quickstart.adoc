@@ -1,0 +1,59 @@
+= Quickstart: choose a sink strategy
+:xrefstyle: full
+:quickstart-sink:
+
+ifdef::env-docs[]
+[abstract]
+--
+Pick the sink strategy that matches what you are trying to do, then follow its guide end to end.
+--
+endif::env-docs[]
+
+The sink connector brings data **into** Neo4j from Kafka: something else produces messages, and you
+want them in the graph.
+Which **strategy** you use depends on the shape of those messages and how much write logic you need.
+Each quickstart below is self-contained and runnable on a local Docker stack.
+
+If you want the other direction — Neo4j changes published **out to** Kafka — see
+xref:source/quickstart.adoc[Quickstart: choose a source strategy].
+
+== Sink: getting Kafka messages into Neo4j
+
+[cols="1,2,1",opts=header]
+|===
+| Your situation | Strategy | Quickstart
+
+| You control the target graph model and need real write logic — derived values, conditionals,
+several clauses per message.
+| xref:sink/cypher.adoc[Cypher] — your Cypher statement, run per message.
+| xref:sink/quickstart-cypher.adoc[Sink with Cypher]
+
+| Your messages map onto nodes and relationships field-for-field, and you would rather declare the
+mapping than write a query.
+| xref:sink/pattern.adoc[Pattern] — a Cypher-like pattern per topic; the connector generates the
+`MERGE`.
+| xref:sink/quickstart-pattern.adoc[Sink with Pattern]
+
+| Each message already states its own intent, and deletes are part of the stream.
+| xref:sink/cud.adoc[CUD] — every message carries an `op` field.
+| xref:sink/quickstart-cud.adoc[Sink with CUD]
+
+| The messages were produced by Neo4j — a source connector or Neo4j Streams — and you are
+replicating into another database.
+| xref:sink/cdc.adoc[Change Data Capture] — change events reapplied to the target.
+| xref:sink/quickstart-cdc.adoc[Sink with CDC]
+|===
+
+The xref:sink/quickstart-cdc.adoc[Sink with CDC] guide runs both directions at once, since it
+replicates one Neo4j database into another.
+
+If two of those look plausible, the tie-breakers are usually:
+
+* **Pattern vs Cypher** — can you express the mapping without computing anything? Pattern only maps;
+  it cannot derive a value or branch.
+* **CUD vs Pattern** — does the operation vary per message? Pattern always upserts. Pattern is also
+  limited to one mapping per topic, whereas CUD carries any label or relationship type on one topic.
+* **CDC vs anything else** — did the messages come from Neo4j? If not, CDC is the wrong answer; it
+  expects a specific event format and header.
+
+include::partial$quickstart-shared.adoc[]

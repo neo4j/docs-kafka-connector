@@ -1,0 +1,321 @@
+= Quickstart: Sink with Change Data Capture
+:xrefstyle: full
+
+ifdef::env-docs[]
+[abstract]
+--
+Replicate changes from one Neo4j database into another through Kafka.
+--
+endif::env-docs[]
+
+== When to use the CDC strategy
+
+Use the xref:sink/cdc.adoc[Change Data Capture strategy] when the messages you are consuming were
+**produced by Neo4j** — either by a xref:source/cdc.adoc[source connector using the CDC strategy]
+or by the deprecated link:{page-canonical-root}/kafka-streams[Neo4j Streams] plugin.
+The connector understands the change-event format natively and reapplies each change to the target
+database.
+
+Pick it when you are:
+
+* replicating a Neo4j database into another Neo4j or Aura database;
+* migrating between instances with Kafka in the middle;
+* fanning one database out to several downstream Neo4j instances.
+
+[IMPORTANT]
+====
+Unlike the other sink strategies, **this one cannot be driven by hand-written messages.**
+A change event must arrive as a schema-carrying structure *and* with the
+`neo4j.source.cdc.id` header that the source connector attaches; without the header the connector
+treats the message as the legacy Neo4j Streams format instead.
+So this guide runs a real source connector, which is also the only realistic use case.
+====
+
+== What you will build
+
+Two connectors and two databases, with Kafka in between:
+
+[source,text]
+----
+source database ──> Source connector (CDC) ──> cdc-events topic ──> Sink connector ──> target database
+----
+
+Two separate databases are essential.
+If the sink wrote back into the source database, its writes would be captured by CDC, republished,
+and applied again — an endless loop.
+
+[NOTE]
+====
+This guide uses `JsonConverter` with `schemas.enable=true`, which embeds the schema in every
+message.
+That satisfies the schema requirement **without needing Schema Registry**, keeping the setup small.
+Avro and Protobuf work the same way — see <<other-formats>>.
+====
+
+== Prerequisites
+
+* Docker Compose v2.20.3 or later.
+* The {product-name} archive, unpacked as described in xref:installation.adoc[].
+* Neo4j Enterprise Edition or Aura Enterprise. CDC and multiple databases are not available in
+  Community Edition.
+
+=== Start the environment
+
+include::partial$quickstart-environment.adoc[]
+
+== Step 1: Create the two databases
+
+In Neo4j Browser at \http://localhost:7474 (`neo4j` / `password`), against the `system` database:
+
+[source,cypher]
+----
+CREATE DATABASE source IF NOT EXISTS;
+CREATE DATABASE target IF NOT EXISTS;
+----
+
+== Step 2: Enable CDC on the source database only
+
+[source,cypher]
+----
+ALTER DATABASE source SET OPTION txLogEnrichment 'FULL';
+----
+
+Leave `target` alone.
+
+For more on enabling CDC, see
+link:{page-canonical-root}/cdc/current/get-started/self-managed[Change Data Capture > Enable CDC >
+Neo4j DBMS] for on-prem installations and
+link:{page-canonical-root}/cdc/current/get-started/aura[Change Data Capture > Enable CDC > Aura]
+for Aura.
+
+[NOTE]
+On Aura, CDC is reset to `OFF` when an instance is paused and resumed.
+Re-enable it and follow xref:source/best-practices.adoc#source-cdc-cursor-recovery[CDC cursor
+recovery] before restarting the source connector.
+
+== Step 3: Add key constraints on both databases
+
+The schema sub-strategy merges entities using the key properties named in each change event.
+Those names travel with the event, but the constraints themselves do not — so create matching ones
+on both sides.
+
+Against `source` **and** again against `target`:
+
+[source,cypher]
+----
+CREATE CONSTRAINT person_name IF NOT EXISTS
+FOR (p:Person) REQUIRE (p.first_name, p.last_name) IS NODE KEY;
+----
+
+On `source` this constraint is what puts `first_name` and `last_name` into the event's `keys`
+field. On `target` it gives the generated `MERGE` an index to use and enforces uniqueness.
+
+[IMPORTANT]
+Without a constraint on `source`, change events carry no key properties and the schema
+sub-strategy has nothing to merge on.
+Without one on `target`, writes still succeed but lose both uniqueness and index-backed lookup.
+
+== Step 4: Create the source connector
+
+Save the following as `source.cdc.neo4j.json`:
+
+ifdef::backend-pdf[]
+.quickstart.source.cdc.json-embedded.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.source.cdc.json-embedded.json[]
+----
+
+Both patterns publish to the same `cdc-events` topic — one for `:Person` nodes, one for `:KNOWS`
+relationships between them. `neo4j.start-from: NOW` means only changes made after the connector
+starts are captured.
+
+[source,bash]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H 'Content-Type:application/json' \
+  -H 'Accept:application/json' \
+  -d @source.cdc.neo4j.json
+
+curl -s http://localhost:8083/connectors/Neo4jSourceCdcQuickstart/status
+----
+
+== Step 5: Create the sink connector
+
+Save the following as `sink.cdc.neo4j.json`:
+
+ifdef::backend-pdf[]
+.quickstart.sink.cdc-schema.json-embedded.json
+endif::[]
+[source,json]
+----
+include::example$docker-data/quickstart.sink.cdc-schema.json-embedded.json[]
+----
+
+`neo4j.cdc.schema.topics` selects the schema sub-strategy, and `neo4j.database` points the writes
+at `target`.
+The converters match the source connector's exactly — this is not optional, as the sink has to
+reconstruct the change events the source serialized.
+
+[source,bash]
+----
+curl -X POST http://localhost:8083/connectors \
+  -H 'Content-Type:application/json' \
+  -H 'Accept:application/json' \
+  -d @sink.cdc.neo4j.json
+
+curl -s http://localhost:8083/connectors/Neo4jSinkCdcSchemaQuickstart/status
+----
+
+Both connectors and both tasks should report `RUNNING` before you continue.
+
+== Step 6: Make some changes and watch them replicate
+
+Against the **`source`** database:
+
+[source,cypher]
+----
+CREATE (:Person {first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com'});
+CREATE (:Person {first_name: 'Mary', last_name: 'Doe', email: 'mary.doe@example.com'});
+MATCH (j:Person {first_name: 'John'}), (m:Person {first_name: 'Mary'})
+CREATE (j)-[:KNOWS {since: date('2012-01-01')}]->(m);
+----
+
+Now switch to the **`target`** database — `:use target` in Browser — and read it back:
+
+[source,cypher]
+----
+MATCH (p:Person) RETURN p.first_name AS first, p.last_name AS last, p.email AS email ORDER BY first
+----
+
+[source,text]
+----
+first    last    email
+"John"   "Doe"   "john.doe@example.com"
+"Mary"   "Doe"   "mary.doe@example.com"
+----
+
+[source,cypher]
+----
+MATCH (a:Person)-[k:KNOWS]->(b:Person) RETURN a.first_name AS from, b.first_name AS to, k.since AS since
+----
+
+Updates and deletes replicate too. Back on `source`:
+
+[source,cypher]
+----
+MATCH (p:Person {first_name: 'John'}) SET p.email = 'john.doe@neo4j.com';
+MATCH (p:Person {first_name: 'Mary'}) DETACH DELETE p;
+----
+
+On `target`, John's email is updated and Mary is gone, along with the `:KNOWS` relationship.
+
+== The two sub-strategies
+
+<<_step_5_create_the_sink_connector,Step 5>> used the **schema** sub-strategy. There is a second
+one, and the difference is what each merges on.
+
+[cols="1,2,2",opts=header]
+|===
+| | `neo4j.cdc.schema.topics` | `neo4j.cdc.source-id.topics`
+
+| Merges on
+| the key properties named in the event, from the source database's constraints
+| the source database's internal `elementId`
+
+| Needs constraints
+| yes, on both databases
+| no
+
+| Target graph
+| natural keys, no extra properties
+| an extra label and property holding the source id
+
+| Use when
+| the target should look like the source, and you have keys
+| there are no usable keys, or you want a faithful id-for-id copy
+|===
+
+To try the Source ID sub-strategy, delete the sink connector and register one that swaps the
+strategy key:
+
+[source,bash]
+----
+curl -X DELETE http://localhost:8083/connectors/Neo4jSinkCdcSchemaQuickstart
+----
+
+[source,json]
+----
+  "neo4j.cdc.source-id.topics": "cdc-events",
+  "neo4j.cdc.source-id.label-name": "SourceEvent",
+  "neo4j.cdc.source-id.property-name": "sourceId"
+----
+
+Every replicated entity then also carries a `:SourceEvent` label and a `sourceId` property holding
+the source database's element id.
+Both extra settings are optional; the defaults are shown above.
+
+[[other-formats]]
+== Using Avro or Protobuf
+
+The requirement is a converter that **carries schemas** — plain JSON with
+`schemas.enable=false` cannot work here, because the connector needs a structured value rather
+than a plain map.
+
+`JsonConverter` with `schemas.enable=true` is used above because it needs no extra
+infrastructure. To use the Schema Registry included in the Compose stack instead, set the same
+converter on both connectors:
+
+[source,json]
+----
+  "key.converter": "io.confluent.connect.avro.AvroConverter",
+  "key.converter.schema.registry.url": "http://schema-registry:8081",
+  "value.converter": "io.confluent.connect.avro.AvroConverter",
+  "value.converter.schema.registry.url": "http://schema-registry:8081"
+----
+
+Avro and Protobuf also preserve temporal and numeric types more faithfully than embedded-schema
+JSON. See xref:source/schema-registry.adoc[Schema Registry] and
+xref:sink/connect-types.adoc[Type support].
+
+== Troubleshooting
+
+[source,bash]
+----
+curl -s http://localhost:8083/connectors/Neo4jSourceCdcQuickstart/status
+curl -s http://localhost:8083/connectors/Neo4jSinkCdcSchemaQuickstart/status
+docker compose logs connect
+----
+
+Confirm events are actually reaching Kafka before blaming the sink:
+
+[source,bash]
+----
+docker compose exec broker kafka-console-consumer \
+  --bootstrap-server broker:29092 --topic cdc-events --from-beginning --max-messages 1
+----
+
+Nothing in the topic:: CDC is not enabled on `source`, or the changes predate the connector.
+`neo4j.start-from` is `NOW`, so only changes after startup are captured. Verify with
+`SHOW DATABASE source YIELD name, options`.
+`unexpected message value type`:: The sink is reading with a schemaless converter. Both connectors
+need `schemas.enable=true`, or Avro/Protobuf.
+Events arrive but nothing is written, no error:: The value converter carries no
+`neo4j.source.cdc.id` header, so the message is being parsed as the legacy Neo4j Streams format.
+Check that the messages really came from a Neo4j source connector.
+Nodes duplicated on the target:: No key constraint on `target`, so `MERGE` had nothing unique to
+match. See <<_step_3_add_key_constraints_on_both_databases,Step 3>>.
+Nodes merged into one on the target:: The source constraint covers fewer properties than you
+expected, so several source nodes share one key. Check the constraint on `source`.
+Writes loop endlessly:: CDC is enabled on `target` as well. Turn it off with
+`ALTER DATABASE target SET OPTION txLogEnrichment 'OFF'`.
+
+== Next steps
+
+* xref:sink/cdc.adoc[Change Data Capture strategy] — both sub-strategies in full, including how
+  each change type maps onto Cypher.
+* xref:source/cdc.adoc[Source CDC strategy] — pattern syntax, operations and metadata filters.
+* xref:source/best-practices.adoc[Source best practices] — cursor recovery and sizing.
+* xref:sink/error-handling.adoc[Error handling] — dead letter queues and error tolerance.
+* xref:sink/monitoring.adoc[Monitoring] — JMX metrics exposed by the sink connector.

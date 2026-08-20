@@ -13,6 +13,9 @@
 * xref:migration/neo4j-to-aura.adoc[Zero downtime migration to Aura]
 
 * *Source connector*
+* xref:source/quickstart.adoc[Quickstart]
+** xref:source/quickstart-cdc.adoc[Source with Change Data Capture]
+** xref:source/quickstart-query.adoc[Source with Query]
 * xref::source.adoc[Configuration]
 ** xref:source/cdc.adoc[Change Data Capture]
 ** xref:source/query.adoc[Query]
@@ -23,6 +26,11 @@
 * xref:source/best-practices.adoc[Best practices]
 
 * *Sink connector*
+* xref:sink/quickstart.adoc[Quickstart]
+** xref:sink/quickstart-cypher.adoc[Sink with Cypher]
+** xref:sink/quickstart-pattern.adoc[Sink with Pattern]
+** xref:sink/quickstart-cud.adoc[Sink with CUD]
+** xref:sink/quickstart-cdc.adoc[Sink with Change Data Capture]
 * xref::sink.adoc[Configuration]
 ** xref:sink/cypher.adoc[Cypher]
 ** xref:sink/cdc.adoc[Change Data Capture]

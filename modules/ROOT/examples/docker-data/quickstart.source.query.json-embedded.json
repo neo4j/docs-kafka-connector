@@ -1,0 +1,21 @@
+{
+  "name": "Neo4jSourceQueryQuickstart",
+  "config": {
+    "connector.class": "org.neo4j.connectors.kafka.source.Neo4jConnector",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": true,
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": true,
+    "neo4j.uri": "neo4j://neo4j:7687",
+    "neo4j.authentication.type": "BASIC",
+    "neo4j.authentication.basic.username": "neo4j",
+    "neo4j.authentication.basic.password": "password",
+    "neo4j.source-strategy": "QUERY",
+    "neo4j.start-from": "EARLIEST",
+    "neo4j.query.topic": "readings",
+    "neo4j.query": "MATCH (r:Reading) WHERE r.timestamp > $lastCheck RETURN r.sensor AS sensor, r.celsius AS celsius, r.timestamp AS timestamp ORDER BY r.timestamp",
+    "neo4j.query.streaming-property": "timestamp",
+    "neo4j.query.poll-interval": "1s",
+    "neo4j.query.poll-duration": "5s"
+  }
+}
