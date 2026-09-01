@@ -2,6 +2,22 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.5.3
+
+[cols="1,2",options="header"]
+|===
+| Feature | Details
+
+a|
+label:bug[]
+label:fixed[]
+
+Sink connectors no longer reject messages that contain `null` property values.
+| Property maps carrying a `null` value were rejected with an `InvalidDataException`, so a xref:sink/cud.adoc[CUD] operation that legitimately removed a field by setting it to `null` failed instead of being applied.
+The same validation also affected the property maps of xref:sink/cdc.adoc[CDC] change events.
+`null` values are now accepted, while values of an unexpected type are still rejected.
+|===
+
 == Version 5.5.2
 
 [cols="1,2",options="header"]
