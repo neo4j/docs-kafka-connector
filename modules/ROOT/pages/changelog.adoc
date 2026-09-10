@@ -2,6 +2,22 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.5.4
+
+[cols="1,2",options="header"]
+|===
+| Feature | Details
+
+a|
+label:bug[]
+label:fixed[]
+
+Only messages that fail because of their own content are now routed to the dead letter queue.
+| When a batch failed and a xref:sink/error-handling.adoc[dead letter queue] was configured, sink connectors reported the offending message to the DLQ regardless of the cause, so a failure unrelated to message content, such as a connectivity problem or an unavailable database, moved messages to the DLQ instead of letting Kafka Connect retry them.
+Only data errors are now sent to the DLQ, and any other failure propagates and fails the task so that Kafka Connect can retry it and report it.
+Malformed messages in the xref:sink/cud.adoc[CUD], xref:sink/cdc.adoc[CDC], and xref:sink/pattern.adoc[Pattern] strategies are now consistently classified as data errors, so they continue to reach the DLQ as before.
+|===
+
 == Version 5.5.3
 
 [cols="1,2",options="header"]
