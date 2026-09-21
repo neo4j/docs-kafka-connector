@@ -1,7 +1,7 @@
 [#kafka-connect-source-cdc-strategy]
 = Change Data Capture strategy
 
-Change Data Capture strategy makes use of the link:{page-canonical-root}/cdc/current[Change Data Capture] feature provided by Neo4j and Aura Enterprise 5, and is the preferred strategy for source connector instances as it doesn't require any schema changes and can capture deletions reliably.
+Change Data Capture strategy makes use of the link:{page-canonical-root}/cdc/current[Change Data Capture] feature provided by Neo4j and Aura Enterprise 5 and later, and is the preferred strategy for source connector instances as it doesn't require any schema changes and can capture deletions reliably.
 Please make sure that you take the necessary steps described at link:{page-canonical-root}/cdc/current/getting-started[Change Data Capture > Getting Started] before configuring your source instance with this strategy.
 
 In order to configure this strategy, you need to define <<patterns, patterns>> and selectors that describe which nodes or relationships you want to track changes and assign them to topics.
