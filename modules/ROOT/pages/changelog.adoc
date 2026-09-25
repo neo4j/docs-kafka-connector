@@ -2,6 +2,40 @@
 
 This page lists changes to the {product-name}.
 
+== Version 6.0.0
+
+Version 6.0.0 is a major release with breaking changes.
+See xref:migration/6.0.adoc[] before you upgrade.
+
+[cols="1,2",options="header"]
+|===
+| Feature | Details
+
+a|
+label:breaking[]
+label:changed[]
+
+Java 17, Apache Kafka Connect 4.3 and Confluent Platform 8.3 or later are required.
+| The connector is built with Java 17 and no longer runs on Java 11 or on earlier Kafka Connect versions.
+
+a|
+label:configuration[]
+label:changed[]
+
+`neo4j.query.force-maps-as-struct` is replaced by `neo4j.query.map-encoding`.
+| The new xref:source/configuration.adoc[`neo4j.query.map-encoding`] setting accepts `STRUCT` (default), `MAP`, and `LEGACY`.
+`STRUCT` replaces `true`, and `LEGACY` replaces `false`.
+Fields of a `STRUCT` that describes a nested map are now sorted by key name and optional, and keys are no longer lost from lists of maps.
+
+a|
+label:feature[]
+label:new[]
+
+Support for the Neo4j UUID type.
+| Source connectors publish Neo4j UUID values, and sink connectors write them as UUID values when the target database supports the type.
+The xref:source/payload-mode.adoc[`EXTENDED`] structure has two new fields, `UI` and `LUI`.
+|===
+
 == Version 5.5.4
 
 [cols="1,2",options="header"]

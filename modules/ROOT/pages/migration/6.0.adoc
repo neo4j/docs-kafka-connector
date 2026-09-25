@@ -1,0 +1,92 @@
+[[migration-6.0]]
+= Migrate from 5.x to 6.0
+
+Version 6.0 is a major release with breaking changes.
+The configuration schema is the same as in 5.x, so the upgrade is an in-place plugin replacement.
+Check the changes on this page before you replace the plugin.
+For generic plugin upgrade steps, see https://docs.confluent.io/platform/current/connect/upgrade.html[Confluent Documentation -> Upgrade a Connector Plugin].
+
+== Platform requirements
+
+Version 6.0 requires:
+
+* Java 17 or later.
+* Apache Kafka Connect {kafka-connect-version} or later.
+* Confluent Platform {confluent-connect-version} or later.
+
+Upgrade the Kafka Connect runtime before you upgrade the connector.
+
+== Replace `neo4j.query.force-maps-as-struct`
+
+This section applies to source connectors with the `QUERY` strategy.
+
+`neo4j.query.force-maps-as-struct` is removed.
+Use `neo4j.query.map-encoding` instead.
+
+[WARNING]
+====
+The connector ignores `neo4j.query.force-maps-as-struct`.
+If you set it to `false` and do not replace it, the connector uses the default `STRUCT` encoding, and the schemas of your topics change.
+====
+
+Replace the old property as follows:
+
+[cols="1,1,2",options="header"]
+|===
+| `neo4j.query.force-maps-as-struct` | `neo4j.query.map-encoding` | Result
+
+| `true` or not set
+| `STRUCT` or not set
+| Every map is a `STRUCT`.
+Same behavior as `true` in 5.x.
+
+| `false`
+| `LEGACY`
+| A map is a `MAP` when its values share a type, and a `STRUCT` otherwise.
+Same behavior as `false` in 5.x.
+|===
+
+For example, replace:
+
+[source,json]
+----
+"neo4j.query.force-maps-as-struct": "false"
+----
+
+with:
+
+[source,json]
+----
+"neo4j.query.map-encoding": "LEGACY"
+----
+
+The new `MAP` value describes every map as a `MAP`, and fails when the values of a map do not share a type.
+Use it only for maps with values of a single type.
+For details, see xref:source/configuration.adoc[`neo4j.query.map-encoding`].
+
+== Schema changes
+
+After the upgrade, the connector can register new schema versions for existing topics.
+Check the compatibility mode of your Schema Registry subjects before you upgrade.
+
+=== `QUERY` strategy
+
+* With `LEGACY`, a message is always a `STRUCT` with one field per returned column.
+In 5.x, a message was a `MAP` when all columns had values of the same type.
+* With the `EXTENDED` payload mode, a list is described as a `STRUCT` with fields `e0`, `e1`, and so on, when its elements hold an empty list and a list of maps under the same key.
+
+=== `EXTENDED` payload mode
+
+The `EXTENDED` structure has two new fields, `UI` and `LUI`, for Neo4j UUID values and lists of UUID values.
+Every topic with the `EXTENDED` payload mode gets a new schema version.
+For details, see xref:source/payload-mode.adoc[].
+
+== Neo4j UUID type
+
+Version 6.0 supports the Neo4j UUID type, available in Neo4j 2026.08 and later.
+
+* Source connectors publish a UUID value as a string.
+With the `COMPACT` payload mode, the string has the `org.neo4j.connectors.kafka.UUID` schema name.
+With the `EXTENDED` payload mode, the value is in the `UI` field.
+* Sink connectors write these values as UUID values.
+If the target database does not support the UUID type, sink connectors write them as strings.
