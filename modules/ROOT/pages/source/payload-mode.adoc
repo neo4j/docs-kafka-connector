@@ -50,6 +50,7 @@ The `COMPACT` mode produces a minimalistic payload with only the essential field
 [source,json]
 ----
 {
+  "id": "3f2a8c1e-7b4d-4e9a-9c5f-1d2e3b4a5c6d",
   "name": "mary",
   "surname": "doe",
   "timestamp": 1729779296311
@@ -65,12 +66,13 @@ The `EXTENDED` mode includes additional structure and metadata to support comple
 [source,json]
 ----
 {
-  "name": {
-    "type": "S",
+  "id": {
+    "type": "UI",
     "B": null,
     "I64": null,
     "F64": null,
-    "S": "mary",
+    "S": null,
+    "UI": "3f2a8c1e-7b4d-4e9a-9c5f-1d2e3b4a5c6d",
     "BA": null,
     "TLD": null,
     "TLDT": null,
@@ -83,6 +85,35 @@ The `EXTENDED` mode includes additional structure and metadata to support comple
     "LI64": null,
     "LF64": null,
     "LS": null,
+    "LUI": null,
+    "LTLD": null,
+    "LTLDT": null,
+    "LTLT": null,
+    "LZDT": null,
+    "LTOT": null,
+    "LTD": null,
+    "LSP": null
+  },
+  "name": {
+    "type": "S",
+    "B": null,
+    "I64": null,
+    "F64": null,
+    "S": "mary",
+    "UI": null,
+    "BA": null,
+    "TLD": null,
+    "TLDT": null,
+    "TLT": null,
+    "TZDT": null,
+    "TOT": null,
+    "TD": null,
+    "SP": null,
+    "LB": null,
+    "LI64": null,
+    "LF64": null,
+    "LS": null,
+    "LUI": null,
     "LTLD": null,
     "LTLDT": null,
     "LTLT": null,
@@ -97,6 +128,7 @@ The `EXTENDED` mode includes additional structure and metadata to support comple
     "I64": null,
     "F64": null,
     "S": "doe",
+    "UI": null,
     "BA": null,
     "TLD": null,
     "TLDT": null,
@@ -109,6 +141,7 @@ The `EXTENDED` mode includes additional structure and metadata to support comple
     "LI64": null,
     "LF64": null,
     "LS": null,
+    "LUI": null,
     "LTLD": null,
     "LTLDT": null,
     "LTLT": null,
@@ -123,6 +156,7 @@ The `EXTENDED` mode includes additional structure and metadata to support comple
     "I64": 1729779365447,
     "F64": null,
     "S": null,
+    "UI": null,
     "BA": null,
     "TLD": null,
     "TLDT": null,
@@ -135,6 +169,7 @@ The `EXTENDED` mode includes additional structure and metadata to support comple
     "LI64": null,
     "LF64": null,
     "LS": null,
+    "LUI": null,
     "LTLD": null,
     "LTLDT": null,
     "LTLT": null,
@@ -158,11 +193,12 @@ This structure ensures that any change in the type of a property does not cause 
 |===
 | Field  | Description
 
-| type   | Indicates the type of the property. Possible values include: `B`, `I64`, `F64`, `S`, `BA`, `TLD`, `TLDT`, `TLT`, `TZDT`, `TOT`, `TD`, `SP`, or their list equivalents (e.g., `LB`, `LI64`, `LF64`, `LS`, `LTLD`, etc.).
+| type   | Indicates the type of the property. Possible values include: `B`, `I64`, `F64`, `S`, `UI`, `BA`, `TLD`, `TLDT`, `TLT`, `TZDT`, `TOT`, `TD`, `SP`, or their list equivalents (e.g., `LB`, `LI64`, `LF64`, `LS`, `LTLD`, etc.).
 | B      | Boolean type (true or false)
 | I64    | 64-bit integer
 | F64    | 64-bit floating point
 | S      | String
+| UI     | UUID, as a string. Requires Neo4j 2026.08 or later.
 | BA     | Byte array
 | TLD    | Temporal Local Date
 | TLDT   | Temporal Local DateTime
@@ -184,6 +220,7 @@ For example, a string field will be represented as:
   "I64": null,
   "F64": null,
   "S": "actual_value",
+  "UI": null,
   ...
 }
 ----
