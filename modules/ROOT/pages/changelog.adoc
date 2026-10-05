@@ -19,6 +19,14 @@ Such lists are now merged into a single element schema covering the union of the
 Keys missing from an element are serialized as `null`, and keys are ordered alphabetically in the merged schema.
 The indexed structure fallback still applies when the elements cannot be merged, for example when a key holds conflicting non-`null` types or when the list mixes maps with other types.
 This changes the shape of the messages produced for such lists, see xref:migration/5.6/index.adoc[] for details.
+
+a|
+label:bug[]
+label:fixed[]
+
+CDC Source connector tasks no longer fail with an `UninitializedPropertyAccessException` when stopped before they have started.
+| When a xref:source/cdc.adoc[CDC] Source connector task failed during startup, for example because of an invalid configuration, or was stopped before it finished initializing, stopping the task threw an `UninitializedPropertyAccessException`, which added a misleading error on top of the original failure.
+The task now stops cleanly in these cases.
 |===
 
 == Version 5.5.4
