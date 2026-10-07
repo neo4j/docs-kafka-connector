@@ -1,5 +1,5 @@
 name: kafka
-version: '5.5'
+version: '5.6'
 title: Neo4j Connector for Kafka
 start_page: ROOT:index.adoc
 nav:
@@ -11,8 +11,8 @@ asciidoc:
     copyright: Neo4j Inc.
     page-product: Neo4j Connector for Kafka
     confluent-connect-version: '7.7'
-    connector-version: '5.5'
-    exact-connector-version: '5.5.4'
+    connector-version: '5.6'
+    exact-connector-version: '5.6.0'
     kafka-connect-version: '3.7.0'
     page-pagination: true
     product-name: Neo4j Connector for Kafka

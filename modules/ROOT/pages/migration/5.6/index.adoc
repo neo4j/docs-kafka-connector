@@ -1,0 +1,111 @@
+[[migration-5-6]]
+= Migrate from 5.5 to 5.6+
+
+Moving from 5.5.x to 5.6.x is an in-place upgrade and requires no configuration changes.
+
+However, 5.6.0 changes how Source connectors running in the xref:source/payload-mode.adoc[`COMPACT`] payload mode serialize a list whose elements are maps, nodes, or relationships that do not all share the same shape.
+If your queries return such lists, the messages published to Kafka change shape and downstream consumers, sink connectors, and Schema Registry subjects are affected.
+
+[NOTE]
+====
+This page only applies to Source connectors configured with `neo4j.payload-mode=COMPACT`.
+The `EXTENDED` and `RAW_JSON_STRING` payload modes are unaffected, and so are all Sink connector strategies.
+====
+
+== What changed
+
+In `COMPACT` mode the connector infers a Kafka Connect schema from the values returned by Neo4j.
+A list is published as an array only when the connector can infer a single schema shared by every element.
+
+Up to 5.5.x, elements had to infer to exactly the same schema.
+Maps that carried different keys, or the same key with a `null` value in one element and a concrete value in another, produced different element schemas, so the connector gave up on the array and fell back to an *indexed struct*: an object with one field per element, named `e0`, `e1`, `e2`, and so on.
+In some cases the mismatch was not caught at schema inference time and the message failed to convert with a `DataException` instead.
+
+Since 5.6.0, the connector merges the element schemas into a single element schema covering the union of their keys, and the list is published as an array.
+Every field of the merged element schema is optional, and a key that is absent from an element is serialized as `null`.
+
+== Example
+
+The following query returns a list of two maps with no keys in common:
+
+[source,cypher]
+----
+RETURN {id: 'ROOT_ID', list: [{property1: 'value1'}, {property2: 'value2'}]} AS data
+----
+
+.Up to 5.5.x
+[source,json]
+----
+{
+  "data": {
+    "id": "ROOT_ID",
+    "list": {
+      "e0": { "property1": "value1" },
+      "e1": { "property2": "value2" }
+    }
+  }
+}
+----
+
+.Since 5.6.0
+[source,json]
+----
+{
+  "data": {
+    "id": "ROOT_ID",
+    "list": [
+      { "property1": "value1", "property2": null },
+      { "property1": null, "property2": "value2" }
+    ]
+  }
+}
+----
+
+== Merge rules
+
+The merge applies to a list whose non-`null` elements are *all* maps, or *all* nodes and relationships.
+
+Lists of maps::
+Merged into a single struct covering the union of the keys of every element.
+Nested maps are merged recursively.
+Keys are sorted alphabetically in the merged struct, so the order of the elements in the list cannot change the resulting schema.
+A key is treated as absent from an element only when its value is `null`.
+
+Lists of nodes and relationships::
+Merged only when every element exposes the same set of property keys.
+A key whose value is `null` in some elements and concrete in others resolves to the concrete type.
+Elements with different property key sets still fall back to the indexed struct.
+
+Optionality::
+The merged element schema is always optional, so a `null` element in the list stays valid.
+The array itself remains optional only when the enclosing value is optional, as before.
+
+Neo4j types::
+Merging preserves the Neo4j logical type of each field, so temporal and spatial values keep their `COMPACT` representation.
+
+== When the indexed struct is still used
+
+The `e0`, `e1`, ... fallback has not been removed.
+It still applies when the elements cannot be merged, in particular when:
+
+* a key holds conflicting non-`null` types across elements, for example `[{name: 'john'}, {name: 42}]`;
+* the list mixes maps with values of other types, for example `[{name: 'john'}, 'a string']`;
+* the list mixes nodes or relationships with maps;
+* nodes or relationships in the list expose different property key sets;
+* any element is, or holds at a merged key, an empty list or an empty map.
+
+== Actions to take
+
+. Review the queries used by your Source connectors, and the payloads they generate, for lists of maps, nodes, or relationships with varying shapes.
+Lists of scalars, and lists whose elements already share the same keys and types, are unaffected.
+
+. Update downstream consumers that read such a list as an object with `e0`, `e1`, ... fields, so that they read an array instead.
+If a Neo4j Sink connector consumes the topic, it reads the new array form without configuration changes.
+
+. Check the compatibility mode of the affected Schema Registry subjects before upgrading.
+The element schema changes from a struct of `e0`, `e1`, ... fields to a struct of the merged keys, which is not a backward-compatible change.
+You may need to relax the compatibility mode of the subject, or register the new version explicitly.
+See xref:source/schema-registry.adoc[] for details.
+
+. If you need to keep the previous message shape, switch the affected connectors to `neo4j.payload-mode=EXTENDED`, which represents every property with a full type envelope and is the recommended mode when schema stability matters.
+See xref:source/payload-mode.adoc[] for a comparison of the modes.

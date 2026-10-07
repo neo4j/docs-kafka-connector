@@ -2,6 +2,33 @@
 
 This page lists changes to the {product-name}.
 
+== Version 5.6.0
+
+[cols="1,2",options="header"]
+|===
+| Feature | Details
+
+a|
+label:bug[]
+label:fixed[]
+
+Source connectors in `COMPACT` payload mode now serialize lists of maps, nodes, or relationships with differing keys as a list.
+| When a list contained maps, nodes, or relationships whose key sets or value types were not identical, xref:source/payload-mode.adoc[`COMPACT`] mode could not infer a single element schema and fell back to an indexed structure, turning the list into an object with `e0`, `e1`, ... fields.
+A list whose elements differed only because a key held `null` in some of them could additionally fail conversion with a `DataException`.
+Such lists are now merged into a single element schema covering the union of the keys, so the list is published as a list.
+Keys missing from an element are serialized as `null`, and keys are ordered alphabetically in the merged schema.
+The indexed structure fallback still applies when the elements cannot be merged, for example when a key holds conflicting non-`null` types or when the list mixes maps with other types.
+This changes the shape of the messages produced for such lists, see xref:migration/5.6/index.adoc[] for details.
+
+a|
+label:bug[]
+label:fixed[]
+
+CDC Source connector tasks no longer fail with an `UninitializedPropertyAccessException` when stopped before they have started.
+| When a xref:source/cdc.adoc[CDC] Source connector task failed during startup, for example because of an invalid configuration, or was stopped before it finished initializing, stopping the task threw an `UninitializedPropertyAccessException`, which added a misleading error on top of the original failure.
+The task now stops cleanly in these cases.
+|===
+
 == Version 5.5.4
 
 [cols="1,2",options="header"]
