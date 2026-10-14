@@ -28,6 +28,28 @@ label:changed[]
 Fields of a `STRUCT` that describes a nested map are now sorted by key name and optional, and keys are no longer lost from lists of maps.
 
 a|
+label:breaking[]
+label:changed[]
+
+Node and relationship CDC events use one schema.
+| Source connectors with the xref:source/cdc.adoc[CDC] strategy describe node and relationship events with one schema, `org.neo4j.connectors.kafka.cdc.Event`, so both can be published to the same topic.
+`keys` is now an array of entries with `name` and `rows` fields for nodes and relationships.
+A 6.0 sink connector cannot read CDC messages produced by a 5.x source connector.
+
+a|
+label:feature[]
+label:changed[]
+
+Reworked authentication, with OIDC support and pluggable providers.
+a| xref:authentication.adoc[Authentication] is now handled by providers:
+
+* The new xref:authentication.adoc#oidc[`oidc`] provider obtains and refreshes bearer tokens from an OAuth 2.0 or OpenID Connect identity provider, such as Keycloak, Okta, Microsoft Entra ID, Google or Amazon Cognito.
+* You can add a provider of your own by implementing `AuthTokenManagerFactory` from `org.neo4j.connectors:commons-driver-auth-spi`.
+See xref:authentication.adoc#provider-plugin[Use your own provider].
+* `neo4j.authentication.type` values are lowercase: `none`, `basic`, `kerberos`, `bearer`, `custom` and `oidc`.
+The value is case-insensitive, so uppercase values still work.
+
+a|
 label:feature[]
 label:new[]
 

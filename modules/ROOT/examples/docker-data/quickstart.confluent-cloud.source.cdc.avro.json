@@ -3,7 +3,7 @@
   "key.converter": "io.confluent.connect.avro.AvroConverter",
   "value.converter": "io.confluent.connect.avro.AvroConverter",
   "neo4j.uri": "neo4j+s://<redacted>.databases.neo4j.io",
-  "neo4j.authentication.type": "BASIC",
+  "neo4j.authentication.type": "basic",
   "neo4j.authentication.basic.username": "neo4j",
   "neo4j.authentication.basic.password": "<redacted>",
   "neo4j.source-strategy": "CDC",

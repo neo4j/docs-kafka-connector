@@ -69,6 +69,28 @@ For details, see xref:source/configuration.adoc[`neo4j.query.map-encoding`].
 After the upgrade, the connector can register new schema versions for existing topics.
 Check the compatibility mode of your Schema Registry subjects before you upgrade.
 
+=== `CDC` strategy
+
+Node and relationship events use one event schema, `org.neo4j.connectors.kafka.cdc.Event`.
+You can publish both to the same topic.
+
+* Every event has all fields.
+Fields that do not apply are `null`: `type`, `start` and `end` in node events, and `labels`, `state.before.labels` and `state.after.labels` in relationship events.
+* `keys` is an array of entries with `name` and `rows` fields, in node and relationship events, and in `start` and `end`.
+`name` is a label, or the relationship type.
+Each row holds the key properties in `properties`, as a map of `EXTENDED` structures, in both payload modes.
+In 5.x, node keys were a `STRUCT` with one field per label, and relationship keys were an array of `STRUCT`.
+* Message keys produced with the `ENTITY_KEYS` key strategy use the same `keys` format.
+* With the `COMPACT` payload mode, `state.before.properties` and `state.after.properties` are still a `STRUCT` with one field per property.
+Events with different properties have different schemas.
+With the `EXTENDED` payload mode, they are a `MAP`, and the schema does not depend on the properties.
+
+[IMPORTANT]
+====
+A 6.0 sink connector cannot read CDC messages produced by a 5.x source connector.
+Before you upgrade a CDC sink connector, make sure that it has processed all messages produced by 5.x source connectors.
+====
+
 === `QUERY` strategy
 
 * With `LEGACY`, a message is always a `STRUCT` with one field per returned column.
@@ -80,6 +102,15 @@ In 5.x, a message was a `MAP` when all columns had values of the same type.
 The `EXTENDED` structure has two new fields, `UI` and `LUI`, for Neo4j UUID values and lists of UUID values.
 Every topic with the `EXTENDED` payload mode gets a new schema version.
 For details, see xref:source/payload-mode.adoc[].
+
+== Authentication
+
+* `neo4j.authentication.type` values are lowercase: `none`, `basic`, `kerberos`, `bearer`, `custom`.
+The value is case-insensitive, so uppercase values from 5.x still work.
+* The new `oidc` provider obtains and refreshes tokens from an OAuth 2.0 or OpenID Connect identity provider.
+* You can add an authentication provider of your own.
+
+For details, see xref:authentication.adoc[].
 
 == Neo4j UUID type
 

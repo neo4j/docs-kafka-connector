@@ -15,6 +15,10 @@ Sensitive properties:: In order for sensitive configuration properties to be pro
     neo4j.authentication.kerberos.ticket
     neo4j.authentication.bearer.token
     neo4j.authentication.custom.credentials
+    neo4j.authentication.oidc.clientSecret
+    neo4j.authentication.oidc.password
+    neo4j.authentication.oidc.refreshToken
+    neo4j.authentication.oidc.trustStorePassword
 
 It will upload the archive and create the {type-text} plugin.
 

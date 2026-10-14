@@ -4,6 +4,7 @@
 
 * *Getting started*
 * xref::installation.adoc[]
+* xref::authentication.adoc[]
 * Quickstart
 ** xref::quickstart-docker.adoc[Confluent Platform]
 ** xref::quickstart-confluent-cloud.adoc[Confluent Cloud]

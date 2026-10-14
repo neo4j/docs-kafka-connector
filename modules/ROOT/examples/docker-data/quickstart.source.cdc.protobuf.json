@@ -11,7 +11,7 @@
     "value.converter.schema.registry.url": "http://schema-registry:8081",
     "value.converter.optional.for.nullables": true,
     "neo4j.uri": "neo4j://neo4j:7687",
-    "neo4j.authentication.type": "BASIC",
+    "neo4j.authentication.type": "basic",
     "neo4j.authentication.basic.username": "neo4j",
     "neo4j.authentication.basic.password": "password",
     "neo4j.source-strategy": "CDC",

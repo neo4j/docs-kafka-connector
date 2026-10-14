@@ -1,0 +1,205 @@
+= Authentication
+:page-role: new-6.0
+
+The connector authenticates to Neo4j through an authentication provider.
+Select the provider with `neo4j.authentication.type`.
+The value is case-insensitive.
+
+[cols="1m,3",options="header"]
+|===
+| Provider | Description
+
+| none
+| No authentication.
+
+| basic
+| Username and password.
+Default.
+
+| kerberos
+| Kerberos ticket.
+
+| bearer
+| Static bearer token.
+
+| custom
+| Custom authentication scheme, principal and credentials.
+
+| oidc
+| Bearer token obtained and refreshed from an OAuth 2.0 or OpenID Connect provider.
+See <<oidc>>.
+|===
+
+Every setting `neo4j.authentication.<type>.<parameter>` is passed to the provider as `<parameter>`.
+In these settings, `<type>` is case-sensitive and must match the provider name exactly, for example `oidc`, not `OIDC`.
+
+For the settings of every provider, see xref:source/configuration.adoc[source settings] or xref:sink/configuration.adoc[sink settings].
+
+[[oidc]]
+== OIDC
+
+The `oidc` provider obtains bearer tokens from an OAuth 2.0 or OpenID Connect identity provider, and refreshes them before they expire or when Neo4j rejects them.
+
+Neo4j must be configured for link:{page-canonical-root}/operations-manual/current/authentication-authorization/sso-integration/[single sign-on] with the same identity provider.
+The issuer, the audience and the username claim of the token must match the Neo4j `dbms.security.oidc.<name>.*` settings.
+
+The connector does not contact the identity provider when it validates the configuration.
+The first token request happens when a task starts.
+
+For the `neo4j.authentication.oidc.*` settings, see xref:source/configuration.adoc[source settings] or xref:sink/configuration.adoc[sink settings].
+
+=== Behavior
+
+* Set one of `issuer`, `discoveryUrl` or `tokenEndpoint`.
+* When `issuer` is set, the discovery document must contain the same issuer, or `expectedIssuer` if set.
+Otherwise, the connector rejects the document.
+* The connector never follows redirects from the token endpoint.
+* The token expiry is read from `expires_in`, then from the JWT `exp` claim, then from `defaultTtlSeconds`.
+* The connector reads only PKCS#8 keys.
+To convert a `BEGIN RSA PRIVATE KEY` or `BEGIN EC PRIVATE KEY` file, run:
++
+[source,bash]
+----
+openssl pkcs8 -topk8 -nocrypt -in key.pem -out key.pk8.pem
+----
+
+=== Examples
+
+The following examples show the connector settings and the matching Neo4j settings.
+
+==== Keycloak
+
+[source,json]
+----
+"neo4j.authentication.type": "oidc",
+"neo4j.authentication.oidc.issuer": "https://keycloak.example.com/realms/neo4j",
+"neo4j.authentication.oidc.clientId": "neo4j-client",
+"neo4j.authentication.oidc.clientSecret": "<client secret>",
+"neo4j.authentication.oidc.scope": "openid"
+----
+
+[source,properties]
+----
+dbms.security.oidc.keycloak.issuer=https://keycloak.example.com/realms/neo4j
+dbms.security.oidc.keycloak.audience=account
+dbms.security.oidc.keycloak.client_id=neo4j-client
+dbms.security.oidc.keycloak.claims.username=preferred_username
+dbms.security.oidc.keycloak.claims.groups=groups
+dbms.security.oidc.keycloak.well_known_discovery_uri=https://keycloak.example.com/realms/neo4j/.well-known/openid-configuration
+----
+
+==== Okta
+
+Set `issuer` to a custom authorization server, for example `https://example.okta.com/oauth2/default`.
+Do not use the org authorization server (`https://example.okta.com`): its access tokens are only for Okta's own APIs, and Neo4j cannot verify them.
+
+[source,json]
+----
+"neo4j.authentication.type": "oidc",
+"neo4j.authentication.oidc.profile": "okta",
+"neo4j.authentication.oidc.issuer": "https://example.okta.com/oauth2/<authorization server id>",
+"neo4j.authentication.oidc.clientId": "<client id>",
+"neo4j.authentication.oidc.clientSecret": "<client secret>",
+"neo4j.authentication.oidc.scope": "neo4j.read"
+----
+
+[source,properties]
+----
+dbms.security.oidc.okta.issuer=https://example.okta.com/oauth2/<authorization server id>
+dbms.security.oidc.okta.audience=api://neo4j
+dbms.security.oidc.okta.claims.username=sub
+dbms.security.oidc.okta.claims.groups=groups
+----
+
+==== Microsoft Entra ID
+
+The scope must be `<application ID URI>/.default`.
+
+[source,json]
+----
+"neo4j.authentication.type": "oidc",
+"neo4j.authentication.oidc.profile": "entra",
+"neo4j.authentication.oidc.issuer": "https://login.microsoftonline.com/<tenant>/v2.0",
+"neo4j.authentication.oidc.clientId": "<application id>",
+"neo4j.authentication.oidc.clientSecret": "<client secret>",
+"neo4j.authentication.oidc.scope": "api://neo4j/.default"
+----
+
+[source,properties]
+----
+dbms.security.oidc.entra.issuer=https://login.microsoftonline.com/<tenant>/v2.0
+dbms.security.oidc.entra.audience=<application id>
+dbms.security.oidc.entra.claims.username=sub
+dbms.security.oidc.entra.claims.groups=roles
+----
+
+==== Google
+
+The connector authenticates with a service account key.
+Extract `private_key` from the service account JSON file into a PKCS#8 PEM file.
+
+[source,json]
+----
+"neo4j.authentication.type": "oidc",
+"neo4j.authentication.oidc.profile": "google",
+"neo4j.authentication.oidc.privateKeyFile": "/etc/kafka/secrets/service-account.pk8.pem",
+"neo4j.authentication.oidc.privateKeyId": "<private_key_id from the service account JSON file>",
+"neo4j.authentication.oidc.assertion.claim.iss": "svc@project.iam.gserviceaccount.com",
+"neo4j.authentication.oidc.assertion.claim.sub": "svc@project.iam.gserviceaccount.com",
+"neo4j.authentication.oidc.assertion.claim.target_audience": "neo4j"
+----
+
+[source,properties]
+----
+dbms.security.oidc.google.issuer=https://accounts.google.com
+dbms.security.oidc.google.audience=neo4j
+dbms.security.oidc.google.claims.username=email
+----
+
+[[provider-plugin]]
+== Use your own provider
+
+You can add an authentication provider of your own:
+
+. Add a dependency on `org.neo4j.connectors:commons-driver-auth-spi`.
+. Implement `org.neo4j.connectors.driver.auth.AuthTokenManagerFactory`:
+** `getName()` returns the provider name, the value of `neo4j.authentication.type`.
+** `create(AuthConfig, AuthContext)` returns the driver `AuthTokenManager`.
+** `validate(AuthConfig, AuthContext)` checks the configuration when the connector configuration is validated.
+Optional.
+. Register the class in `META-INF/services/org.neo4j.connectors.driver.auth.AuthTokenManagerFactory`.
+. Copy the JAR file into the plugin directory of the connector, so that Kafka Connect loads it with the connector.
+
+`AuthConfig` holds the provider settings:
+
+* `neo4j.authentication.<name>.username` and `neo4j.authentication.<name>.password` are available through `username()` and `password()`.
+* Any other `neo4j.authentication.<name>.<parameter>` setting is available through `get("<parameter>")`.
+
+[source,java]
+----
+public class MyAuthTokenManagerFactory implements AuthTokenManagerFactory {
+
+    @Override
+    public String getName() {
+        return "my-provider";
+    }
+
+    @Override
+    public AuthTokenManager create(AuthConfig config, AuthContext context) {
+        AuthToken token = AuthTokens.bearer(config.require("token"));
+        return AuthTokenManagers.basic(() -> token);
+    }
+}
+----
+
+[source,json]
+----
+"neo4j.authentication.type": "my-provider",
+"neo4j.authentication.my-provider.token": "<token>"
+----
+
+[WARNING]
+====
+Kafka Connect does not mask settings that the connector does not declare, such as the settings of your own provider.
+Use a link:https://kafka.apache.org/documentation/#config_providers[Kafka Connect configuration provider] for secrets.
+====
