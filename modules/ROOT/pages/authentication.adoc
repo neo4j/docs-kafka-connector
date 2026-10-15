@@ -91,7 +91,7 @@ dbms.security.oidc.keycloak.well_known_discovery_uri=https://keycloak.example.co
 ==== Okta
 
 Set `issuer` to a custom authorization server, for example `https://example.okta.com/oauth2/default`.
-Do not use the org authorization server (`https://example.okta.com`): its access tokens are only for Okta's own APIs, and Neo4j cannot verify them.
+*Do not use* the org authorization server (`https://example.okta.com`): its access tokens are only for Okta's own APIs, and Neo4j cannot verify them.
 
 [source,json]
 ----

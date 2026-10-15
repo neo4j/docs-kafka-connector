@@ -15,7 +15,7 @@ a|
 label:breaking[]
 label:changed[]
 
-Java 17, Apache Kafka Connect 4.3 and Confluent Platform 8.3 or later are required.
+Java 17, Apache Kafka Connect 4.3, and Confluent Platform 8.3 or later are required.
 | The connector is built with Java 17 and no longer runs on Java 11 or on earlier Kafka Connect versions.
 
 a|
