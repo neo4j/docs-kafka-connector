@@ -19,15 +19,6 @@ Java 17, Apache Kafka Connect 4.3 and Confluent Platform 8.3 or later are requir
 | The connector is built with Java 17 and no longer runs on Java 11 or on earlier Kafka Connect versions.
 
 a|
-label:configuration[]
-label:changed[]
-
-`neo4j.query.force-maps-as-struct` is replaced by `neo4j.query.map-encoding`.
-| The new xref:source/configuration.adoc[`neo4j.query.map-encoding`] setting accepts `STRUCT` (default), `MAP`, and `LEGACY`.
-`STRUCT` replaces `true`, and `LEGACY` replaces `false`.
-Fields of a `STRUCT` that describes a nested map are now sorted by key name and optional, and keys are no longer lost from lists of maps.
-
-a|
 label:breaking[]
 label:changed[]
 
@@ -37,6 +28,16 @@ Node and relationship CDC events use one schema.
 A 6.0 sink connector cannot read CDC messages produced by a 5.x source connector.
 
 a|
+label:configuration[]
+label:changed[]
+
+`neo4j.query.force-maps-as-struct` is replaced by `neo4j.query.map-encoding`.
+| The new xref:source/configuration.adoc[`neo4j.query.map-encoding`] setting accepts `STRUCT` (default), `MAP`, and `LEGACY`.
+`STRUCT` replaces `true`, and `LEGACY` replaces `false`.
+Fields of a `STRUCT` that describes a nested map are now sorted by key name and optional, and keys are no longer lost from lists of maps.
+
+a|
+label:configuration[]
 label:feature[]
 label:changed[]
 
