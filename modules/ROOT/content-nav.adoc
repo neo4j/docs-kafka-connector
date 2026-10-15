@@ -4,6 +4,7 @@
 
 * *Getting started*
 * xref::installation.adoc[]
+* xref::authentication.adoc[]
 * Quickstart
 ** xref::quickstart-docker.adoc[Confluent Platform]
 ** xref::quickstart-confluent-cloud.adoc[Confluent Cloud]
@@ -43,6 +44,7 @@
 * xref:sink/best-practices.adoc[Best practices]
 
 * *Upgrades and migrations*
+* xref:migration/6.0.adoc[From 5.x to 6.0]
 * xref:migration/5.6/index.adoc[From 5.5 to 5.6+]
 * xref:migration/5.1/index.adoc[From 5.0 to 5.1+]
 ** xref:migration/5.1/migration-docker.adoc[Confluent Platform]

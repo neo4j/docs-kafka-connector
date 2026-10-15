@@ -53,7 +53,7 @@ This includes Amazon MSK and Confluent Connect {confluent-connect-version} and l
 
 === Java compatibility
 
-The connector is built using Java 11, and is compatible to run with Java 11 and LTS versions of Java, i.e. 17 and 21.
+The connector is built using Java 17, and requires Java 17 or later.
 
 == License
 

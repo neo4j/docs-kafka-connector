@@ -169,9 +169,20 @@ Default: `1s`
 
 Default: `0s`
 
-| neo4j.query.force-maps-as-struct
-| This forces the schema encoding of map values to be structs (default: `true`).
-Setting the value to `false` will only affect the schema encoding of maps with homogeneous value types.
-Maps with heterogeneous value types will remain encoded as structs.
-Note that the Protobuf converter does not support map message types (map message types can happen in the `COMPACT` payload mode and when this parameter is set to `false`).
+| neo4j.query.map-encoding
+| Schema type used for map values returned by the query.
+One of `STRUCT`, `MAP`, `LEGACY`.
+
+* `STRUCT`: every map is a `STRUCT` with one field per key.
+* `MAP`: every map is a `MAP`.
+The connector fails when the values of a map do not share a type.
+* `LEGACY`: a map is a `MAP` when its values share a type, and a `STRUCT` otherwise.
+The schema depends on the data, so it can change between messages.
+
+The message itself is always a `STRUCT` with one field per returned column.
+Only `STRUCT` is allowed with the `RAW_JSON_STRING` payload mode.
+The Protobuf converter cannot serialize a list of maps with `MAP` or `LEGACY`.
+Replaces `neo4j.query.force-maps-as-struct`, see xref:migration/6.0.adoc[].
+
+Default: `STRUCT`
 |===

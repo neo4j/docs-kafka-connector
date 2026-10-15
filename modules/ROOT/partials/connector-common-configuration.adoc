@@ -56,44 +56,220 @@ Required when a schema registry is required by the configured `value.converter`.
 | Neo4j database name to connect to. Recommended to be specified explicitly.
 
 | neo4j.authentication.type label:mandatory[]
-| Authentication type to use.
-One of `NONE`, `BASIC`, `KERBEROS`, `BEARER`, `CUSTOM`
+| Authentication provider to use.
+One of `none`, `basic`, `kerberos`, `bearer`, `custom`, `oidc`, or the name of xref:authentication.adoc#provider-plugin[your own provider].
+The value is case-insensitive.
 
-Default: `BASIC`
+Default: `basic`
 
 | neo4j.authentication.basic.username
 | Username to authenticate with.
-Required when `neo4j.authentication.type` is `BASIC`.
+Required when `neo4j.authentication.type` is `basic`.
 
 | neo4j.authentication.basic.password
 | Password to authenticate with.
-Required when `neo4j.authentication.type` is `BASIC`.
+Required when `neo4j.authentication.type` is `basic`.
 
 | neo4j.authentication.basic.realm
 | Authentication realm to authenticate with, leave empty for default.
 
 | neo4j.authentication.kerberos.ticket
 | Kerberos ticket to establish connection with.
-Required when `neo4j.authentication.type` is `KERBEROS`.
+Required when `neo4j.authentication.type` is `kerberos`.
 
 | neo4j.authentication.bearer.token
 | Bearer token to establish connection with.
-Required when `neo4j.authentication.type` is `BEARER`.
+Required when `neo4j.authentication.type` is `bearer`.
 
 | neo4j.authentication.custom.scheme
 | Custom authentication scheme to establish connection with.
-Required when `neo4j.authentication.type` is `CUSTOM`.
+Required when `neo4j.authentication.type` is `custom`.
 
 | neo4j.authentication.custom.principal
 | Custom principal to establish connection with.
-Required when `neo4j.authentication.type` is `CUSTOM`.
+Required when `neo4j.authentication.type` is `custom`.
 
 | neo4j.authentication.custom.credentials
 | Custom credential to establish connection with.
-Required when `neo4j.authentication.type` is `CUSTOM`.
+Required when `neo4j.authentication.type` is `custom`.
 
 | neo4j.authentication.custom.realm
 | Custom authentication realm to authenticate with, set as required by your custom authentication provider.
+
+| neo4j.authentication.oidc.issuer
+| Issuer URL.
+The token endpoint is read from `\{issuer}/.well-known/openid-configuration`.
+One of `issuer`, `discoveryUrl` or `tokenEndpoint` is required when `neo4j.authentication.type` is `oidc`.
+
+| neo4j.authentication.oidc.discoveryUrl
+| Discovery document URL, given directly.
+The document must contain `issuer` and `token_endpoint`.
+
+Default: derived from `issuer`
+
+| neo4j.authentication.oidc.expectedIssuer
+| Issuer that the discovery document must contain.
+Set it only when the identity provider is reached at one address and advertises another, for example behind a reverse proxy.
+Must match the `iss` claim of the tokens.
+
+Default: value of `issuer`
+
+| neo4j.authentication.oidc.tokenEndpoint
+| Token endpoint URL, given directly.
+Skips discovery.
+
+Default: from the discovery document
+
+| neo4j.authentication.oidc.grantType
+| OAuth 2.0 grant used to obtain tokens.
+One of `client_credentials`, `password`, `refresh_token`, `jwt_bearer`, `token_exchange`.
+
+Default: `client_credentials`
+
+| neo4j.authentication.oidc.scope
+| Space-separated scopes.
+
+| neo4j.authentication.oidc.audience
+| Value of the `audience` request parameter.
+
+| neo4j.authentication.oidc.resource
+| Value of the `resource` request parameter.
+
+| neo4j.authentication.oidc.extraParam.<name>
+| Additional request parameter `<name>`, sent as is.
+Overrides any other parameter with the same name.
+
+| neo4j.authentication.oidc.username
+| Username.
+Required when `neo4j.authentication.oidc.grantType` is `password`.
+
+| neo4j.authentication.oidc.password
+| Password.
+Required when `neo4j.authentication.oidc.grantType` is `password`.
+
+| neo4j.authentication.oidc.refreshToken
+| Initial refresh token.
+The connector uses the new refresh token when the identity provider rotates it.
+Required when `neo4j.authentication.oidc.grantType` is `refresh_token`.
+
+| neo4j.authentication.oidc.subjectTokenFile
+| File that holds the subject token.
+The file is read on every token request.
+Required when `neo4j.authentication.oidc.grantType` is `token_exchange`.
+
+| neo4j.authentication.oidc.subjectTokenType
+| Subject token type, for the `token_exchange` grant.
+
+Default: `urn:ietf:params:oauth:token-type:jwt`
+
+| neo4j.authentication.oidc.clientId
+| Client identifier.
+Required unless `neo4j.authentication.oidc.clientAuthMethod` is `none`.
+
+| neo4j.authentication.oidc.clientSecret
+| Client secret.
+
+| neo4j.authentication.oidc.clientSecretFile
+| File that holds the client secret, instead of `clientSecret`.
+The file is read on every token request, so a rotated secret is picked up.
+
+| neo4j.authentication.oidc.clientAuthMethod
+| How the client authenticates to the token endpoint.
+One of `client_secret_basic`, `client_secret_post`, `private_key_jwt`, `none`.
+Cannot be `none` with the `client_credentials` grant.
+
+Default: `client_secret_basic`
+
+| neo4j.authentication.oidc.privateKeyFile
+| PKCS#8 private key file, PEM or DER, for `private_key_jwt` and the `jwt_bearer` grant.
+
+| neo4j.authentication.oidc.privateKeyId
+| Key identifier, the `kid` header of the signed JWT.
+
+| neo4j.authentication.oidc.privateKeyAlgorithm
+| Signing algorithm.
+One of `RS256`, `RS384`, `RS512`, `PS256`, `PS384`, `PS512`, `ES256`, `ES384`, `ES512`.
+
+Default: `RS256`
+
+| neo4j.authentication.oidc.assertion.claim.<name>
+| Claim `<name>` of the signed JWT.
+`iss`, `sub`, `aud`, `iat`, `exp` and `jti` are set automatically unless set here.
+Integer and boolean values are sent as such.
+
+| neo4j.authentication.oidc.assertionTtlSeconds
+| Validity of the signed JWT, in seconds.
+
+Default: `300`
+
+| neo4j.authentication.oidc.tokenField
+| Response field that holds the token.
+One of `access_token`, `id_token`.
+
+Default: `access_token`
+
+| neo4j.authentication.oidc.refreshSkewSeconds
+| Number of seconds before expiry at which the token is treated as expired.
+
+Default: `30`
+
+| neo4j.authentication.oidc.defaultTtlSeconds
+| Token lifetime, in seconds, when the response has no `expires_in` and the token is not a JWT.
+
+Default: `300`
+
+| neo4j.authentication.oidc.connectTimeoutMs
+| Connection timeout to the identity provider, in milliseconds.
+
+Default: `10000`
+
+| neo4j.authentication.oidc.requestTimeoutMs
+| Request timeout to the identity provider, in milliseconds.
+
+Default: `30000`
+
+| neo4j.authentication.oidc.maxRetries
+| Number of retries on timeout and on HTTP `408`, `429` and `5xx` responses.
+The connector does not retry `invalid_client` and `invalid_grant` errors.
+
+Default: `3`
+
+| neo4j.authentication.oidc.retryBackoffMs
+| Initial delay between retries, in milliseconds.
+The delay doubles on every retry, up to 30 seconds.
+A `Retry-After` response header takes precedence.
+
+Default: `500`
+
+| neo4j.authentication.oidc.trustStoreFile
+| Trust store for TLS connections to the identity provider, for example for a private certificate authority.
+
+Default: JDK trust store
+
+| neo4j.authentication.oidc.trustStorePassword
+| Password of `neo4j.authentication.oidc.trustStoreFile`.
+
+| neo4j.authentication.oidc.trustStoreType
+| Type of `neo4j.authentication.oidc.trustStoreFile`.
+
+Default: `PKCS12`
+
+| neo4j.authentication.oidc.proxyHost
+| HTTP proxy host for connections to the identity provider.
+Set together with `proxyPort`.
+
+Default: JDK setting
+
+| neo4j.authentication.oidc.proxyPort
+| HTTP proxy port for connections to the identity provider.
+Set together with `proxyHost`.
+
+Default: JDK setting
+
+| neo4j.authentication.oidc.profile
+| Set of default values for a well-known identity provider.
+Settings you configure override the profile values.
+One of `google`, `okta`, `entra`.
 
 | neo4j.connection-timeout
 | TCP connection timeout (valid units are: `ms`, `s`, `m`, `h` and `d`; default unit is `s`).
