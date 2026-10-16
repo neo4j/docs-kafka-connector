@@ -114,12 +114,17 @@ This setting is empty by default, meaning that exactly-once semantics are disabl
 
 [IMPORTANT]
 ====
-Make sure that the configured label has a node key constraint defined on the `strategy`, `topic` and `partition` node properties.
+The configured label must have a node key constraint on the `strategy`, `topic` and `partition` properties.
+On Neo4j Community Edition, use a uniqueness constraint instead.
+The sink task fails to start when the constraint is missing.
 
-For example, if your `neo4j.eos-offset-label` is set to `__KafkaOffset`, the following constraint must appear on the target database:
+For example, if `neo4j.eos-offset-label` is `__KafkaOffset`, create the following constraint on the target database:
 
 [source,cypher]
 ----
 CREATE CONSTRAINT kafka_offset_key IF NOT EXISTS FOR (n:__KafkaOffset) REQUIRE (n.strategy, n.topic, n.partition) IS NODE KEY
 ----
+
+To let the connector create the constraint when a task starts, set `neo4j.eos-offset-auto-constraint` to `true`.
+The connector user must have permission to create constraints.
 ====

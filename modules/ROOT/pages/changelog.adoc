@@ -28,6 +28,17 @@ Node and relationship CDC events use one schema.
 A 6.0 sink connector cannot read CDC messages produced by a 5.x source connector.
 
 a|
+label:breaking[]
+label:changed[]
+
+Sink connectors check the exactly-once offset constraint at startup.
+| When xref:sink/configuration.adoc[`neo4j.eos-offset-label`] is set, the sink task fails to start if the label has no node key constraint on `strategy`, `topic` and `partition`, or no uniqueness constraint on Neo4j Community Edition.
+The error message contains the statement to create the constraint.
+Set the new `neo4j.eos-offset-auto-constraint` setting to `true` to create the constraint automatically.
+The connector user must have permission to create constraints.
+
+
+a|
 label:configuration[]
 label:changed[]
 
