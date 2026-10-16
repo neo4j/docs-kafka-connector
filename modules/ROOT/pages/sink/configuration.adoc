@@ -35,6 +35,15 @@ This setting is ignored when the APOC Core based batching strategy is used.
 | `neo4j.eos-offset-label` label:new[5.3.0]
 | Label name to attach to the node representing the offset of the last successfully processed message.
 When specified, this setting allows to achieve exactly-once processing guarantees for sink strategies by keeping track of the last successfully processed message offset in the database.
+The label must have a node key constraint on the `strategy`, `topic` and `partition` properties, or a uniqueness constraint on Neo4j Community Edition.
+The sink task fails to start when the constraint is missing.
+
+| `neo4j.eos-offset-auto-constraint` label:new[6.0.0]
+| Whether to create the constraint for `neo4j.eos-offset-label` when it is missing.
+The connector creates it when a task starts.
+The connector user must have permission to create constraints.
+
+Default: `false`
 
 |===
 

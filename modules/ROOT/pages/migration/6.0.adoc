@@ -64,6 +64,26 @@ The new `MAP` value describes every map as a `MAP`, and fails when the values of
 Use it only for maps with values of a single type.
 For details, see xref:source/configuration.adoc[`neo4j.query.map-encoding`].
 
+== Check the exactly-once offset constraint
+
+This section applies to sink connectors with `neo4j.eos-offset-label` set.
+
+The sink task fails to start when the label has no node key constraint on the `strategy`, `topic` and `partition` properties.
+On Neo4j Community Edition, the label needs a uniqueness constraint instead.
+In 5.x, the connector did not check the constraint.
+
+Before you upgrade, do one of the following:
+
+* Create the constraint on the target database.
+For example, if `neo4j.eos-offset-label` is `__KafkaOffset`, run:
++
+[source,cypher]
+----
+CREATE CONSTRAINT kafka_offset_key IF NOT EXISTS FOR (n:__KafkaOffset) REQUIRE (n.strategy, n.topic, n.partition) IS NODE KEY
+----
+* Set `neo4j.eos-offset-auto-constraint` to `true`, so that the connector creates the constraint when a task starts.
+The connector user must have permission to create constraints.
+
 == Schema changes
 
 After the upgrade, the connector can register new schema versions for existing topics.
