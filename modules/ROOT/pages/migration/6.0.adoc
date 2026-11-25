@@ -11,8 +11,8 @@ For generic plugin upgrade steps, see https://docs.confluent.io/platform/current
 Version 6.0 requires:
 
 * Java 17 or later.
-* Apache Kafka Connect {kafka-connect-version} or later.
-* Confluent Platform {confluent-connect-version} or later.
+* Apache Kafka Connect 4.3.0 or later.
+* Confluent Platform 8.3 or later.
 
 Upgrade the Kafka Connect runtime before you upgrade the connector.
 
