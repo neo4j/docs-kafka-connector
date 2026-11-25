@@ -2,6 +2,38 @@
 
 This page lists changes to the {product-name}.
 
+== Version 6.1.0
+
+[cols="1,2",options="header"]
+|===
+| Feature | Details
+
+a|
+label:feature[]
+label:configuration[]
+label:new[]
+
+The CDC sink strategies can fail on events they cannot apply.
+| Previously such events were merged into or ignored by the target database without any trace, so it could drift from the source unnoticed.
+With the new `neo4j.cdc.strict-mode` setting, the task fails with an error naming the affected topic, partition and offsets, and the batch is rolled back for Kafka Connect to retry.
+See xref:sink/cdc.adoc#cdc_sink_strict_mode[strict mode] for the events this applies to and the requirements.
+
+a|
+label:bug[]
+label:fixed[]
+
+The native batching strategy no longer applies more messages per transaction than `neo4j.batch-size`.
+| Batches could apply more messages per transaction than `neo4j.batch-size`, and with exactly-once semantics the offset was only committed once the whole poll finished.
+Each transaction now applies at most `neo4j.batch-size` messages.
+
+a|
+label:changed[]
+
+CDC source tasks fetch a whole batch from Neo4j in a single request.
+| Events were polled in sub-batches of 64, so every 64 events added a network round trip that limited throughput when latency between the connector and Neo4j was high.
+The task now fills `neo4j.batch-size` in one request, trading memory for throughput.
+|===
+
 == Version 6.0.1
 
 This is a maintenance release which provides updated dependencies.

@@ -166,6 +166,13 @@ Default: `SourceEvent`
 
 Default: `sourceId`
 
+| `neo4j.cdc.strict-mode` label:new[6.1.0]
+| Whether to fail the task when a CDC event finds no entity to act on, such as creating one that already exists or updating, deleting, or relating one that is missing.
+By default, such events are merged into or ignored by the target database without any trace.
+
+Requires `neo4j.eos-offset-label` to be set.
+
+Default: `false`
 
 |===
 
