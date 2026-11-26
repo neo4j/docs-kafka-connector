@@ -361,14 +361,14 @@ The connector user must have permission to create constraints.
 == Strict mode
 
 Starting from version 6.1.0, CDC sink handlers can be configured to fail on events they cannot apply, rather than skip them.
-By default, an event that does not fit the target database is absorbed by the generated statement: a create of an entity that already exists is merged, and an update, delete, or relationship for an entity missing from the target is ignored.
+By default, an event that does not fit the target database is absorbed by the generated statement: the creation of an entity that already exists becomes a merge event, and an update, delete, or relationship for an entity missing from the target is ignored.
 Such events leave no trace, so the target database can drift from the source without anything reporting it.
 
 Set `neo4j.cdc.strict-mode` to `true` to fail the task instead.
 The error names the topic, partition, and offsets of the events that found nothing to act on, and the whole batch is rolled back, including its offset node.
 The failure is not routed to the dead letter queue, so Kafka Connect retries the batch.
 
-Detecting a duplicate create relies on a constraint in the target database, such as a uniqueness constraint on the node key events are matched by.
+Detecting a duplicate create event relies on a constraint in the target database, such as a uniqueness constraint on the node key events are matched by.
 An update, delete, or relationship that targets a missing entity is reported without any constraint.
 
 [NOTE]
