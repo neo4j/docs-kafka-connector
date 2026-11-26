@@ -1,7 +1,5 @@
 * xref::index.adoc[]
 
-* xref:whats-new.adoc[]
-
 * *Getting started*
 * xref::installation.adoc[]
 * xref::authentication.adoc[]

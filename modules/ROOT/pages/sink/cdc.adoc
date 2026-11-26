@@ -356,3 +356,23 @@ CREATE CONSTRAINT kafka_offset_key IF NOT EXISTS FOR (n:__KafkaOffset) REQUIRE (
 To let the connector create the constraint when a task starts, set `neo4j.eos-offset-auto-constraint` to `true`.
 The connector user must have permission to create constraints.
 ====
+
+[[cdc_sink_strict_mode]]
+== Strict mode
+
+Starting from version 6.1.0, CDC sink handlers can be configured to fail on events they cannot apply, rather than skip them.
+By default, an event that does not fit the target database is absorbed by the generated statement: the creation of an entity that already exists becomes a merge event, and an update, delete, or relationship for an entity missing from the target is ignored.
+Such events leave no trace, so the target database can drift from the source without anything reporting it.
+
+Set `neo4j.cdc.strict-mode` to `true` to fail the task instead.
+The error names the topic, partition, and offsets of the events that found nothing to act on, and the whole batch is rolled back, including its offset node.
+The failure is not routed to the dead letter queue, so Kafka Connect retries the batch.
+
+Detecting a duplicate create event relies on a constraint in the target database, such as a uniqueness constraint on the node key events are matched by.
+An update, delete, or relationship that targets a missing entity is reported without any constraint.
+
+[NOTE]
+====
+Strict mode keeps track of the last successfully processed message offset, so it requires exactly-once semantics: set `neo4j.eos-offset-label` as well, as described in <<_exactly_once_semantics>>, or the task fails to start.
+It applies to the `CDC Schema` and `CDC Source Id` sub-strategies only.
+====

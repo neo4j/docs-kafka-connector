@@ -11,7 +11,7 @@ For generic plugin upgrade steps, see https://docs.confluent.io/platform/current
 ====
 
 When migrating the {product-name} from 5.0 to 5.1 or later, be aware that many of the configuration properties have been changed and updated.
-Read over xref:whats-new.adoc[] to familiarize with these changes, and make sure that the new configuration logically matches the previous configuration.
+Read over the xref:changelog.adoc#_version_5_1_0[5.1.0 changelog entries] to familiarize with these changes, and make sure that the new configuration logically matches the previous configuration.
 
 IMPORTANT: Connector *MUST* be at version 5.0.6 before following the migration guides as it includes a configuration conversion helper to make the upgrade easier.
 
